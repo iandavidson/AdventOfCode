@@ -11,14 +11,15 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class Scratcher {
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/four/input.txt";
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/four/input2.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day4/input.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day4/input2.txt";
 
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = Scratcher.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -72,6 +73,11 @@ public class Scratcher {
         return matchCounter;
     }
 
+    public static void main(String[] args) {
+        Scratcher scratcher = new Scratcher();
+        scratcher.part2();
+    }
+
     public int part1() {
         List<String> rawTickets = readFile();
 
@@ -89,7 +95,7 @@ public class Scratcher {
         return sum;
     }
 
-    public int part2(){
+    public int part2() {
         List<String> rawTickets = readFile();
 
         List<Ticket> tickets = new ArrayList<>();
@@ -102,12 +108,12 @@ public class Scratcher {
 
         int sum = 0;
 
-        for(Ticket ticket: tickets){
+        for (Ticket ticket : tickets) {
             System.out.println("Iteration, ticket: " + ticket.getGameId() + ", with matches: " + ticket.getMatches());
-            for(int i = 0; i < ticket.getMatches(); i++){
+            for (int i = 0; i < ticket.getMatches(); i++) {
                 System.out.println("Updating entry: i + 1 + gameId:" + (i + 1 + ticket.getGameId()));
-                if(ticketCounts.containsKey(i + 1 + ticket.getGameId())){
-                    ticketCounts.put(i + 1 + ticket.getGameId(), ticketCounts.get(i+ 1+ ticket.getGameId()) + ticketCounts.get(ticket.getGameId()));
+                if (ticketCounts.containsKey(i + 1 + ticket.getGameId())) {
+                    ticketCounts.put(i + 1 + ticket.getGameId(), ticketCounts.get(i + 1 + ticket.getGameId()) + ticketCounts.get(ticket.getGameId()));
                 }
             }
             sum += ticketCounts.get(ticket.getGameId());
@@ -116,16 +122,11 @@ public class Scratcher {
         return sum;
     }
 
-    public static void main(String[] args) {
-        Scratcher scratcher = new Scratcher();
-        scratcher.part2();
-    }
-
     public static class Ticket {
+        private final Integer matches;
         private List<Long> winningNumbers;
         private List<Long> givenNumbers;
         private Integer gameId;
-        private Integer matches;
         private Integer score;
 
         public Ticket() {
@@ -172,6 +173,9 @@ public class Scratcher {
         public Integer getMatches() {
             return matches;
         }
-        public Integer getGameId() { return gameId; }
+
+        public Integer getGameId() {
+            return gameId;
+        }
     }
 }

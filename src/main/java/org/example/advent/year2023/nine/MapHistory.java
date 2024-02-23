@@ -1,7 +1,5 @@
 package org.example.advent.year2023.nine;
 
-import lombok.Data;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -10,16 +8,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import lombok.Data;
 
 public class MapHistory {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/nine/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/nine/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day9/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day9/input-sample.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = MapHistory.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -77,10 +77,10 @@ public class MapHistory {
 
     public static void main(String[] args) {
         MapHistory mapHistory = new MapHistory();
-        Long result = mapHistory.part1();
+        Long result = part1();
         System.out.println("result: " + result);
 
-        result = mapHistory.part2();
+        result = part2();
         System.out.println("result: " + result);
     }
 
@@ -130,24 +130,24 @@ public class MapHistory {
             this.fullHistory = newFullHistory;
         }
 
-        private void createLeftSideValuesMap(){
-            Map<Integer, Integer> map  = new HashMap<>();
+        private void createLeftSideValuesMap() {
+            Map<Integer, Integer> map = new HashMap<>();
             //add zero to bottom most row
             map.put(this.fullHistory.size() - 1, 0);
 
             for (int i = this.fullHistory.size() - 1; i > 0; i--) {
-                int temp = this.fullHistory.get(i - 1).get(0) -  map.get(i);
-                map.put(i-1, temp);
+                int temp = this.fullHistory.get(i - 1).get(0) - map.get(i);
+                map.put(i - 1, temp);
             }
 
             this.leftSideValuesMap = map;
         }
 
         public int getHiddenRightSide() {
-            return this.fullHistory.get(0).get(fullHistory.get(0).size()-1);
+            return this.fullHistory.get(0).get(fullHistory.get(0).size() - 1);
         }
 
-        public int getHiddenLeftSide(){
+        public int getHiddenLeftSide() {
             return leftSideValuesMap.get(0);
         }
     }

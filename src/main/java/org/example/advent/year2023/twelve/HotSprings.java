@@ -1,9 +1,5 @@
 package org.example.advent.year2023.twelve;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -15,16 +11,20 @@ import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 public class HotSprings {
 
-            private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/twelve/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/twelve/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day12/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day12/input-sample.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = HotSprings.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -162,7 +162,7 @@ public class HotSprings {
             for (Map.Entry<StateKey, Long> entry : states.entrySet()) {
                 if (spring == '#' || spring == '?') {
                     if (entry.getKey().getGroup() < springRow.getGearSequence().size() &&
-                            entry.getKey().getAmount() < springRow.getGearSequence().get(entry.getKey().getGroup())) {
+                        entry.getKey().getAmount() < springRow.getGearSequence().get(entry.getKey().getGroup())) {
                         nextStates.put(new StateKey(entry.getKey().getGroup(), entry.getKey().getAmount() + 1), entry.getValue());
                     }
                 }
@@ -189,7 +189,7 @@ public class HotSprings {
                 }
             }
 
-            for(StateKey state: toBeRemoved){
+            for (StateKey state : toBeRemoved) {
                 nextStates.remove(state);
             }
 
@@ -200,7 +200,7 @@ public class HotSprings {
         }
 
         long sum = 0;
-        for(Long i : states.values()){
+        for (Long i : states.values()) {
             sum += i;
         }
         return sum;
@@ -221,25 +221,24 @@ public class HotSprings {
 
     public static void main(String[] args) {
         HotSprings hotSprings = new HotSprings();
-        Long number = hotSprings.part1();
+        Long number = part1();
         System.out.println("result: " + number);
 
-        Long result = hotSprings.part2();
+        Long result = part2();
         System.out.println("result: " + result);
     }
 
     @Data
     static class SpringRow {
-        private List<Integer> gearSequence;
-        private String rawRow;
-        private Pattern regEx;
-
         //        private static final String ZERO_OR_MORE_DOT = "\\\\.*?";
 //        private static final String ONE_OR_MORE_DOT = "\\\\.+?";
         private static final String ZERO_OR_MORE_DOT = "\\.*?";
         private static final String ONE_OR_MORE_DOT = "\\.+?";
         private static final String LEFT_GROUP_CHUNK = "#{";
         private static final String RIGHT_GROUP_CHUNK = "}";
+        private List<Integer> gearSequence;
+        private String rawRow;
+        private Pattern regEx;
 
 
         public SpringRow(List<Integer> gearSequence, String rawRow) {
@@ -276,6 +275,9 @@ public class HotSprings {
     @Builder
     public static class StateKey {
 
+        private Integer group;
+        private Integer amount;
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -288,9 +290,6 @@ public class HotSprings {
         public int hashCode() {
             return Objects.hash(group, amount);
         }
-
-        private Integer group;
-        private Integer amount;
     }
 
 

@@ -1,8 +1,5 @@
 package org.example.advent.year2023.ten;
 
-import lombok.Data;
-import lombok.ToString;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -16,19 +13,18 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
+import lombok.Data;
+import lombok.ToString;
 
 public class AnimalMaze {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/ten/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/ten/input-sample-1.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/ten/input-sample-2.txt";
-
     public static final Map<Character, PipeType> SYMBOL_MAP = Map.of('|', PipeType.Pipe, '-', PipeType.Hyphen, 'L', PipeType.L, 'J', PipeType.J, '7', PipeType.Seven, 'F', PipeType.F, '.', PipeType.Period, 'S', PipeType.Start);
-
+    public static final Map<String, List<PipeType>> RELATIVE_START_MAP = new HashMap<>();
+    private static final String INPUT_PATH = "adventOfCode/year2023/day10/input.txt";
+    private static final String SAMPLE_INPUT_PATH_1 = "adventOfCode/year2023/day10/input-sample-1.txt";
+    private static final String SAMPLE_INPUT_PATH_2 = "adventOfCode/year2023/day10/input-sample-2.txt";
     public static int START_ROW = -1;
     public static int START_COL = -1;
-
-    public static final Map<String, List<PipeType>> RELATIVE_START_MAP = new HashMap<>();
 
     static {
         {
@@ -43,7 +39,8 @@ public class AnimalMaze {
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = AnimalMaze.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -225,25 +222,25 @@ public class AnimalMaze {
         return mazeElementPath;
     }
 
-    private static long countInsideGrid(List<MazeElement> gridWithPath){
+    private static long countInsideGrid(List<MazeElement> gridWithPath) {
         //shoelace alg:
         long area = 0;
-        int j = gridWithPath.size() -1;
+        int j = gridWithPath.size() - 1;
 
-        for(int i = 0; i < gridWithPath.size(); i++){
-            area += (long)  (gridWithPath.get(j).getRow() + gridWithPath.get(i).getRow()) * (gridWithPath.get(i).getCol() - gridWithPath.get(j).getCol());
+        for (int i = 0; i < gridWithPath.size(); i++) {
+            area += (long) (gridWithPath.get(j).getRow() + gridWithPath.get(i).getRow()) * (gridWithPath.get(i).getCol() - gridWithPath.get(j).getCol());
 
             j = i;
         }
 
-        area =  Math.abs(area / 2);
+        area = Math.abs(area / 2);
 
         //pick's theorem:
-        return area - (gridWithPath.size()/2) +  1;
+        return area - (gridWithPath.size() / 2) + 1;
     }
 
 
-    public static long part2(){
+    public static long part2() {
         List<String> inputLines = readFile();
         List<List<MazeElement>> grid = processInput(inputLines);
         List<MazeElement> gridWithPath = traverseGraphPart2(grid);
@@ -260,12 +257,33 @@ public class AnimalMaze {
     }
 
 
+    public enum PipeType {
+        /*
+| is a vertical pipe connecting north and south.
+- is a horizontal pipe connecting east and west.
+L is a 90-degree bend connecting north and east.
+J is a 90-degree bend connecting north and west.
+7 is a 90-degree bend connecting south and west.
+F is a 90-degree bend connecting south and east.
+. is ground; there is no pipe in this tile.
+S is the starting position of the animal; there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
+         */
+
+        Pipe, Hyphen, L, J, Seven, F, Period, Start
+    }
+
     @Data
     @ToString
     static class MazeElement {
         private PipeType type;
         private int row;
         private int col;
+
+        public MazeElement(PipeType type, int row, int col) {
+            this.type = type;
+            this.row = row;
+            this.col = col;
+        }
 
         @Override
         public boolean equals(Object o) {
@@ -279,27 +297,6 @@ public class AnimalMaze {
         public int hashCode() {
             return Objects.hash(type, row, col);
         }
-
-        public MazeElement(PipeType type, int row, int col) {
-            this.type = type;
-            this.row = row;
-            this.col = col;
-        }
-    }
-
-    public enum PipeType {
-        /*
-| is a vertical pipe connecting north and south.
-- is a horizontal pipe connecting east and west.
-L is a 90-degree bend connecting north and east.
-J is a 90-degree bend connecting north and west.
-7 is a 90-degree bend connecting south and west.
-F is a 90-degree bend connecting south and east.
-. is ground; there is no pipe in this tile.
-S is the starting position of the animal; there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
-         */
-
-        Pipe, Hyphen, L, J, Seven, F, Period, Start;
     }
 
 }

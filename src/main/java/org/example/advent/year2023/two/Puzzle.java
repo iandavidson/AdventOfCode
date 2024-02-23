@@ -11,8 +11,8 @@ import java.util.Scanner;
 
 public class Puzzle {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/two/input.txt";
-    //    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/two/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/day2/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "aventOfCode/day2/input-sample.txt";
     private static final int BLUE_MAX = 14;
     private static final int GREEN_MAX = 13;
     private static final int RED_MAX = 12;
@@ -23,7 +23,8 @@ public class Puzzle {
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = Puzzle.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
