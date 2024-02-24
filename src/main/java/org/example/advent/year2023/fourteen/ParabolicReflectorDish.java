@@ -26,7 +26,7 @@ public class ParabolicReflectorDish {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = ParabolicReflectorDish.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(MINI_SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -125,7 +125,11 @@ public class ParabolicReflectorDish {
         }
 
 
-        for (int k = 0; k < 1000; k++) {
+        //925, 960 ; cycle is length 35
+
+        int iterations = 1000000000 % 35;
+        long northernLoad = 0;
+        for (int k = 0; k < iterations; k++) {
 //        for (int k = 0; k < 1000000000; k++) {
             //do north, west, south, east on grid, mutate grid, don't make new
 
@@ -201,11 +205,11 @@ public class ParabolicReflectorDish {
             }
 
 
-            long northernLoad = calculateNorthernLoadPart2(grid);
-            System.out.print(k + " : " + northernLoad);
+            northernLoad = calculateNorthernLoadPart2(grid);
+            System.out.println(k + " : " + northernLoad);
         }
 
-        return 0L;
+        return northernLoad;
     }
 
 
