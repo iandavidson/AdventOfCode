@@ -1,8 +1,5 @@
 package org.example.advent.year2023.seven;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -11,11 +8,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 public class CamelCards {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/seven/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/seven/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day7/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day7/input-sample.txt";
 
     private static final Map<Character, Integer> CHARACTER_KEY = new HashMap<Character, Integer>() {{
         put('J', 0);
@@ -47,27 +46,27 @@ five of kind	(1)x	(2)x	(3)x	(4)x	(5)FiveKind
         put(HandClassification.HighCard, new HashMap<>() {{
             put(1, HandClassification.OnePair);
         }});
-        put(HandClassification.OnePair, new HashMap<>(){{
+        put(HandClassification.OnePair, new HashMap<>() {{
             put(1, HandClassification.ThreeKind);
             put(2, HandClassification.ThreeKind);
         }});
-        put(HandClassification.TwoPair, new HashMap<>(){{
+        put(HandClassification.TwoPair, new HashMap<>() {{
             put(1, HandClassification.FullHouse);
             put(2, HandClassification.FourKind);
         }});
-        put(HandClassification.ThreeKind, new HashMap<>(){{
+        put(HandClassification.ThreeKind, new HashMap<>() {{
             put(1, HandClassification.FourKind);
             put(3, HandClassification.FourKind);
         }});
-        put(HandClassification.FullHouse, new HashMap<>(){{
+        put(HandClassification.FullHouse, new HashMap<>() {{
             put(2, HandClassification.FiveKind);
             put(3, HandClassification.FiveKind);
         }});
-        put(HandClassification.FourKind, new HashMap<>(){{
+        put(HandClassification.FourKind, new HashMap<>() {{
             put(1, HandClassification.FiveKind);
             put(4, HandClassification.FiveKind);
         }});
-        put(HandClassification.FiveKind, new HashMap<>(){{
+        put(HandClassification.FiveKind, new HashMap<>() {{
             put(5, HandClassification.FiveKind);
         }});
     }};
@@ -76,7 +75,8 @@ five of kind	(1)x	(2)x	(3)x	(4)x	(5)FiveKind
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = CamelCards.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -87,6 +87,13 @@ five of kind	(1)x	(2)x	(3)x	(4)x	(5)FiveKind
         }
 
         return input;
+    }
+
+    public static void main(String[] args) {
+        CamelCards camelCards = new CamelCards();
+//        System.out.println("final sum part1: " + camelCards.part1());
+        System.out.println("final sum part1: " + camelCards.part2());
+
     }
 
     private List<Hand> processInput(List<String> inputs) {
@@ -140,13 +147,19 @@ five of kind	(1)x	(2)x	(3)x	(4)x	(5)FiveKind
     }
 
 
-    public static void main(String[] args) {
-        CamelCards camelCards = new CamelCards();
-//        System.out.println("final sum part1: " + camelCards.part1());
-        System.out.println("final sum part1: " + camelCards.part2());
+    public enum HandClassification {
+        HighCard(0), OnePair(1), TwoPair(2), ThreeKind(3), FullHouse(4), FourKind(5), FiveKind(6);
 
+        private final Integer score;
+
+        HandClassification(final int score) {
+            this.score = score;
+        }
+
+        public Integer getScore() {
+            return this.score;
+        }
     }
-
 
     @Data
     public static class Hand implements Comparable<Hand> {
@@ -210,7 +223,7 @@ five of kind	(1)x	(2)x	(3)x	(4)x	(5)FiveKind
 
             System.out.print("classification before: " + handClassification + " for raw input: " + rawInput);
 
-            if(characterCount.containsKey('J')){
+            if (characterCount.containsKey('J')) {
                 this.handClassification = JOKER_HAND_CONVERSION.get(this.handClassification).get(characterCount.get('J'));
             }
 
@@ -242,20 +255,6 @@ five of kind	(1)x	(2)x	(3)x	(4)x	(5)FiveKind
             }
 
             return 0;
-        }
-    }
-
-    public enum HandClassification {
-        HighCard(0), OnePair(1), TwoPair(2), ThreeKind(3), FullHouse(4), FourKind(5), FiveKind(6);
-
-        private final Integer score;
-
-        HandClassification(final int score) {
-            this.score = score;
-        }
-
-        public Integer getScore() {
-            return this.score;
         }
     }
 

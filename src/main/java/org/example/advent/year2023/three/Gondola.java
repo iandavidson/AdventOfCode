@@ -12,9 +12,9 @@ import java.util.Scanner;
 public class Gondola {
 
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/three/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/three/input2.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/three/input3.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day3/input.txt";
+    private static final String SAMPLE_INPUT_PATH_1 = "adventOfCode/year2023/day3/input2.txt";
+    private static final String SAMPLE_INPUT_PATH_2 = "adventOfCode/year2023/day3/input3.txt";
 
     private static boolean isSymbolValid(Character c) {
         return !Character.isLetterOrDigit(c) && !c.equals('.');
@@ -25,17 +25,14 @@ public class Gondola {
             return false;
         }
 
-        if (column < 0 || column > gridWidth - 1) {
-            return false;
-        }
-
-        return true;
+        return column >= 0 && column <= gridWidth - 1;
     }
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = Gondola.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -95,13 +92,20 @@ public class Gondola {
                 if (isInbounds(gridHeight, gridWidth, i, j)) {
                     char temp = inputLines.get(j).charAt(i);
                     if (isSymbolValid(temp)) {
-                        part.getSymbols().add(new Symbol(temp, j, i, String.valueOf(j + ":" + i)));
+                        part.getSymbols().add(new Symbol(temp, j, i, j + ":" + i));
                     }
                 }
             }
         }
 
         return part;
+    }
+
+    public static void main(String[] args) {
+        Gondola gondola = new Gondola();
+
+//        gondola.part1();
+        gondola.part2();
     }
 
     public int part1() {
@@ -146,16 +150,8 @@ public class Gondola {
         return sum;
     }
 
-    public static void main(String[] args) {
-        Gondola gondola = new Gondola();
-
-//        gondola.part1();
-        gondola.part2();
-    }
-
-
     public static class Part {
-        private List<Symbol> symbols;
+        private final List<Symbol> symbols;
         private Integer number;
         private Integer row;
         private Integer startIndex;
@@ -206,10 +202,10 @@ public class Gondola {
 
 
     public static class Symbol {
-        private Character value;
-        private Integer row;
-        private Integer column;
-        private String identifier;
+        private final Character value;
+        private final Integer row;
+        private final Integer column;
+        private final String identifier;
 
         public Symbol(Character value, Integer row, Integer column, String identifier) {
             this.value = value;

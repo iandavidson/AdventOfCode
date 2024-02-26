@@ -1,7 +1,5 @@
 package org.example.advent.year2023.eight;
 
-import lombok.Data;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -10,20 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
+import lombok.Data;
 
 public class HauntedWasteland {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/eight/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/eight/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day8/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day8/input-sample.txt";
 
-    private String start_key = "AAA";
-    private String final_key = "ZZZ";
+    private final String start_key = "AAA";
+    private final String final_key = "ZZZ";
 
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = HauntedWasteland.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -56,30 +56,32 @@ public class HauntedWasteland {
             tempMap.put(Direction.L, left);
             tempMap.put(Direction.R, right);
             map.put(state, tempMap);
-//            puzzleCoordinates.add(new PuzzleCoordinate(state, left, right));
         }
 
         return map;
     }
 
-//    private static List<PuzzleCoordinate> inputToPuzzleCoordinates(List<String> inputLines) {
-//        //AAA = (BBB, CCC)
-//        List<PuzzleCoordinate> puzzleCoordinates = new ArrayList<>();
-//        String state, left, right;
-//        for (int i = 2; i < inputLines.size(); i++) {
-//            state = inputLines.get(i).substring(0, 3);
-//            left = inputLines.get(i).substring(7, 10);
-//            right = inputLines.get(i).substring(12, 15);
-//            puzzleCoordinates.add(new PuzzleCoordinate(state, left, right));
-//        }
-//
-//        return puzzleCoordinates;
-//    }
+    private static long gcd(long a, long b) {
+        while (b != 0) {
+            long t = a;
+            a = b;
+            b = t % b;
+        }
+        return a;
+    }
+
+    public static void main(String[] args) {
+        HauntedWasteland hauntedWasteland = new HauntedWasteland();
+        Long count = hauntedWasteland.part1();
+        System.out.println("Count: " + count);
+
+        count = hauntedWasteland.part2();
+        System.out.println("Count: " + count);
+    }
 
     public Long part1() {
         List<String> inputs = readFile();
         List<Direction> directions = inputToDirections(inputs.get(0).trim());
-//        List<PuzzleCoordinate> puzzleCoordinates = inputToPuzzleCoordinates(inputs);
         Map<String, Map<Direction, String>> coordinateMap = inputToPuzzleMap(inputs);
 
         Long countSteps = 0L;
@@ -136,19 +138,19 @@ ZZZ = (ZZZ, ZZZ)
         return countSteps;
     }
 
-    private Long processCounts(List<Long> counts){
+    private Long processCounts(List<Long> counts) {
         long gcd = 1;
-        for(int i  = 1; i < counts.size(); i++){
-            if(i == 1){
+        for (int i = 1; i < counts.size(); i++) {
+            if (i == 1) {
                 gcd = gcd(counts.get(0), counts.get(1));
-            } else{
-                gcd  = gcd(gcd, counts.get(i));
+            } else {
+                gcd = gcd(gcd, counts.get(i));
             }
         }
 
         //LCM(a, b) = (a x b) / GCD(a,b) or GCD(a,b) = (a x b) / LCM(a, b)
         long lcm = counts.get(0);
-        for(int j = 1; j < counts.size(); j++){
+        for (int j = 1; j < counts.size(); j++) {
             lcm *= counts.get(j);
             lcm /= gcd;
         }
@@ -156,20 +158,9 @@ ZZZ = (ZZZ, ZZZ)
         return lcm;
     }
 
-    private static long gcd(long a, long b) {
-        while (b != 0) {
-            long t = a;
-            a = b;
-            b = t % b;
-        }
-        return a;
-    }
-
-
     public Long part2() {
         List<String> inputs = readFile();
         List<Direction> directions = inputToDirections(inputs.get(0).trim());
-//        List<PuzzleCoordinate> puzzleCoordinates = inputToPuzzleCoordinates(inputs);
         Map<String, Map<Direction, String>> coordinateMap = inputToPuzzleMap(inputs);
 
         List<Long> counts = new ArrayList<>();
@@ -188,13 +179,8 @@ ZZZ = (ZZZ, ZZZ)
         return processCounts(counts);
     }
 
-    public static void main(String[] args) {
-        HauntedWasteland hauntedWasteland = new HauntedWasteland();
-//        Long count = hauntedWasteland.part1();
-//        System.out.println("Count: " + count);
-
-        Long count = hauntedWasteland.part2();
-        System.out.println("Count: " + count);
+    public enum Direction {
+        L, R
     }
 
     @Data
@@ -220,9 +206,5 @@ ZZZ = (ZZZ, ZZZ)
         public int hashCode() {
             return Objects.hash(state);
         }
-    }
-
-    public enum Direction {
-        L, R;
     }
 }

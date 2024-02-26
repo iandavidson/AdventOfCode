@@ -1,9 +1,5 @@
 package org.example.advent.year2023.eleven;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -12,11 +8,14 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
 
 public class GalaxyMap {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/eleven/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/eleven/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day11/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day11/input-sample.txt";
 
     private static final Long PART_1_ADDITIONAL_EXPANSION_WEIGHT = 1L;
     private static final Long PART_2_ADDITIONAL_EXPANSION_WEIGHT = 999999L;
@@ -24,7 +23,8 @@ public class GalaxyMap {
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = GalaxyMap.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -46,6 +46,7 @@ public class GalaxyMap {
             for (int j = 0; j < inputs.get(0).length(); j++) {
                 if (inputs.get(i).charAt(j) != '.') {
                     noGalaxy = false;
+                    break;
                 }
             }
             if (noGalaxy) {
@@ -58,6 +59,7 @@ public class GalaxyMap {
             for (int l = 0; l < inputs.size(); l++) {
                 if (inputs.get(l).charAt(k) != '.') {
                     noGalaxy = false;
+                    break;
                 }
             }
 
@@ -116,7 +118,7 @@ public class GalaxyMap {
     private static long computeIndividualDistance(Galaxy one, Galaxy two) {
 //        System.out.println("computing diff of galaxy1: " + one + " and galaxy2: " + two);
         return Math.abs(one.getCol() - two.getCol()) +
-                Math.abs(one.getRow() - two.getRow());
+            Math.abs(one.getRow() - two.getRow());
     }
 
     public static long part1() {
@@ -134,6 +136,7 @@ public class GalaxyMap {
             for (int j = 0; j < inputs.get(0).length(); j++) {
                 if (inputs.get(i).charAt(j) != '.') {
                     noGalaxy = false;
+                    break;
                 }
             }
             if (noGalaxy) {
@@ -146,6 +149,7 @@ public class GalaxyMap {
             for (int l = 0; l < inputs.size(); l++) {
                 if (inputs.get(l).charAt(k) != '.') {
                     noGalaxy = false;
+                    break;
                 }
             }
 
@@ -171,7 +175,7 @@ public class GalaxyMap {
                     emptyColsPassedNum++;
                 }
 
-                if(input.get(i).charAt(j) == '#'){
+                if (input.get(i).charAt(j) == '#') {
                     galaxies.add(Galaxy.builder().row((emptyRowsPassedNum * 999999) + i).col((emptyColsPassedNum * 999999) + j).build());
                 }
             }
@@ -201,6 +205,8 @@ public class GalaxyMap {
     @Builder
     public static class GalaxyPath {
 
+        private List<Galaxy> galaxies;
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
@@ -213,8 +219,6 @@ public class GalaxyMap {
         public int hashCode() {
             return Objects.hash(galaxies);
         }
-
-        private List<Galaxy> galaxies;
     }
 
     @Data

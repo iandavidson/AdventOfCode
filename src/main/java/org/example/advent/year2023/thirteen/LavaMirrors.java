@@ -10,13 +10,14 @@ import java.util.Set;
 
 public class LavaMirrors {
 
-        private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/thirteen/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/thirteen/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day13/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day13/input-sample.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = LavaMirrors.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -97,6 +98,7 @@ public class LavaMirrors {
             for (Set<Integer> set : horzFoundByIndex) {
                 if (!set.contains(i)) {
                     foundEverywhere = false;
+                    break;
                 }
             }
 
@@ -142,6 +144,7 @@ public class LavaMirrors {
             for (Set<Integer> set : vertFoundByIndex) {
                 if (!set.contains(i)) {
                     foundEverywhere = false;
+                    break;
                 }
             }
 
@@ -299,7 +302,7 @@ public class LavaMirrors {
             for (int j = 0; j < grid.size() - 1; j++) {
                 //grid.get(j).get(i)
                 char top = grid.get(j).get(i);
-                char bottom = grid.get(j+1).get(i);
+                char bottom = grid.get(j + 1).get(i);
                 if (grid.get(j).get(i) == grid.get(j + 1).get(i) || chanceLeft) {
 
                     //expand search up and down until hits boundary

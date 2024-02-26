@@ -1,25 +1,25 @@
 package org.example.advent.year2023.six;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.ToString;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.ToString;
 
 public class BoatRace {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/six/input.txt";
-//    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/six/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day6/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day6/input-sample.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = BoatRace.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -99,15 +99,15 @@ public class BoatRace {
 //    return (left + right) / 2;
 //    }
 
-    private static Long binarySearch(RaceRecord raceRecord, Long low, Long high){
+    private static Long binarySearch(RaceRecord raceRecord, Long low, Long high) {
         Long recordDistance = raceRecord.getDistance();
         long middle = 0L;
-        while(low <= high){
-            middle = low + ((high - low) /2);
+        while (low <= high) {
+            middle = low + ((high - low) / 2);
             long tempDistance = applyDistanceFormula(raceRecord, middle);
-            if(tempDistance < recordDistance){
+            if (tempDistance < recordDistance) {
                 low = middle + 1;
-            } else if (tempDistance > recordDistance){
+            } else if (tempDistance > recordDistance) {
                 high = middle - 1;
             } else {
                 break;
@@ -123,7 +123,7 @@ public class BoatRace {
         //quick sanity:
         System.out.println("mid point distance: " + applyDistanceFormula(timeMidPoint, raceRecord.getTime() - timeMidPoint) + " distance to beat: " + raceRecord.getDistance());
 
-        Long startIndex = binarySearch(raceRecord, 0L, raceRecord.getTime()/2);
+        Long startIndex = binarySearch(raceRecord, 0L, raceRecord.getTime() / 2);
         Long endIndex = raceRecord.getTime() - startIndex + 1;
         return endIndex - startIndex;
     }
@@ -132,8 +132,14 @@ public class BoatRace {
         return chargeTime * timeRemaining;
     }
 
-    private static Long applyDistanceFormula(RaceRecord raceRecord, Long chargeTime){
+    private static Long applyDistanceFormula(RaceRecord raceRecord, Long chargeTime) {
         return chargeTime * (raceRecord.getTime() - chargeTime);
+    }
+
+    public static void main(String[] args) {
+        BoatRace boatRace = new BoatRace();
+        System.out.println("answer: " + boatRace.part2());
+
     }
 
     public Long part1() {
@@ -152,16 +158,9 @@ public class BoatRace {
     public Long part2() {
         List<String> inputs = readFile();
         RaceRecord raceRecord = interpretRecordsPart2(inputs);
-        System.out.println("Race Record: " + raceRecord.toString());
+        System.out.println("Race Record: " + raceRecord);
 
         return computeWinningRacesPart2(raceRecord);
-    }
-
-
-    public static void main(String[] args) {
-        BoatRace boatRace = new BoatRace();
-        System.out.println("answer: " + boatRace.part2());
-
     }
 
     @AllArgsConstructor

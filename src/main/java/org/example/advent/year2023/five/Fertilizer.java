@@ -1,25 +1,25 @@
 package org.example.advent.year2023.five;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Scanner;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 public class Fertilizer {
 
-    private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/five/input.txt";
-//        private static final String INPUT_PATH = "/Users/Ian/Documents/PersonalProjects/interviewprep/src/main/java/org/example/advent/year2023/five/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/year2023/day5/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day5/input-sample.txt";
     private Long currentIndex = 0L;
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
-            File file = new File(INPUT_PATH);
+            ClassLoader classLoader = Fertilizer.class.getClassLoader();
+            File file = new File(classLoader.getResource(INPUT_PATH).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -30,6 +30,21 @@ public class Fertilizer {
         }
 
         return input;
+    }
+
+    private static long findConversion(Long source, List<Range> ranges) {
+        for (Range range : ranges) {
+            if (range.sourceValueSupported(source)) {
+                return range.sourceToDestination(source);
+            }
+        }
+        return source;
+    }
+
+    public static void main(String[] args) {
+        Fertilizer fertilizer = new Fertilizer();
+//        System.out.println("Min location value: " + fertilizer.part1());
+        System.out.println("Min location value part 2: " + fertilizer.part2());
     }
 
     private Almanac processInput(List<String> inputLines) {
@@ -61,7 +76,7 @@ public class Fertilizer {
         while (currentIndex < inputLines.size() && !inputLines.get(Math.toIntExact(currentIndex)).isBlank()) {
             if (Character.isDigit(inputLines.get(Math.toIntExact(currentIndex)).charAt(0))) {
                 List<Long> seedToSoilRange = Arrays.stream(inputLines.get(Math.toIntExact(currentIndex)).trim().split("\\s+"))
-                        .map(Long::parseLong).toList();
+                    .map(Long::parseLong).toList();
 
                 rangeList.add(new Range(seedToSoilRange.get(0), seedToSoilRange.get(1), seedToSoilRange.get(2)));
 
@@ -72,27 +87,18 @@ public class Fertilizer {
         return rangeList;
     }
 
-    private static long findConversion(Long source, List<Range> ranges) {
-        for (Range range : ranges) {
-            if (range.sourceValueSupported(source)) {
-                return range.sourceToDestination(source);
-            }
-        }
-        return source;
-    }
-
     public long part2() {
         List<String> inputs = readFile();
         currentIndex = 0L;
         Almanac almanac = processInput(inputs);
 
-        Long temp = 0l;
+        Long temp = 0L;
         Long min = Long.MAX_VALUE;
         for (int i = 0; i < almanac.getSeeds().size(); i += 2) {
 
             long seedIndex = almanac.getSeeds().get(i);
 
-            while(seedIndex < almanac.getSeeds().get(i) + almanac.getSeeds().get(i+1)){
+            while (seedIndex < almanac.getSeeds().get(i) + almanac.getSeeds().get(i + 1)) {
                 long seed = seedIndex;
 //                System.out.print("seed: " + seed);
                 temp = findConversion(seed, almanac.getSeedToSoil());
@@ -125,7 +131,7 @@ public class Fertilizer {
         List<String> inputs = readFile();
         Almanac almanac = processInput(inputs);
 
-        Long temp = 0l;
+        Long temp = 0L;
         Long min = Long.MAX_VALUE;
         for (Long seed : almanac.getSeeds()) {
             System.out.print("seed: " + seed);
@@ -150,12 +156,6 @@ public class Fertilizer {
         }
 
         return min;
-    }
-
-    public static void main(String[] args) {
-        Fertilizer fertilizer = new Fertilizer();
-//        System.out.println("Min location value: " + fertilizer.part1());
-        System.out.println("Min location value part 2: " + fertilizer.part2());
     }
 
     @AllArgsConstructor
