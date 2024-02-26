@@ -99,12 +99,12 @@ public class ParabolicReflectorDish {
         return calculateNorthernLoadPart1(input);
     }
 
-    private static long calculateNorthernLoadPart2(List<List<Character>> grid){
+    private static long calculateNorthernLoadPart2(List<List<Character>> grid) {
         //assuming grid has already been tilted north
         long count = 0L;
 
-        for(int i = 0; i < grid.get(0).size(); i++){
-            for(int j = 0; j < grid.size(); j++){
+        for (int i = 0; i < grid.get(0).size(); i++) {
+            for (int j = 0; j < grid.size(); j++) {
                 if (grid.get(j).get(i).equals('O')) {
                     count += grid.size() - j;
                 }
@@ -114,16 +114,16 @@ public class ParabolicReflectorDish {
         return count;
     }
 
-    private static void north(List<List<Character>> grid){
+    private static void north(List<List<Character>> grid) {
         //roll north:
         //col: i, row: j
-        for(int i = 0; i < grid.get(0).size(); i++){
+        for (int i = 0; i < grid.get(0).size(); i++) {
             int recentBlockIndex = -1;
-            for(int j = 0; j < grid.size(); j++){
-                if(grid.get(j).get(i) == '#'){
+            for (int j = 0; j < grid.size(); j++) {
+                if (grid.get(j).get(i) == '#') {
                     recentBlockIndex = j;
-                } else if (grid.get(j).get(i) == 'O'){
-                    if(j > recentBlockIndex + 1){
+                } else if (grid.get(j).get(i) == 'O') {
+                    if (j > recentBlockIndex + 1) {
                         grid.get(j).set(i, '.');
                         grid.get(recentBlockIndex + 1).set(i, 'O');
                     }
@@ -134,15 +134,15 @@ public class ParabolicReflectorDish {
         }
     }
 
-    private static void west(List<List<Character>> grid){
+    private static void west(List<List<Character>> grid) {
         //roll west
-        for(int i = 0; i < grid.size(); i++){
+        for (int i = 0; i < grid.size(); i++) {
             int recentBlockIndex = -1;
-            for(int j  =0; j < grid.get(i).size(); j++){
-                if(grid.get(i).get(j) == '#'){
+            for (int j = 0; j < grid.get(i).size(); j++) {
+                if (grid.get(i).get(j) == '#') {
                     recentBlockIndex = j;
-                } else if (grid.get(i).get(j) == 'O'){
-                    if(j > recentBlockIndex + 1){
+                } else if (grid.get(i).get(j) == 'O') {
+                    if (j > recentBlockIndex + 1) {
                         grid.get(i).set(j, '.');
                         grid.get(i).set(recentBlockIndex + 1, 'O');
                     }
@@ -153,18 +153,18 @@ public class ParabolicReflectorDish {
         }
     }
 
-    private static void south(List<List<Character>> grid){
+    private static void south(List<List<Character>> grid) {
         //roll south
-        for(int i = 0; i < grid.get(0).size(); i++){
+        for (int i = 0; i < grid.get(0).size(); i++) {
             int recentBlockIndex = grid.size();
 
-            for(int j = grid.size() -1 ; j > -1  ; j--){
-                if(grid.get(j).get(i) == '#'){
+            for (int j = grid.size() - 1; j > -1; j--) {
+                if (grid.get(j).get(i) == '#') {
                     recentBlockIndex = j;
-                } else if (grid.get(j).get(i) == 'O'){
-                    if(j < recentBlockIndex - 1){
+                } else if (grid.get(j).get(i) == 'O') {
+                    if (j < recentBlockIndex - 1) {
                         grid.get(j).set(i, '.');
-                        grid.get(recentBlockIndex -1).set(i, 'O');
+                        grid.get(recentBlockIndex - 1).set(i, 'O');
                     }
 
                     recentBlockIndex--;
@@ -173,15 +173,15 @@ public class ParabolicReflectorDish {
         }
     }
 
-    private static void east(List<List<Character>> grid){
-        for(int i = 0; i < grid.size(); i++){
+    private static void east(List<List<Character>> grid) {
+        for (int i = 0; i < grid.size(); i++) {
             int recentBlockIndex = grid.get(i).size();
 
-            for(int j = grid.get(i).size() -1; j > -1; j--){
-                if(grid.get(i).get(j) == '#'){
+            for (int j = grid.get(i).size() - 1; j > -1; j--) {
+                if (grid.get(i).get(j) == '#') {
                     recentBlockIndex = j;
-                } else if (grid.get(i).get(j) == 'O'){
-                    if(j <  recentBlockIndex -1){
+                } else if (grid.get(i).get(j) == 'O') {
+                    if (j < recentBlockIndex - 1) {
                         grid.get(i).set(j, '.');
                         grid.get(i).set(recentBlockIndex - 1, 'O');
                     }
@@ -196,9 +196,9 @@ public class ParabolicReflectorDish {
 
         List<List<Character>> grid = new ArrayList<>();
         List<Character> tempRow;
-        for(String row : gridPrior){
+        for (String row : gridPrior) {
             tempRow = new ArrayList<>();
-            for(Character ch : row.toCharArray()){
+            for (Character ch : row.toCharArray()) {
                 tempRow.add(ch);
             }
 
@@ -225,7 +225,7 @@ public class ParabolicReflectorDish {
             east(grid);
 
             northernLoad = calculateNorthernLoadPart2(grid);
-            if(cycleScoreReverseMap.containsKey(northernLoad)){
+            if (cycleScoreReverseMap.containsKey(northernLoad)) {
                 consecutiveHits++;
                 System.out.println("already seen this weight: " + northernLoad + " at indexes: " + Arrays.toString(cycleScoreReverseMap.get(northernLoad).toArray()));
                 cycleScoreReverseMap.get(northernLoad).add(k);
@@ -238,7 +238,7 @@ public class ParabolicReflectorDish {
 
             System.out.println(k + " : " + northernLoad);
 
-            if(consecutiveHits >= CYCLE_LENGTH){
+            if (consecutiveHits >= CYCLE_LENGTH) {
                 System.out.println("found out cycle at iteration (0 starting):" + k + " with weight: " + northernLoad);
                 currentIndex = k;
                 break;
@@ -247,7 +247,7 @@ public class ParabolicReflectorDish {
 
         int iterationsRemaining = (1000000000 - 1 - currentIndex) % CYCLE_LENGTH;
 
-        for(int i = 0; i < iterationsRemaining; i++){
+        for (int i = 0; i < iterationsRemaining; i++) {
             north(grid);
             west(grid);
             south(grid);
@@ -258,7 +258,6 @@ public class ParabolicReflectorDish {
 
         return northernLoad;
     }
-
 
 
     public static Long part2() {
