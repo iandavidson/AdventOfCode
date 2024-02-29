@@ -17,14 +17,20 @@ import java.util.Scanner;
 public class ClumsyCrucible {
 
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day17/input-sample.txt";
+    private static final String SAMPLE_INPUT2_PATH = "adventOfCode/day17/input-sample2.txt";
+    private static final String MINI_SAMPLE_INPUT_PATH = "adventOfCode/day17/input-sample-mini.txt";
     private static final String INPUT_PATH = "adventOfCode/day17/input.txt";
 
+
+    public enum Direction {
+        UP, DOWN, LEFT, RIGHT;
+    }
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = ClumsyCrucible.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT2_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -65,50 +71,83 @@ public class ClumsyCrucible {
         return grid;
     }
 
+    private static Block optionalUpdateNeighbor(Block current, Block potentialNeighbor){
+        //Instead of immediately veto'ing based on potential weight, need to look forward in
+        // potential steps to determine if valid neighbor. (may not be less than current value)
+        if (potentialNeighbor.getMinimumHeatLoss() > (current.getMinimumHeatLoss() + potentialNeighbor.getReduction())) {
+            potentialNeighbor.setMinimumHeatLoss(current.getMinimumHeatLoss() + potentialNeighbor.getReduction());
+            List<Block> currentBlockPrior = new ArrayList<>(current.getSequenceFromStart());
+            currentBlockPrior.add(current);
+            potentialNeighbor.setSequenceFromStart(currentBlockPrior);
+            return potentialNeighbor;
+        } else {
+            return null;
+        }
+    }
+
+    private static boolean isNeighborValid(Direction direction, Block current){
+        int size = current.getSequenceFromStart().size();
+        if(size > 2){
+            switch (direction) {
+                case LEFT -> {
+                    return current.getSequenceFromStart().get(size-3).getCol() != current.getCol()+3;
+                }
+                case RIGHT -> {
+                    return current.getSequenceFromStart().get(size-3).getCol() != current.getCol()-3;
+                }
+                case DOWN -> {
+                    return current.getSequenceFromStart().get(size-3).getRow() != current.getRow()-3;
+                }
+                case UP -> {
+                    return current.getSequenceFromStart().get(size-3).getRow() != current.getRow()+3;
+                }
+                default -> System.out.println("idk what happened?? 🥸");
+                }
+        }
+
+        return true;
+    }
+
+
+
+
     private static List<Block> getNeighbors(Block block, List<List<Block>> grid) {
         List<Block> neighbors = new ArrayList<>();
         int currentRow = block.getRow();
         int currentCol = block.getCol();
 
         //above grid.get(row-1).get(col)
-        if (currentRow - 1 >= 0) {
-            Block temp = grid.get(currentRow - 1).get(currentCol);
+        if (currentRow - 1 >= 0 && isNeighborValid(Direction.UP, block)) {
+            Block temp = optionalUpdateNeighbor(block, grid.get(currentRow - 1).get(currentCol));
 
-            if (temp.getMinimumHeatLoss() > (block.getMinimumHeatLoss() + temp.getReduction())) {
-                temp.setMinimumHeatLoss(block.getMinimumHeatLoss() + temp.getReduction());
+            if(temp != null){
                 neighbors.add(temp);
             }
-
         }
 
         //below
-        if (currentRow + 1 < grid.size()) {
-            Block temp = grid.get(currentRow + 1).get(currentCol);
+        if (currentRow + 1 < grid.size() && isNeighborValid(Direction.DOWN, block)) {
+            Block temp = optionalUpdateNeighbor(block, grid.get(currentRow + 1).get(currentCol));
 
-            if (temp.getMinimumHeatLoss() > (block.getMinimumHeatLoss() + temp.getReduction())) {
-                temp.setMinimumHeatLoss(block.getMinimumHeatLoss() + temp.getReduction());
+            if(temp != null){
                 neighbors.add(temp);
             }
-
         }
 
         //left
-        if (currentCol - 1 >= 0) {
-            Block temp = grid.get(currentRow).get(currentCol - 1);
+        if (currentCol - 1 >= 0 && isNeighborValid(Direction.LEFT, block)) {
+            Block temp = optionalUpdateNeighbor(block, grid.get(currentRow).get(currentCol - 1));
 
-            if (temp.getMinimumHeatLoss() > (block.getMinimumHeatLoss() + temp.getReduction())) {
-                temp.setMinimumHeatLoss(block.getMinimumHeatLoss() + temp.getReduction());
+            if(temp != null){
                 neighbors.add(temp);
             }
-
         }
 
         //right
-        if (currentCol + 1 < grid.get(0).size()) {
-            Block temp = grid.get(currentRow).get(currentCol + 1);
+        if (currentCol + 1 < grid.get(0).size() && isNeighborValid(Direction.RIGHT, block)) {
+            Block temp = optionalUpdateNeighbor(block, grid.get(currentRow).get(currentCol + 1));
 
-            if (temp.getMinimumHeatLoss() > (block.getMinimumHeatLoss() + temp.getReduction())) {
-                temp.setMinimumHeatLoss(block.getMinimumHeatLoss() + temp.getReduction());
+            if(temp != null){
                 neighbors.add(temp);
             }
         }
@@ -121,30 +160,38 @@ public class ClumsyCrucible {
         List<List<Block>> grid = processInput(readFile());
 
         Queue<Block> unsettled = new PriorityQueue<>();
+
+        //get rid of this
         Queue<Block> settled = new PriorityQueue<>();
+
+        //create Visited Set<Coordinate-Ext>
 
         unsettled.add(grid.get(0).get(0));
 
         while (!unsettled.isEmpty()) {
             //grab random
             Block block = unsettled.remove();
-            System.out.println("currentBlock: " + block.getRow() + " : " +  block.getCol());
+//            System.out.println("currentBlock: " + block.getRow() + " : " +  block.getCol());
             //find neighbors and update in grid with respective distance, add to queue
             List<Block> neighbors = getNeighbors(block, grid);
 
 //            unsettled.addAll(neighbors);
             for(Block b : neighbors){
-                if(!unsettled.contains(b)){
+                //should i also check if exists in settled, if so DON'T add??????
+//                if(!unsettled.contains(b)){
                     unsettled.add(b);
-                }
+//                }
 //
             }
 
             settled.add(block);
         }
 
-        return grid.get(grid.size()-1).get(grid.get(0).size()-1).getMinimumHeatLoss();
 
+        for(Block prior: grid.get(grid.size()-1).get(grid.get(0).size()-1).getSequenceFromStart()){
+            System.out.println(prior.getRow() + ", " + prior.getCol() + "; heat added: "+ prior.getReduction());
+        }
+        return grid.get(grid.size()-1).get(grid.get(0).size()-1).getMinimumHeatLoss();
     }
 
 
@@ -158,13 +205,29 @@ public class ClumsyCrucible {
     @Builder
     @AllArgsConstructor
     public static class Block implements Comparable<Block> {
+
+        //Coordinate should encapsulate direction and how many steps that way
         private final Coordinate coordinate;
         private final int reduction;
 
         @Builder.Default
         private int minimumHeatLoss = Integer.MAX_VALUE;
-        //sequence until that point?
-        //List<Block> sequenceFromStart
+
+        @Builder.Default
+        private List<Block> sequenceFromStart = new ArrayList<>();
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Block block = (Block) o;
+            return Objects.equals(coordinate, block.coordinate);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(coordinate);
+        }
 
         public int getRow() {
             return coordinate.getRow();
@@ -176,7 +239,12 @@ public class ClumsyCrucible {
 
         @Override
         public int compareTo(Block o) {
-            return o.getMinimumHeatLoss() - this.minimumHeatLoss;
+            int difference = this.minimumHeatLoss - o.getMinimumHeatLoss();
+            if(difference != 0){
+                return difference;
+            }
+
+            return this.reduction - o.getReduction();
         }
     }
 
