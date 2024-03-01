@@ -15,15 +15,6 @@ public class ParabolicReflectorDish {
     private static final String MINI_SAMPLE_INPUT_PATH = "adventOfCode/day14/input-sample-mini.txt";
     private static final String INPUT_PATH = "adventOfCode/day14/input.txt";
 
-    private static List<String> processInput(List<String> inputs) {
-        List<String> grid = new ArrayList<>();
-        for (String row : inputs) {
-            grid.add(row);
-
-        }
-
-        return grid;
-    }
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();
@@ -42,6 +33,15 @@ public class ParabolicReflectorDish {
         return input;
     }
 
+    private static List<String> processInput(List<String> inputs) {
+        List<String> grid = new ArrayList<>();
+        for (String row : inputs) {
+            grid.add(row);
+
+        }
+
+        return grid;
+    }
     private static Long findNorthSideLoadCol(List<Character> column) {
         //rolls towards index 0;
         int recentBlockIndex = -1;
