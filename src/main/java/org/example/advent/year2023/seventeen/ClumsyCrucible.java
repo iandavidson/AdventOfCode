@@ -3,16 +3,17 @@ package org.example.advent.year2023.seventeen;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.Getter;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
 
 public class ClumsyCrucible {
 
@@ -24,6 +25,28 @@ public class ClumsyCrucible {
 
     public enum Direction {
         UP, DOWN, LEFT, RIGHT;
+
+        public static Direction turnLeft(Direction direction){
+            Direction d = null;
+            switch(direction){
+                case UP -> d = LEFT;
+                case DOWN -> d = RIGHT;
+                case LEFT -> d = DOWN;
+                case RIGHT -> d = UP;
+            }
+            return d;
+        }
+
+        public static Direction turnRight(Direction direction){
+            Direction d = null;
+            switch(direction){
+                case UP -> d = RIGHT;
+                case DOWN -> d = LEFT;
+                case LEFT -> d = UP;
+                case RIGHT -> d = DOWN;
+            }
+            return d;
+        }
     }
 
     private static List<String> readFile() {
@@ -43,27 +66,13 @@ public class ClumsyCrucible {
         return input;
     }
 
-    private List<List<Block>> processInput(List<String> inputs) {
-        List<List<Block>> grid = new ArrayList<>();
+    private List<List<Integer>> processInput(List<String> inputs) {
+        List<List<Integer>> grid = new ArrayList<>();
 
-        for (int i = 0; i < inputs.size(); i++) {
-            List<Block> gridRow = new ArrayList<>();
-            for (int j = 0; j < inputs.get(i).length(); j++) {
-                if (i == 0 && j == 0) {
-                    gridRow.add(Block.builder()
-                            .reduction(
-                                    inputs.get(i).charAt(j) - '0')
-                            .minimumHeatLoss(0)
-                            .coordinate(Coordinate.builder().row(i).col(j).build())
-                            .build());
-                } else {
-                    gridRow.add(Block.builder()
-                            .reduction(
-                                    inputs.get(i).charAt(j) - '0')
-                            .coordinate(Coordinate.builder().row(i).col(j).build())
-                            .build());
-
-                }
+        for (String input : inputs) {
+            List<Integer> gridRow = new ArrayList<>();
+            for (int j = 0; j < input.length(); j++) {
+                gridRow.add(input.charAt(j) - '0');
             }
             grid.add(gridRow);
         }
@@ -76,9 +85,9 @@ public class ClumsyCrucible {
         // potential steps to determine if valid neighbor. (may not be less than current value)
         if (potentialNeighbor.getMinimumHeatLoss() > (current.getMinimumHeatLoss() + potentialNeighbor.getReduction())) {
             potentialNeighbor.setMinimumHeatLoss(current.getMinimumHeatLoss() + potentialNeighbor.getReduction());
-            List<Block> currentBlockPrior = new ArrayList<>(current.getSequenceFromStart());
-            currentBlockPrior.add(current);
-            potentialNeighbor.setSequenceFromStart(currentBlockPrior);
+//            List<Block> currentBlockPrior = new ArrayList<>(current.getSequenceFromStart());
+//            currentBlockPrior.add(current);
+//            potentialNeighbor.setSequenceFromStart(currentBlockPrior);
             return potentialNeighbor;
         } else {
             return null;
@@ -86,30 +95,33 @@ public class ClumsyCrucible {
     }
 
     private static boolean isNeighborValid(Direction direction, Block current){
-        int size = current.getSequenceFromStart().size();
-        if(size > 2){
-            switch (direction) {
-                case LEFT -> {
-                    return current.getSequenceFromStart().get(size-3).getCol() != current.getCol()+3;
-                }
-                case RIGHT -> {
-                    return current.getSequenceFromStart().get(size-3).getCol() != current.getCol()-3;
-                }
-                case DOWN -> {
-                    return current.getSequenceFromStart().get(size-3).getRow() != current.getRow()-3;
-                }
-                case UP -> {
-                    return current.getSequenceFromStart().get(size-3).getRow() != current.getRow()+3;
-                }
-                default -> System.out.println("idk what happened?? 🥸");
-                }
-        }
+//        int size = current.getSequenceFromStart().size();
+//        if(size > 2){
+//            switch (direction) {
+//                case LEFT -> {
+//                    return current.getSequenceFromStart().get(size-3).getCol() != current.getCol()+3;
+//                }
+//                case RIGHT -> {
+//                    return current.getSequenceFromStart().get(size-3).getCol() != current.getCol()-3;
+//                }
+//                case DOWN -> {
+//                    return current.getSequenceFromStart().get(size-3).getRow() != current.getRow()-3;
+//                }
+//                case UP -> {
+//                    return current.getSequenceFromStart().get(size-3).getRow() != current.getRow()+3;
+//                }
+//                default -> System.out.println("idk what happened?? 🥸");
+//                }
+//        }
 
         return true;
     }
 
 
 
+//    private static List<Block> getNeighborsReal(Block block, List<List<Integer>> grid) {
+//
+//    }
 
     private static List<Block> getNeighbors(Block block, List<List<Block>> grid) {
         List<Block> neighbors = new ArrayList<>();
@@ -157,41 +169,74 @@ public class ClumsyCrucible {
 
 
     public int part1() {
-        List<List<Block>> grid = processInput(readFile());
+        List<List<Integer>> grid = processInput(readFile());
 
         Queue<Block> unsettled = new PriorityQueue<>();
 
         //get rid of this
-        Queue<Block> settled = new PriorityQueue<>();
+        Set<Block> settled = new HashSet<>();
 
         //create Visited Set<Coordinate-Ext>
 
-        unsettled.add(grid.get(0).get(0));
+        unsettled.add(Block.builder()
+                .location(
+                        Location.builder()
+                                .row(1)
+                                .col(0)
+                                .steps(1)
+                                .direction(Direction.DOWN)
+                                .build())
+                .minimumHeatLoss(grid.get(1).get(0))
+                .reduction(grid.get(1).get(0))
+                .build());
+
+        unsettled.add(Block.builder()
+                .location(
+                        Location.builder()
+                                .row(0)
+                                .col(1)
+                                .steps(1)
+                                .direction(Direction.RIGHT)
+                                .build())
+                .minimumHeatLoss(grid.get(0).get(1))
+                .reduction(grid.get(0).get(1))
+                .build());
 
         while (!unsettled.isEmpty()) {
             //grab random
             Block block = unsettled.remove();
 //            System.out.println("currentBlock: " + block.getRow() + " : " +  block.getCol());
-            //find neighbors and update in grid with respective distance, add to queue
-            List<Block> neighbors = getNeighbors(block, grid);
 
-//            unsettled.addAll(neighbors);
-            for(Block b : neighbors){
-                //should i also check if exists in settled, if so DON'T add??????
-//                if(!unsettled.contains(b)){
-                    unsettled.add(b);
-//                }
-//
+
+            if(settled.contains(block)){
+                continue;
             }
+
+            //CHECK IF BLOCK IS BOTTOM RIGHT CELL, IF SO RETURN MINHEATLOSS
+            if(block.getRow() == grid.size()-1 && block.getCol() == grid.get(0).size()){
+                return block.getMinimumHeatLoss();
+            }
+
+
+
+            //find neighbors and update in grid with respective distance, add to queue
+//            List<Block> neighbors = getNeighbors(block, grid);
+//
+//            for(Block b : neighbors){
+//                //should i also check if exists in settled, if so DON'T add??????
+//                if(!settled.contains(b)){
+//                    unsettled.add(b);
+//                }
+//            }
 
             settled.add(block);
         }
 
 
-        for(Block prior: grid.get(grid.size()-1).get(grid.get(0).size()-1).getSequenceFromStart()){
-            System.out.println(prior.getRow() + ", " + prior.getCol() + "; heat added: "+ prior.getReduction());
-        }
-        return grid.get(grid.size()-1).get(grid.get(0).size()-1).getMinimumHeatLoss();
+//        for(Block prior: grid.get(grid.size()-1).get(grid.get(0).size()-1).getSequenceFromStart()){
+//            System.out.println(prior.getRow() + ", " + prior.getCol() + "; heat added: "+ prior.getReduction());
+//        }
+        return -1;
     }
 
 
@@ -207,34 +252,34 @@ public class ClumsyCrucible {
     public static class Block implements Comparable<Block> {
 
         //Coordinate should encapsulate direction and how many steps that way
-        private final Coordinate coordinate;
+        private final Location location;
         private final int reduction;
-
-        @Builder.Default
-        private int minimumHeatLoss = Integer.MAX_VALUE;
-
-        @Builder.Default
-        private List<Block> sequenceFromStart = new ArrayList<>();
 
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (o == null || getClass() != o.getClass()) return false;
             Block block = (Block) o;
-            return Objects.equals(coordinate, block.coordinate);
+            return Objects.equals(location, block.location);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(coordinate);
+            return Objects.hash(location);
         }
 
+        @Builder.Default
+        private int minimumHeatLoss = Integer.MAX_VALUE;
+
+//        @Builder.Default
+//        private List<Block> sequenceFromStart = new ArrayList<>();
+
         public int getRow() {
-            return coordinate.getRow();
+            return location.getRow();
         }
 
         public int getCol() {
-            return coordinate.getCol();
+            return location.getCol();
         }
 
         @Override
@@ -248,13 +293,31 @@ public class ClumsyCrucible {
         }
     }
 
-    @Getter
+    @Data
     @Builder
     @AllArgsConstructor
-    public static class Coordinate {
+    public static class Location {
         private final int row;
         private final int col;
+        private int steps;
+        private Direction direction;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            Location location = (Location) o;
+            return row == location.row && col == location.col && steps == location.steps && direction == location.direction;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(row, col, steps, direction);
+        }
+
     }
+
+
 }
 
 
