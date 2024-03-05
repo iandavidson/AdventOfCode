@@ -7,15 +7,14 @@ import lombok.Data;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Scanner;
-import java.util.Set;
 
 public class Aplenty {
     private static final String LESS = "<";
@@ -71,22 +70,21 @@ public class Aplenty {
         return input;
     }
 
-    private static List<String> tokenize(String rawRule){
+    private static List<String> tokenize(String rawRule) {
         List<String> tokens = new ArrayList<>();
         //basecase rule
-//        if(rawRule.equals(A) || rawRule.equals(R)){
-        if(rawRule.length() < 4){
+        if (rawRule.length() < 4) {
             tokens.add(rawRule);
             return tokens;
         }
 
-        tokens.add(rawRule.substring(0,1));
-        tokens.add(rawRule.substring(1,2));
+        tokens.add(rawRule.substring(0, 1));
+        tokens.add(rawRule.substring(1, 2));
 
         int index = 2;
         String number = "";
-        while(Character.isDigit(rawRule.charAt(index))){
-            if(Character.isDigit(rawRule.charAt(index))){
+        while (Character.isDigit(rawRule.charAt(index))) {
+            if (Character.isDigit(rawRule.charAt(index))) {
                 index++;
             } else {
                 break;
@@ -94,8 +92,8 @@ public class Aplenty {
         }
 
         tokens.add(rawRule.substring(2, index));
-        tokens.add(rawRule.substring(index, index+1));
-        tokens.add(rawRule.substring(index+1));
+        tokens.add(rawRule.substring(index, index + 1));
+        tokens.add(rawRule.substring(index + 1));
 
         return tokens;
     }
@@ -146,14 +144,14 @@ public class Aplenty {
         //Find instruction
         Instruction currentInstruction = grammar.get(START_LABEL);
         int index = 0;
-        while(true){
+        while (true) {
             Rule currentRule = currentInstruction.getRules().get(index);
-            if(currentRule.getTokens().size() == 1){
+            if (currentRule.getTokens().size() == 1) {
                 //branch or terminal state
-                if(currentRule.getTokens().contains(R)){
+                if (currentRule.getTokens().contains(R)) {
                     //rejected, return
                     return 0L;
-                }else if(currentRule.getTokens().contains(A)){
+                } else if (currentRule.getTokens().contains(A)) {
                     //accepted, remember part
                     return part.sum();
                 } else {
@@ -162,24 +160,24 @@ public class Aplenty {
                     //must be branch
 
                 }
-            } else if(currentRule.getTokens().contains(LESS)){
-                int memberOperand =  part.getMember(currentRule.getTokens().get(0));
+            } else if (currentRule.getTokens().contains(LESS)) {
+                int memberOperand = part.getMember(currentRule.getTokens().get(0));
                 //if true -> reassign instruction and reset index
                 //if false -> increment index
 
-                if(memberOperand < Integer.parseInt(currentRule.getTokens().get(2))){
+                if (memberOperand < Integer.parseInt(currentRule.getTokens().get(2))) {
                     currentInstruction = grammar.get(currentRule.getTokens().get(4));
-                    index =0;
-                }else {
+                    index = 0;
+                } else {
                     index++;
                 }
 
-            } else if(currentRule.getTokens().contains(GREATER)){
-                int memberOperand =  part.getMember(currentRule.getTokens().get(0));
-                if(memberOperand > Integer.parseInt(currentRule.getTokens().get(2))) {
+            } else if (currentRule.getTokens().contains(GREATER)) {
+                int memberOperand = part.getMember(currentRule.getTokens().get(0));
+                if (memberOperand > Integer.parseInt(currentRule.getTokens().get(2))) {
                     currentInstruction = grammar.get(currentRule.getTokens().get(4));
-                    index =0;
-                }else {
+                    index = 0;
+                } else {
                     index++;
                 }
             }
@@ -209,9 +207,9 @@ public class Aplenty {
         List<Part> parts = inputToParts(inputs.get(1));
 
         Long sum = 0L;
-        for(Part part : parts){
+        for (Part part : parts) {
             //process
-            sum  += processPart(part, grammar);
+            sum += processPart(part, grammar);
 
         }
 
@@ -227,10 +225,212 @@ public class Aplenty {
         return sum;
     }
 
+    private static Long processPartSpan(PartSpan partSpan, Map<String, Instruction> grammar) {
+        Long count = 0L;
+
+//        Instruction currentInstruction = grammar.get(START_LABEL);
+//        int index = 0;
+        Branch init = Branch.builder().instructionLabel(START_LABEL).ruleIndex(0).partSpan(partSpan).build();
+
+        Queue<Branch> queue = new LinkedList<>();
+        queue.add(init);
+
+        while (!queue.isEmpty()) {
+
+            Branch branch = queue.remove();
+            Instruction currentInstruction = grammar.get(branch.getInstructionLabel());
+            int index = branch.getRuleIndex();
+            PartSpan current = branch.getPartSpan();
+
+            while (true) {
+                Rule currentRule = currentInstruction.getRules().get(index);
+                if (currentRule.getTokens().size() == 1) {
+                    if (currentRule.getTokens().contains(R)) {
+                        break;
+                    } else if (currentRule.getTokens().contains(A)) {
+                        count += partSpan.product();
+                    } else {
+                        currentInstruction = grammar.get(currentRule.getTokens().get(0));
+                        index = 0;
+                    }
+                } else if (currentRule.getTokens().contains(LESS)) {
+                    PartComp member = PartComp.valueOf(currentRule.getTokens().get(0));
+                    PartSpan.Range range = current.getMember(member);
+
+                    //m > 1548; split == 1548
+                    int split = Integer.parseInt(currentRule.getTokens().get(2));
+
+                    if (split < range.getStart()) {
+                        // 1. split value is below range (less than -> index++)
+                        // x < 1000 ==> range:[1001 - 4000]
+                        queue.add(Branch.builder()
+                                .partSpan(current.bisect(split, member).get(0))
+                                .instructionLabel(currentInstruction.getLabel())
+                                .ruleIndex(index+1)
+                                .build());
+                    } else if (split > range.getEnd()) {
+                        // 2. split value is above range (less than -> branch to next label & index=0 )
+                        //  x < 1000 ==> range:[1-999]
+                        queue.add(Branch.builder()
+                                .partSpan(current.bisect(split, member).get(0))
+                                .instructionLabel(grammar.get(currentRule.getTokens().get(4)).getLabel())
+                                .ruleIndex(0)
+                                .build());
+                    } else {
+                        // 3. split value actually bisects
+                        // [success] new (x [1-1415]) && branch to next label
+                        // [fail]    new (x [1416-4000]) && index++
+
+                        List<PartSpan> splitSpans = current.bisect(split, member);
+                        //span that evaluates expression to true
+                        queue.add(Branch.builder()
+                                .partSpan(splitSpans.get(0))
+                                .instructionLabel(grammar.get(currentRule.getTokens().get(4)).getLabel())
+                                .ruleIndex(0)
+                                .build());
+
+                        //span that evaluates expression to false
+                        queue.add(Branch.builder()
+                                .partSpan(splitSpans.get(1))
+                                .instructionLabel(currentInstruction.getLabel())
+                                .ruleIndex(index+1)
+                                .build());
+                    }
+                    break;
+
+                } else if (currentRule.getTokens().contains(GREATER)) {
+                    /*
+                    1. split value is above range = fail, index++
+                    2. split value is below range = success , branch to next label & index=0
+                    3. bisect occurs
+                     */
+
+
+
+
+                    int memberOperand = part.getMember(currentRule.getTokens().get(0));
+                    if (memberOperand > Integer.parseInt(currentRule.getTokens().get(2))) {
+                        currentInstruction = grammar.get(currentRule.getTokens().get(4));
+                        index = 0;
+                    } else {
+                        index++;
+                    }
+                }
+            }
+        }
+
+        return 0L;
+    }
+
+
+    public Long part2() {
+        List<List<String>> inputs = readFile();
+        return processPartSpan(PartSpan.init(), inputToRawInstruction(inputs.get(0)));
+    }
+
     public static void main(String[] args) {
         Aplenty aplenty = new Aplenty();
         long result = aplenty.part1();
         System.out.println("result1: " + result);
+    }
+
+    @AllArgsConstructor
+    @Data
+    @Builder
+    public static class Branch {
+        private final String instructionLabel;
+        private final int ruleIndex;
+        private final PartSpan partSpan;
+    }
+
+
+    @AllArgsConstructor
+    @Data
+    @Builder
+    public static class PartSpan {
+        private final Range x;
+        private final Range m;
+        private final Range a;
+        private final Range s;
+
+        public static PartSpan init() {
+            return PartSpan.builder()
+                    .x(Range.builder().start(1).end(4000).build())
+                    .m(Range.builder().start(1).end(4000).build())
+                    .a(Range.builder().start(1).end(4000).build())
+                    .s(Range.builder().start(1).end(4000).build())
+                    .build();
+        }
+
+        public Long product() {
+            return x.getDifference() * m.getDifference() * a.getDifference() * s.getDifference();
+        }
+
+
+        public Range getMember(PartComp partComp) {
+            return switch (partComp) {
+                case x -> this.x;
+                case m -> this.m;
+                case a -> this.a;
+                case s -> this.s;
+            };
+        }
+
+
+        public List<PartSpan> bisect(int splitValue, PartComp partComp) {
+            List<Range> newRanges;
+            switch (partComp) {
+                case x -> {
+                    newRanges = this.x.split(splitValue);
+                    return newRanges.stream().map(range -> PartSpan.builder().x(range).m(this.m).a(this.a).s(this.s).build()).toList();
+                }
+                case m -> {
+                    newRanges = this.m.split(splitValue);
+                    return newRanges.stream().map(range -> PartSpan.builder().x(this.x).m(range).a(this.a).s(this.s).build()).toList();
+                }
+                case a -> {
+                    newRanges = this.a.split(splitValue);
+                    return newRanges.stream().map(range -> PartSpan.builder().x(this.x).m(this.m).a(range).s(this.s).build()).toList();
+                }
+                case s -> {
+                    newRanges = this.s.split(splitValue);
+                    return newRanges.stream().map(range -> PartSpan.builder().x(this.x).m(this.m).a(this.a).s(range).build()).toList();
+                }
+            }
+
+            throw new IllegalStateException("Not sure what happened here");
+        }
+
+        @AllArgsConstructor
+        @Data
+        @Builder
+        static class Range {
+            private final int start;
+            private final int end;
+
+            public List<Range> split(int splitValue) {
+
+                //range 100 -> 1000; split value is 1001
+                if (splitValue < start || splitValue > end) {
+                    return List.of(this);
+                }
+
+                return List.of(
+                        Range.builder().start(this.start).end(splitValue).build(),
+                        Range.builder().start(splitValue + 1).end(this.end).build()
+                );
+            }
+
+            public long getDifference() {
+                return end - start + 1;
+                //4000 -1 + 1 => should account for all in range 1-4000 inclusively
+            }
+
+        }
+    }
+
+    public enum PartComp {
+        x, m, a, s;
     }
 
     @AllArgsConstructor
@@ -246,8 +446,8 @@ public class Aplenty {
             return (long) x + m + a + s;
         }
 
-        public int getMember(String member){
-            return switch(member){
+        public int getMember(String member) {
+            return switch (member) {
                 case "x" -> this.x;
                 case "m" -> this.m;
                 case "a" -> this.a;
