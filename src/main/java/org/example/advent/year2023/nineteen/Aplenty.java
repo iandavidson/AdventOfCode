@@ -3,6 +3,7 @@ package org.example.advent.year2023.nineteen;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.ToString;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -30,16 +31,6 @@ public class Aplenty {
 
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day19/input-sample.txt";
     private static final String INPUT_PATH = "adventOfCode/day19/input.txt";
-
-    /*
-  example input:
-
-    hdj{m>838:A,pv}
-    //more of these
-
-    {x=787,m=2655,a=1222,s=2876}
-    //more of these
-     */
 
     private static List<List<String>> readFile() {
         List<List<String>> input = new ArrayList<>();
@@ -157,7 +148,6 @@ public class Aplenty {
                 } else {
                     currentInstruction = grammar.get(currentRule.getTokens().get(0));
                     index = 0;
-                    //must be branch
 
                 }
             } else if (currentRule.getTokens().contains(LESS)) {
@@ -182,23 +172,6 @@ public class Aplenty {
                 }
             }
         }
-
-        //apply rule, if true, branch
-
-        //if false fall through next rule in list
-
-        /*
-        always check for:
-        - rule type:
-            - some comparison (< || >) then branch
-                - '<' -> execute code to do GT
-                - '>' -> execute code to do LT
-                - depending on result, branch or we are done
-            - direct branch to label (rule.tokens.size() == 1)
-            - final state (A || R) (rule.tokens.size() == 1)
-                - A -> return part.sum()
-                - R -> return 0L;
-         */
     }
 
     public Long part1() {
@@ -213,23 +186,12 @@ public class Aplenty {
 
         }
 
-        /*
-        intuition:
-
-        Most convenient way to represent instructions:
-        Map<"Instruction Label", Instruction>
-        -> when you encounter a token that is not a known symbol, we must find that instruction:
-        --> in order to process: px{a<2006:qkq,m>2090:A,rfg}, we must also expand and apply "qkq" and "rfg" instructions.
-        --> using hash map with label as key will be helpful
-         */
         return sum;
     }
 
     private static Long processPartSpan(PartSpan partSpan, Map<String, Instruction> grammar) {
         Long count = 0L;
 
-//        Instruction currentInstruction = grammar.get(START_LABEL);
-//        int index = 0;
         Branch init = Branch.builder().instructionLabel(START_LABEL).ruleIndex(0).partSpan(partSpan).build();
 
         Queue<Branch> queue = new LinkedList<>();
@@ -248,7 +210,8 @@ public class Aplenty {
                     if (currentRule.getTokens().contains(R)) {
                         break;
                     } else if (currentRule.getTokens().contains(A)) {
-                        count += partSpan.product();
+                        count += current.product();
+                        break;
                     } else {
                         currentInstruction = grammar.get(currentRule.getTokens().get(0));
                         index = 0;
@@ -257,31 +220,22 @@ public class Aplenty {
                     PartComp member = PartComp.valueOf(currentRule.getTokens().get(0));
                     PartSpan.Range range = current.getMember(member);
 
-                    //m > 1548; split == 1548
                     int split = Integer.parseInt(currentRule.getTokens().get(2));
 
                     if (split < range.getStart()) {
-                        // 1. split value is below range (less than -> index++)
-                        // x < 1000 ==> range:[1001 - 4000]
                         queue.add(Branch.builder()
-                                .partSpan(current.bisect(split, member).get(0))
+                                .partSpan(current.bisect(split - 1, member).get(0))
                                 .instructionLabel(currentInstruction.getLabel())
-                                .ruleIndex(index+1)
+                                .ruleIndex(index + 1)
                                 .build());
                     } else if (split > range.getEnd()) {
-                        // 2. split value is above range (less than -> branch to next label & index=0 )
-                        //  x < 1000 ==> range:[1-999]
                         queue.add(Branch.builder()
-                                .partSpan(current.bisect(split, member).get(0))
+                                .partSpan(current.bisect(split - 1, member).get(0))
                                 .instructionLabel(grammar.get(currentRule.getTokens().get(4)).getLabel())
                                 .ruleIndex(0)
                                 .build());
                     } else {
-                        // 3. split value actually bisects
-                        // [success] new (x [1-1415]) && branch to next label
-                        // [fail]    new (x [1416-4000]) && index++
-
-                        List<PartSpan> splitSpans = current.bisect(split, member);
+                        List<PartSpan> splitSpans = current.bisect(split - 1, member);
                         //span that evaluates expression to true
                         queue.add(Branch.builder()
                                 .partSpan(splitSpans.get(0))
@@ -293,33 +247,56 @@ public class Aplenty {
                         queue.add(Branch.builder()
                                 .partSpan(splitSpans.get(1))
                                 .instructionLabel(currentInstruction.getLabel())
-                                .ruleIndex(index+1)
+                                .ruleIndex(index + 1)
                                 .build());
                     }
                     break;
 
                 } else if (currentRule.getTokens().contains(GREATER)) {
-                    /*
-                    1. split value is above range = fail, index++
-                    2. split value is below range = success , branch to next label & index=0
-                    3. bisect occurs
-                     */
+                    PartComp member = PartComp.valueOf(currentRule.getTokens().get(0));
+                    PartSpan.Range range = current.getMember(member);
 
+                    int split = Integer.parseInt(currentRule.getTokens().get(2));
+                    //x > 2000
+                    if (split > range.getEnd()) {
+                        // 1. split value is above range = fail, index++
+                        queue.add(Branch.builder()
+                                .partSpan(current.bisect(split, member).get(0))
+                                .instructionLabel(currentInstruction.getLabel())
+                                .ruleIndex(index + 1)
+                                .build());
+                    } else if (split < range.getStart()) {
+                        // 2. split value is below range = success , branch to next label & index=0
+                        queue.add(Branch.builder()
+                                .partSpan(current.bisect(split, member).get(0))
+                                .instructionLabel(grammar.get(currentRule.getTokens().get(4)).getLabel())
+                                .ruleIndex(0)
+                                .build());
 
-
-
-                    int memberOperand = part.getMember(currentRule.getTokens().get(0));
-                    if (memberOperand > Integer.parseInt(currentRule.getTokens().get(2))) {
-                        currentInstruction = grammar.get(currentRule.getTokens().get(4));
-                        index = 0;
                     } else {
-                        index++;
+
+                        List<PartSpan> splitSpans = current.bisect(split, member);
+
+                        //Left side of number range (false)
+                        queue.add(Branch.builder()
+                                .partSpan(splitSpans.get(0))
+                                .instructionLabel(currentInstruction.getLabel())
+                                .ruleIndex(index + 1)
+                                .build());
+
+                        //Right side of number range (true)
+                        queue.add(Branch.builder()
+                                .partSpan(splitSpans.get(1))
+                                .instructionLabel(grammar.get(currentRule.getTokens().get(4)).getLabel())
+                                .ruleIndex(0)
+                                .build());
                     }
+                    break;
                 }
             }
         }
 
-        return 0L;
+        return count;
     }
 
 
@@ -330,8 +307,9 @@ public class Aplenty {
 
     public static void main(String[] args) {
         Aplenty aplenty = new Aplenty();
-        long result = aplenty.part1();
-        System.out.println("result1: " + result);
+        System.out.println("result1: " + aplenty.part1());
+
+        System.out.println("result2: " + aplenty.part2());
     }
 
     @AllArgsConstructor
@@ -409,8 +387,8 @@ public class Aplenty {
             private final int end;
 
             public List<Range> split(int splitValue) {
+                System.out.println("splitting on : " + splitValue + "; start: "+ start + "; end:" + end);
 
-                //range 100 -> 1000; split value is 1001
                 if (splitValue < start || splitValue > end) {
                     return List.of(this);
                 }
@@ -477,6 +455,7 @@ public class Aplenty {
     @AllArgsConstructor
     @Data
     @Builder
+    @ToString
     public static class Rule {
         // [a, <, 2006, :, qkq]
         @Builder.Default
