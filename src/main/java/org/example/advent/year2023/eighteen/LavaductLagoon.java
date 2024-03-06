@@ -42,7 +42,7 @@ public class LavaductLagoon {
     private static List<Edge> readFile(boolean part1) {
         List<Edge> input = new ArrayList<>();
         try {
-            ClassLoader classLoader = TheFloorWillBeLava.class.getClassLoader();
+            ClassLoader classLoader = LavaductLagoon.class.getClassLoader();
             File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
