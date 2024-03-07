@@ -8,5 +8,5 @@ public interface SignalReceiver {
         return true;
     }
     String getLabel();
-    List<String> getOutputModules();
+    List<String> getOutputs();
 }

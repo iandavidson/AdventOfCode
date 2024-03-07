@@ -39,10 +39,6 @@ public class Flipflop implements SignalReceiver {
         return pulse.equals(PULSE.LOW);
     }
 
-    @Override
-    public List<String> getOutputModules() {
-        return outputs;
-    }
 
     /*
     Flip-flop modules (prefix %) are either on or off; they are initially off. If a flip-flop module receives a high pulse,

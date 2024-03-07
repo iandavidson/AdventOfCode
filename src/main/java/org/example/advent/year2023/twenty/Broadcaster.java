@@ -21,11 +21,6 @@ public class Broadcaster implements SignalReceiver {
 
     @Override
     public PULSE receiveSignal(String label, PULSE pulse) {
-        return PULSE.LOW;
-    }
-
-    @Override
-    public List<String> getOutputModules() {
-        return this.outputs;
+        return pulse;
     }
 }

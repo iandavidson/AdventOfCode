@@ -34,11 +34,6 @@ public class Conjunction implements SignalReceiver {
         return PULSE.LOW;
     }
 
-    @Override
-    public List<String> getOutputModules() {
-        return this.outputs;
-    }
-
     public static Map<String, PULSE> toInputMap(List<String> inputs){
         Map<String, PULSE> inputMap = new HashMap<>();
         for(String input : inputs){

@@ -1,7 +1,6 @@
 package org.example.advent.year2023.twenty;
 
 import lombok.extern.java.Log;
-import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -27,7 +26,7 @@ public class PulsePropagation {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = PulsePropagation.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -48,7 +47,7 @@ public class PulsePropagation {
             List<String> outputs = Arrays.stream(inputLine.substring(inputLine.indexOf("->") + 2).split(","))
                     .map(String::trim).toList();
 
-            String label = inputLine.charAt(0) != 'b' ? inputLine.substring(1, 3) : BROADCASTER;
+            String label = inputLine.charAt(0) != 'b' ? inputLine.substring(1, inputLine.indexOf(" ")).trim() : BROADCASTER;
 
             for (String output : outputs) {
                 if (!inputMap.containsKey(output)) {
@@ -90,7 +89,7 @@ public class PulsePropagation {
 
     private static Long propagate(Map<String, SignalReceiver> circuit) {
         Queue<PulseVector> queue = new LinkedList<>();
-        queue.add(PulseVector.builder().signalReceiver(circuit.get(BROADCASTER)).pulse(PULSE.LOW).build());
+        queue.add(PulseVector.builder().signalReceiver(circuit.get(BROADCASTER)).pulse(PULSE.LOW).senderLabel("button").build());
 
         long highCharges = 0;
         long lowCharges = 0;
@@ -99,6 +98,8 @@ public class PulsePropagation {
             PulseVector pulseVector = queue.remove();
             SignalReceiver signalReceiver = pulseVector.getSignalReceiver();
             PULSE pulse = pulseVector.getPulse();
+
+            //count
             if (pulse.equals(PULSE.LOW)) {
                 lowCharges++;
             } else {
@@ -108,13 +109,23 @@ public class PulsePropagation {
             //apply pulse
             if (signalReceiver.sendsSignal(pulse)) {
                 PULSE next = signalReceiver.receiveSignal(pulseVector.getSenderLabel(), pulse);
-                for (String label : pulseVector.getSignalReceiver().getOutputModules()) {
-                    queue.add(PulseVector.builder().signalReceiver(circuit.get(label)).pulse(next).senderLabel(signalReceiver.getLabel()).build());
+                for (String label : signalReceiver.getOutputs()) {
+                if(circuit.get(label) == null){
+                    //Dont understand, in input there is a state "rx" that isn't defined but has signal going to it;
+                    // when just avoiding it (and counting the pulse) i'm not getting the right answer
+                    log.info("the following label couldn't be found in map: " + label);
+                }else{
+                    queue.add(PulseVector.builder()
+                            .signalReceiver(circuit.get(label))
+                            .pulse(next)
+                            .senderLabel(signalReceiver.getLabel())
+                            .build());
+                    }
                 }
             }
         }
         log.info("high:" + highCharges + " low:" + lowCharges);
-        return highCharges * lowCharges * 1000;
+        return (highCharges * 1000) * (lowCharges * 1000);
     }
 
 
