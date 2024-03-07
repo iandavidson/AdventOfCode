@@ -14,22 +14,19 @@ public class Flipflop implements SignalReceiver {
     private final String label;
 
     @Builder.Default
-    private List<SignalReceiver> outputs = new ArrayList<>();
+    private List<String> outputs = new ArrayList<>();
 
     @Builder.Default
     private Boolean power = false;
 
-    public void flipSwitch(){
-        this.power = !this.power;
-    }
     @Override
-    public PULSE receiveSignal(PULSE pulse) {
-        if(pulse.equals(PULSE.LOW)){
-            if(power){
-                this.flipSwitch();
+    public PULSE receiveSignal(String label, PULSE pulse) {
+        if (pulse.equals(PULSE.LOW)) {
+            if (power) {
+                this.power = false;
                 return PULSE.LOW;
-            }else {
-                this.flipSwitch();
+            } else {
+                this.power = true;
                 return PULSE.HIGH;
             }
         }
@@ -43,7 +40,7 @@ public class Flipflop implements SignalReceiver {
     }
 
     @Override
-    public List<SignalReceiver> getOutputModules() {
+    public List<String> getOutputModules() {
         return outputs;
     }
 

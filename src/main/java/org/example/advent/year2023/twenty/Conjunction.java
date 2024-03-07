@@ -16,19 +16,35 @@ public class Conjunction implements SignalReceiver {
     private final String label;
 
     @Builder.Default
-    private List<SignalReceiver> outputs = new ArrayList<>();
+    private List<String> outputs = new ArrayList<>();
 
     @Builder.Default
-    private Map<String, PULSE> history = new HashMap<>();
+    private Map<String, PULSE> inputs = new HashMap<>();
 
     @Override
-    public PULSE receiveSignal(PULSE pulse) {
-        return null;
+    public PULSE receiveSignal(String label, PULSE pulse) {
+        inputs.put(label, pulse);
+
+        for(Map.Entry<String, PULSE> entry : inputs.entrySet()){
+            if(entry.getValue().equals(PULSE.LOW)){
+                return PULSE.HIGH;
+            }
+        }
+
+        return PULSE.LOW;
     }
 
     @Override
-    public List<SignalReceiver> getOutputModules() {
+    public List<String> getOutputModules() {
         return this.outputs;
+    }
+
+    public static Map<String, PULSE> toInputMap(List<String> inputs){
+        Map<String, PULSE> inputMap = new HashMap<>();
+        for(String input : inputs){
+            inputMap.put(input, PULSE.LOW);
+        }
+        return inputMap;
     }
         /*
         Conjunction modules (prefix &) remember the type of the most recent pulse received from each of their connected input modules;
