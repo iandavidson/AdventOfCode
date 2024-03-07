@@ -1,5 +1,7 @@
 package org.example.advent.year2023.twenty;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.extern.java.Log;
 
 import java.io.File;
@@ -20,13 +22,14 @@ import static org.example.advent.year2023.twenty.Broadcaster.BROADCASTER;
 public class PulsePropagation {
 
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day20/input-sample.txt";
+    private static final String SAMPLE_INPUT_2_PATH = "adventOfCode/day20/input-sample2.txt";
     private static final String INPUT_PATH = "adventOfCode/day20/input.txt";
 
     private List<String> readFile() {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = PulsePropagation.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_2_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -87,7 +90,7 @@ public class PulsePropagation {
         return labelMap;
     }
 
-    private static Long propagate(Map<String, SignalReceiver> circuit) {
+    private static void propagate(Map<String, SignalReceiver> circuit, ChargeCount chargeCount, int iteration) {
         Queue<PulseVector> queue = new LinkedList<>();
         queue.add(PulseVector.builder().signalReceiver(circuit.get(BROADCASTER)).pulse(PULSE.LOW).senderLabel("button").build());
 
@@ -110,29 +113,41 @@ public class PulsePropagation {
             if (signalReceiver.sendsSignal(pulse)) {
                 PULSE next = signalReceiver.receiveSignal(pulseVector.getSenderLabel(), pulse);
                 for (String label : signalReceiver.getOutputs()) {
-                if(circuit.get(label) == null){
-                    //Dont understand, in input there is a state "rx" that isn't defined but has signal going to it;
-                    // when just avoiding it (and counting the pulse) i'm not getting the right answer
-                    log.info("the following label couldn't be found in map: " + label);
-                }else{
-                    queue.add(PulseVector.builder()
-                            .signalReceiver(circuit.get(label))
-                            .pulse(next)
-                            .senderLabel(signalReceiver.getLabel())
-                            .build());
+                    if(circuit.get(label) == null){
+                        //Dont understand, in input there is a state "rx" that isn't defined but has signal going to it;
+                        // when just avoiding it (and counting the pulse) i'm not getting the right answer
+//                        log.info("the following label couldn't be found in map: " + label + "; with charge of " + next);
+                        if(next.equals(PULSE.LOW)){
+                            log.info("low pulse found at output; iteration: " + iteration);
+                            lowCharges++;
+                        }else {
+                            highCharges++;
+                        }
+                    }else{
+                        queue.add(PulseVector.builder()
+                                .signalReceiver(circuit.get(label))
+                                .pulse(next)
+                                .senderLabel(signalReceiver.getLabel())
+                                .build());
+                        }
                     }
-                }
             }
         }
-        log.info("high:" + highCharges + " low:" + lowCharges);
-        return (highCharges * 1000) * (lowCharges * 1000);
+        log.info("h:" + highCharges + " l:" + lowCharges);
+        chargeCount.add(lowCharges, highCharges);
     }
 
 
     public long part1() {
         List<String> inputs = readFile();
         Map<String, SignalReceiver> receivers = processInputs(inputs);
-        return propagate(receivers);
+
+        ChargeCount chargeCount = ChargeCount.builder().build();
+        for(int i  = 0; i < 100; i++){
+            propagate(receivers, chargeCount, i);
+        }
+
+        return chargeCount.result();
     }
 
 
@@ -142,6 +157,26 @@ public class PulsePropagation {
         log.info("part1: " + result);
     }
 
+
+    @AllArgsConstructor
+    @Builder
+    @Deprecated
+    public static class ChargeCount{
+        @Builder.Default
+        private long highCharges = 0L;
+
+        @Builder.Default
+        private long lowCharges = 0L;
+
+        public void add(long low, long high){
+            this.lowCharges += low;
+            this.highCharges += high;
+        }
+
+        public long result(){
+            return lowCharges * highCharges;
+        }
+    }
 
 }
 
