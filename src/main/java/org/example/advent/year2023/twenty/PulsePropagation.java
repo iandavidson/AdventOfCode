@@ -2,6 +2,7 @@ package org.example.advent.year2023.twenty;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Data;
 import lombok.extern.java.Log;
 
 import java.io.File;
@@ -29,7 +30,7 @@ public class PulsePropagation {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = PulsePropagation.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_2_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -112,25 +113,42 @@ public class PulsePropagation {
             //apply pulse
             if (signalReceiver.sendsSignal(pulse)) {
                 PULSE next = signalReceiver.receiveSignal(pulseVector.getSenderLabel(), pulse);
+
+                if (next.equals(PULSE.HIGH) && (signalReceiver.getLabel().equals("fv") || signalReceiver.getLabel().equals("kk") || signalReceiver.getLabel().equals("xr") || signalReceiver.getLabel().equals("vt"))) {
+                    /*
+                    Cycle of when Sq sends low -> it must get high pulse from all 4 inputs == what we are looking for.
+
+                    fv: 459696, 463559, 467422 = 3863
+                    kk: 459926, 463857, 467788 = 3931
+                    xr: 463586, 467355, 471124 = 3769
+                    vt: 463233, 467030, 470827 = 3797
+
+                    3863 * 3931 * 3769 * 3797 = 217317393039529
+                    part 2 done.
+                     */
+                    System.out.println("label: " + signalReceiver.getLabel() + "; pulse:" + next + "; iteration:" + iteration);
+                }
+
+
                 for (String label : signalReceiver.getOutputs()) {
-                    if(circuit.get(label) == null){
+                    if (circuit.get(label) == null) {
                         //Dont understand, in input there is a state "rx" that isn't defined but has signal going to it;
                         // when just avoiding it (and counting the pulse) i'm not getting the right answer
 //                        log.info("the following label couldn't be found in map: " + label + "; with charge of " + next);
-                        if(next.equals(PULSE.LOW)){
+                        if (next.equals(PULSE.LOW)) {
                             log.info("low pulse found at output; iteration: " + iteration);
                             lowCharges++;
-                        }else {
+                        } else {
                             highCharges++;
                         }
-                    }else{
+                    } else {
                         queue.add(PulseVector.builder()
                                 .signalReceiver(circuit.get(label))
                                 .pulse(next)
                                 .senderLabel(signalReceiver.getLabel())
                                 .build());
-                        }
                     }
+                }
             }
         }
         log.info("h:" + highCharges + " l:" + lowCharges);
@@ -143,7 +161,7 @@ public class PulsePropagation {
         Map<String, SignalReceiver> receivers = processInputs(inputs);
 
         ChargeCount chargeCount = ChargeCount.builder().build();
-        for(int i  = 0; i < 100; i++){
+        for (int i = 1; i < 1000000; i++) {
             propagate(receivers, chargeCount, i);
         }
 
@@ -160,20 +178,20 @@ public class PulsePropagation {
 
     @AllArgsConstructor
     @Builder
-    @Deprecated
-    public static class ChargeCount{
+    @Data
+    public static class ChargeCount {
         @Builder.Default
         private long highCharges = 0L;
 
         @Builder.Default
         private long lowCharges = 0L;
 
-        public void add(long low, long high){
+        public void add(long low, long high) {
             this.lowCharges += low;
             this.highCharges += high;
         }
 
-        public long result(){
+        public long result() {
             return lowCharges * highCharges;
         }
     }
