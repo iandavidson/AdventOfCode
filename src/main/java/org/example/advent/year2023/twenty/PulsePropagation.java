@@ -25,6 +25,7 @@ public class PulsePropagation {
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day20/input-sample.txt";
     private static final String SAMPLE_INPUT_2_PATH = "adventOfCode/day20/input-sample2.txt";
     private static final String INPUT_PATH = "adventOfCode/day20/input.txt";
+    private static final String FINAL_STATE = "sq";
 
     private List<String> readFile() {
         List<String> input = new ArrayList<>();
@@ -43,9 +44,8 @@ public class PulsePropagation {
         return input;
     }
 
-    private static Map<String, SignalReceiver> processInputs(List<String> inputLines) {
+    private static Map<String, SignalReceiver> processInputs(List<String> inputLines, Map<String, List<String>> inputMap) {
         Map<String, SignalReceiver> labelMap = new HashMap<>();
-        Map<String, List<String>> inputMap = new HashMap<>();
         for (String inputLine : inputLines) {
 
             List<String> outputs = Arrays.stream(inputLine.substring(inputLine.indexOf("->") + 2).split(","))
@@ -91,7 +91,7 @@ public class PulsePropagation {
         return labelMap;
     }
 
-    private static void propagate(Map<String, SignalReceiver> circuit, ChargeCount chargeCount, int iteration) {
+    private static void propagatePart1(Map<String, SignalReceiver> circuit, ChargeCount chargeCount) {
         Queue<PulseVector> queue = new LinkedList<>();
         queue.add(PulseVector.builder().signalReceiver(circuit.get(BROADCASTER)).pulse(PULSE.LOW).senderLabel("button").build());
 
@@ -114,29 +114,9 @@ public class PulsePropagation {
             if (signalReceiver.sendsSignal(pulse)) {
                 PULSE next = signalReceiver.receiveSignal(pulseVector.getSenderLabel(), pulse);
 
-                if (next.equals(PULSE.HIGH) && (signalReceiver.getLabel().equals("fv") || signalReceiver.getLabel().equals("kk") || signalReceiver.getLabel().equals("xr") || signalReceiver.getLabel().equals("vt"))) {
-                    /*
-                    Cycle of when Sq sends low -> it must get high pulse from all 4 inputs == what we are looking for.
-
-                    fv: 459696, 463559, 467422 = 3863
-                    kk: 459926, 463857, 467788 = 3931
-                    xr: 463586, 467355, 471124 = 3769
-                    vt: 463233, 467030, 470827 = 3797
-
-                    3863 * 3931 * 3769 * 3797 = 217317393039529
-                    part 2 done.
-                     */
-                    System.out.println("label: " + signalReceiver.getLabel() + "; pulse:" + next + "; iteration:" + iteration);
-                }
-
-
                 for (String label : signalReceiver.getOutputs()) {
                     if (circuit.get(label) == null) {
-                        //Dont understand, in input there is a state "rx" that isn't defined but has signal going to it;
-                        // when just avoiding it (and counting the pulse) i'm not getting the right answer
-//                        log.info("the following label couldn't be found in map: " + label + "; with charge of " + next);
                         if (next.equals(PULSE.LOW)) {
-                            log.info("low pulse found at output; iteration: " + iteration);
                             lowCharges++;
                         } else {
                             highCharges++;
@@ -151,21 +131,87 @@ public class PulsePropagation {
                 }
             }
         }
-        log.info("h:" + highCharges + " l:" + lowCharges);
+//        log.info("h:" + highCharges + " l:" + lowCharges);
         chargeCount.add(lowCharges, highCharges);
+    }
+
+    private static void propagatePart2(Map<String, SignalReceiver> circuit, Map<String, List<Long>> finalInputsMap, int iteration) {
+        Queue<PulseVector> queue = new LinkedList<>();
+        queue.add(PulseVector.builder().signalReceiver(circuit.get(BROADCASTER)).pulse(PULSE.LOW).senderLabel("button").build());
+
+        while (!queue.isEmpty()) {
+            PulseVector pulseVector = queue.remove();
+            SignalReceiver signalReceiver = pulseVector.getSignalReceiver();
+            PULSE pulse = pulseVector.getPulse();
+
+            //apply pulse
+            if (signalReceiver.sendsSignal(pulse)) {
+                PULSE next = signalReceiver.receiveSignal(pulseVector.getSenderLabel(), pulse);
+
+                if (finalInputsMap.containsKey(signalReceiver.getLabel()) && next.equals(PULSE.HIGH)) {
+                    if (finalInputsMap.get(signalReceiver.getLabel()).isEmpty()) {
+                        finalInputsMap.get(signalReceiver.getLabel()).add((long) iteration);
+                    }
+
+                    for (String label : finalInputsMap.keySet()) {
+                        if (finalInputsMap.get(label).isEmpty()) {
+                            break;
+                        } else {
+                            return;
+                        }
+
+                    }
+                }
+
+                for (String label : signalReceiver.getOutputs()) {
+                    if (circuit.get(label) != null) {
+                        queue.add(PulseVector.builder()
+                                .signalReceiver(circuit.get(label))
+                                .pulse(next)
+                                .senderLabel(signalReceiver.getLabel())
+                                .build());
+                    }
+                }
+            }
+        }
     }
 
 
     public long part1() {
         List<String> inputs = readFile();
-        Map<String, SignalReceiver> receivers = processInputs(inputs);
-
+        Map<String, List<String>> inputMap = new HashMap<>();
+        Map<String, SignalReceiver> receivers = processInputs(inputs, inputMap);
         ChargeCount chargeCount = ChargeCount.builder().build();
-        for (int i = 1; i < 1000000; i++) {
-            propagate(receivers, chargeCount, i);
+        for (int i = 0; i < 1000; i++) {
+            propagatePart1(receivers, chargeCount);
         }
 
         return chargeCount.result();
+    }
+
+
+    public long part2() {
+        List<String> inputs = readFile();
+        Map<String, List<String>> inputMap = new HashMap<>();
+        Map<String, SignalReceiver> receivers = processInputs(inputs, inputMap);
+
+        List<String> sqInputs = inputMap.get(FINAL_STATE);
+        Map<String, List<Long>> finalInputMap = new HashMap<>();
+        sqInputs.forEach(input -> finalInputMap.put(input, new ArrayList<>()));
+
+        for (int i = 1; i < 10000; i++) {
+            propagatePart2(receivers, finalInputMap, i);
+        }
+
+        Long sum = 1L;
+
+        for (String label : finalInputMap.keySet()) {
+            System.out.println("For label: " + label + "; " + finalInputMap.get(label).get(0));
+            sum *= finalInputMap.get(label).get(0);
+        }
+
+
+        return sum;
     }
 
 
@@ -173,6 +219,9 @@ public class PulsePropagation {
         PulsePropagation pulsePropagation = new PulsePropagation();
         Long result = pulsePropagation.part1();
         log.info("part1: " + result);
+
+        result = pulsePropagation.part2();
+        log.info("part2: " + result);
     }
 
 
