@@ -52,7 +52,7 @@ public class StepCounter {
     }
 
     private static boolean isInBounds(List<List<TILE>> grid, int row, int col) {
-        if (grid.get(row).get(col) == TILE.ROCK || row > grid.size() - 1 || row < 0 || col > grid.get(0).size() - 1 || col < 0) {
+        if (row > grid.size() - 1 || row < 0 || col > grid.get(0).size() - 1 || col < 0 || grid.get(row).get(col) == TILE.ROCK ) {
             return false;
         }
 
@@ -144,12 +144,12 @@ public class StepCounter {
         return count;
     }
 
-    public int part1() {
+    public int part1(int steps) {
         List<List<TILE>> grid = readFile();
         WalkState start = WalkState.builder()
                 .coordinate(
                         Coordinate.builder().row(startRow).col(startCol).build())
-                .stepsRemaining(64).build();
+                .stepsRemaining(steps).build();
 
         return walk(grid, start);
     }
@@ -160,8 +160,7 @@ public class StepCounter {
         //use this for mod: Math.floorMod( , )
 
         //up
-        if(grid.get((walkState.getRow() -1) % grid.size()).get(walkState.getCol() % grid.get(0).size()) != TILE.ROCK){
-//        if (isInBounds(grid, walkState.getRow() - 1, walkState.getCol())) {
+        if(grid.get(Math.floorMod((walkState.getRow() -1), grid.size())).get(Math.floorMod(walkState.getCol(),  grid.get(0).size())) != TILE.ROCK){
             walkStates.add(WalkState.builder()
                     .coordinate(
                             Coordinate.builder()
@@ -173,8 +172,7 @@ public class StepCounter {
         }
 
         //down
-        if(grid.get((walkState.getRow() +1) % grid.size()).get(walkState.getCol() % grid.get(0).size()) != TILE.ROCK){
-//        if (isInBounds(grid, walkState.getRow() + 1, walkState.getCol())) {
+        if(grid.get(Math.floorMod((walkState.getRow() +1), grid.size())).get(Math.floorMod(walkState.getCol(), grid.get(0).size())) != TILE.ROCK){
             walkStates.add(WalkState.builder()
                     .coordinate(
                             Coordinate.builder()
@@ -186,8 +184,7 @@ public class StepCounter {
         }
 
         //right
-        if(grid.get(walkState.getRow() % grid.size()).get((walkState.getCol() + 1) % grid.get(0).size()) != TILE.ROCK){
-//        if (isInBounds(grid, walkState.getRow(), walkState.getCol() + 1)) {
+        if(grid.get(Math.floorMod(walkState.getRow(), grid.size())).get(Math.floorMod((walkState.getCol() + 1), grid.get(0).size())) != TILE.ROCK){
             walkStates.add(WalkState.builder()
                     .coordinate(
                             Coordinate.builder()
@@ -199,8 +196,7 @@ public class StepCounter {
         }
 
         //left
-//        if (isInBounds(grid, walkState.getRow(), walkState.getCol() - 1)) {
-        if(grid.get(walkState.getRow() % grid.size()).get((walkState.getCol() - 1) % grid.get(0).size()) != TILE.ROCK){
+        if(grid.get(Math.floorMod(walkState.getRow(), grid.size())).get(Math.floorMod((walkState.getCol() - 1), grid.get(0).size())) != TILE.ROCK){
             walkStates.add(WalkState.builder()
                     .coordinate(
                             Coordinate.builder()
@@ -244,12 +240,12 @@ public class StepCounter {
         return count;
     }
 
-    public long part2(){
+    public long part2(int steps){
         List<List<TILE>> grid = readFile();
         WalkState start = WalkState.builder()
                 .coordinate(
                         Coordinate.builder().row(startRow).col(startCol).build())
-                .stepsRemaining(500).build();
+                .stepsRemaining(steps).build();
 
         return walkPart2(grid, start);
     }
@@ -257,18 +253,17 @@ public class StepCounter {
 
     public static void main(String[] args) {
         StepCounter stepCounter = new StepCounter();
-//        log.info("Part1: " + stepCounter.part1());
+        int steps = 10;
+//        log.info("Part1: " + stepCounter.part1(steps));
 
-        log.info("Part2: " + stepCounter.part2());
-        /*
-        so the problem says how many garden plots can you reach in exactly 64 steps. Should I track state while processing by doing 1 or 2?
-
-        1. Queue<{coordinate{x,y}, remainingSteps}>; then look if left / right / up / down are plots to move to; add all to queue & decrement remainingSteps
-        -> additionally use a set to determine if we need to add next directional step to queue.
-        --> @Override::equals() { coordinate, remainingSteps }
-
-        2. Queue<{coordinate{x,y}, List<remainingSteps>}>; list represents the different amount of steps remaining that you can end up at that tile.
-        --> using list may allow us to process more concurrently. But sounds like more unneeded complexity in class.
-         */
+        log.info(steps + " Part2: " + stepCounter.part2(steps));
+//
+//        steps += 131;
+//
+//        log.info(steps + " Part2: " + stepCounter.part2(steps));
+//
+//        steps += 131;
+//
+//        log.info(steps + " Part2: " + stepCounter.part2(steps));
     }
 }
