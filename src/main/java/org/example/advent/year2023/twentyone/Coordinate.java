@@ -11,6 +11,11 @@ public class Coordinate implements Comparable<Coordinate> {
     private final int row;
     private final int col;
 
+
+    public Coordinate newNeighbor(int rowDelta, int colDelta){
+        return Coordinate.builder().row(this.row + rowDelta).col(this.col + colDelta).build();
+    }
+
     @Override
     public int compareTo(Coordinate o) {
         if (this.row != o.getRow()) {

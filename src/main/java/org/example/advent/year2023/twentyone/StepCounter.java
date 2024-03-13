@@ -6,19 +6,15 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
-import java.util.Set;
 
 @Log
 public class StepCounter {
-
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day21/input-sample.txt";
     private static final String INPUT_PATH = "adventOfCode/day21/input.txt";
     private int startRow = -1;
@@ -26,15 +22,13 @@ public class StepCounter {
 
     public static void main(String[] args) {
         StepCounter stepCounter = new StepCounter();
-        int steps = 64;
-        log.info("Part1: " + stepCounter.part1(steps));
+        log.info("Part1: " + stepCounter.part1(64));
         log.info("Part2: " + stepCounter.part2(26501365));
     }
 
     public Long part1(int steps) {
         List<List<TILE>> grid = readFile();
-        Map<Coordinate, Integer> distances = dijkstras(grid, Coordinate.builder().row(startRow).col(startCol).build());
-
+        Map<Coordinate, Integer> distances = greedyBFS(grid, Coordinate.builder().row(startRow).col(startCol).build());
         return distances.entrySet().stream().filter(entry -> entry.getValue() <= steps && entry.getValue() % 2 == 0).count();
     }
 
@@ -42,9 +36,8 @@ public class StepCounter {
         List<List<TILE>> grid = readFile();
 
         //Credit to https://github.com/ash42/adventofcode/blob/main/adventofcode2023/src/nl/michielgraat/adventofcode2023/day21/Day21.java
-        //for providing insight on how to utlize dijkstra's + some math to calculate potential final coordiantes;
-
-        Map<Coordinate, Integer> walkDistances = dijkstras(grid, Coordinate.builder().row(startRow).col(startCol).build());
+        //for providing insight on how to calculate potential final coordiantes;
+        Map<Coordinate, Integer> walkDistances = greedyBFS(grid, Coordinate.builder().row(startRow).col(startCol).build());
 
         long evenFoundDistances = walkDistances.entrySet().stream().filter(entry -> entry.getValue() % 2 == 0).count();
         long oddFoundDistances = walkDistances.entrySet().stream().filter(entry -> entry.getValue() % 2 == 1).count();
@@ -94,7 +87,11 @@ public class StepCounter {
     }
 
     private static boolean isInBounds(List<List<TILE>> grid, int row, int col) {
-        return ! (row > grid.size() - 1 || row < 0 || col > grid.get(0).size() - 1 || col < 0 || grid.get(row).get(col) == TILE.ROCK);
+        if(row > grid.size() - 1 || row < 0 || col > grid.get(0).size() - 1 || col < 0 || grid.get(row).get(col) == TILE.ROCK){
+            return false;
+        } else{
+            return true;
+        }
     }
 
     private static List<Coordinate> getNeighbors(List<List<TILE>> grid, Coordinate current) {
@@ -136,9 +133,8 @@ public class StepCounter {
         return neighbors;
     }
 
-    private static Map<Coordinate, Integer> dijkstras(List<List<TILE>> grid, Coordinate start) {
-
-        Queue<Coordinate> queue = new PriorityQueue<>();
+    private static Map<Coordinate, Integer> greedyBFS(List<List<TILE>> grid, Coordinate start) {
+        Queue<Coordinate> queue = new LinkedList<>();
         queue.add(start);
         Map<Coordinate, Integer> distanceMap = new HashMap<>();
         distanceMap.put(start, 0);
@@ -151,7 +147,7 @@ public class StepCounter {
             for (Coordinate coord : neighbors) {
                 int nextDistance = currentDistance + 1;
 
-                if(distanceMap.getOrDefault(coord, Integer.MAX_VALUE) > nextDistance){
+                if (distanceMap.getOrDefault(coord, Integer.MAX_VALUE) > nextDistance) {
                     distanceMap.put(coord, nextDistance);
                     queue.add(coord);
                 }
