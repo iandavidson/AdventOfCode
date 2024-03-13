@@ -5,10 +5,13 @@ import lombok.extern.java.Log;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
@@ -21,12 +24,51 @@ public class StepCounter {
     private int startRow = -1;
     private int startCol = -1;
 
+    public static void main(String[] args) {
+        StepCounter stepCounter = new StepCounter();
+        int steps = 64;
+        log.info("Part1: " + stepCounter.part1(steps));
+        log.info("Part2: " + stepCounter.part2(26501365));
+    }
+
+    public Long part1(int steps) {
+        List<List<TILE>> grid = readFile();
+        Map<Coordinate, Integer> distances = dijkstras(grid, Coordinate.builder().row(startRow).col(startCol).build());
+
+        return distances.entrySet().stream().filter(entry -> entry.getValue() <= steps && entry.getValue() % 2 == 0).count();
+    }
+
+    public long part2(int steps) {
+        List<List<TILE>> grid = readFile();
+
+        //Credit to https://github.com/ash42/adventofcode/blob/main/adventofcode2023/src/nl/michielgraat/adventofcode2023/day21/Day21.java
+        //for providing insight on how to utlize dijkstra's + some math to calculate potential final coordiantes;
+
+        Map<Coordinate, Integer> walkDistances = dijkstras(grid, Coordinate.builder().row(startRow).col(startCol).build());
+
+        long evenFoundDistances = walkDistances.entrySet().stream().filter(entry -> entry.getValue() % 2 == 0).count();
+        long oddFoundDistances = walkDistances.entrySet().stream().filter(entry -> entry.getValue() % 2 == 1).count();
+
+        long evenCornerFoundDistances = walkDistances.entrySet().stream().filter(entry -> entry.getValue() > 65 && entry.getValue() % 2 == 0).count();
+        long oddCornerFoundDistances = walkDistances.entrySet().stream().filter(entry -> entry.getValue() > 65 && entry.getValue() % 2 == 1).count();
+
+        long horizontalSquares = (steps - 65) / 131;
+
+        long totalOddPlots = (horizontalSquares + 1) * (horizontalSquares + 1) * oddFoundDistances;
+        long totalEvenPlots = (horizontalSquares) * (horizontalSquares) * evenFoundDistances;
+
+        long totalOddCorners = (horizontalSquares + 1) * oddCornerFoundDistances;
+        long totalEvenCorners = horizontalSquares * evenCornerFoundDistances;
+
+        return totalOddPlots + totalEvenPlots - totalOddCorners + totalEvenCorners;
+    }
+
     private List<List<TILE>> readFile() {
         List<List<TILE>> grid = new ArrayList<>();
 
         try {
             ClassLoader classLoader = StepCounter.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             int i = 0;
             while (myReader.hasNextLine()) {
@@ -52,244 +94,70 @@ public class StepCounter {
     }
 
     private static boolean isInBounds(List<List<TILE>> grid, int row, int col) {
-        if (row > grid.size() - 1 || row < 0 || col > grid.get(0).size() - 1 || col < 0 || grid.get(row).get(col) == TILE.ROCK ) {
-            return false;
-        }
-
-        return true;
+        return ! (row > grid.size() - 1 || row < 0 || col > grid.get(0).size() - 1 || col < 0 || grid.get(row).get(col) == TILE.ROCK);
     }
 
-    private static List<WalkState> getValidNeighbors(List<List<TILE>> grid, WalkState walkState) {
-        List<WalkState> walkStates = new ArrayList<>();
+    private static List<Coordinate> getNeighbors(List<List<TILE>> grid, Coordinate current) {
+        List<Coordinate> neighbors = new ArrayList<>();
 
         //up
-        if (isInBounds(grid, walkState.getRow() - 1, walkState.getCol())) {
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow() - 1)
-                                    .col(walkState.getCol())
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
+        if (isInBounds(grid, current.getRow() - 1, current.getCol())) {
+            neighbors.add(Coordinate.builder()
+                    .row(current.getRow() - 1)
+                    .col(current.getCol())
                     .build());
         }
 
         //down
-        if (isInBounds(grid, walkState.getRow() + 1, walkState.getCol())) {
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow() + 1)
-                                    .col(walkState.getCol())
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
+        if (isInBounds(grid, current.getRow() + 1, current.getCol())) {
+            neighbors.add(Coordinate.builder()
+                    .row(current.getRow() + 1)
+                    .col(current.getCol())
                     .build());
         }
 
         //right
-        if (isInBounds(grid, walkState.getRow(), walkState.getCol() + 1)) {
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow())
-                                    .col(walkState.getCol() + 1)
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
+        if (isInBounds(grid, current.getRow(), current.getCol() + 1)) {
+            neighbors.add(Coordinate.builder()
+                    .row(current.getRow())
+                    .col(current.getCol() + 1)
                     .build());
         }
 
         //left
-        if (isInBounds(grid, walkState.getRow(), walkState.getCol() - 1)) {
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow())
-                                    .col(walkState.getCol() - 1)
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
+        if (isInBounds(grid, current.getRow(), current.getCol() - 1)) {
+            neighbors.add(Coordinate.builder()
+                    .row(current.getRow())
+                    .col(current.getCol() - 1)
                     .build());
+
         }
 
-        return walkStates;
+        return neighbors;
     }
 
+    private static Map<Coordinate, Integer> dijkstras(List<List<TILE>> grid, Coordinate start) {
 
-    private static int walk(List<List<TILE>> grid, WalkState start) {
-        Set<WalkState> seenStates = new HashSet<>();
-
-        Queue<WalkState> queue = new LinkedList<>();
+        Queue<Coordinate> queue = new PriorityQueue<>();
         queue.add(start);
-        seenStates.add(start);
-        int count = 0;
+        Map<Coordinate, Integer> distanceMap = new HashMap<>();
+        distanceMap.put(start, 0);
 
         while (!queue.isEmpty()) {
-            WalkState current = queue.remove();
+            Coordinate current = queue.remove();
+            int currentDistance = distanceMap.get(current);
+            List<Coordinate> neighbors = getNeighbors(grid, current);
 
-            if (current.getStepsRemaining() == 0) {
-                count++;
+            for (Coordinate coord : neighbors) {
+                int nextDistance = currentDistance + 1;
 
-            } else {
-                seenStates.remove(current);
-                List<WalkState> neighbors = getValidNeighbors(grid, current);
-                for (WalkState walkState : neighbors) {
-                    if (!seenStates.contains(walkState)) {
-                        seenStates.add(walkState);
-                        queue.add(walkState);
-                    }
+                if(distanceMap.getOrDefault(coord, Integer.MAX_VALUE) > nextDistance){
+                    distanceMap.put(coord, nextDistance);
+                    queue.add(coord);
                 }
             }
-
         }
 
-        return count;
-    }
-
-    public int part1(int steps) {
-        List<List<TILE>> grid = readFile();
-        WalkState start = WalkState.builder()
-                .coordinate(
-                        Coordinate.builder().row(startRow).col(startCol).build())
-                .stepsRemaining(steps).build();
-
-        return walk(grid, start);
-    }
-
-    private static List<WalkState> getNeighborsPart2(List<List<TILE>> grid, WalkState walkState){
-        List<WalkState> walkStates = new ArrayList<>();
-
-        //use this for mod: Math.floorMod( , )
-
-        //up
-        if(grid.get(Math.floorMod((walkState.getRow() -1), grid.size())).get(Math.floorMod(walkState.getCol(),  grid.get(0).size())) != TILE.ROCK){
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow() - 1)
-                                    .col(walkState.getCol())
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
-                    .build());
-        }
-
-        //down
-        if(grid.get(Math.floorMod((walkState.getRow() +1), grid.size())).get(Math.floorMod(walkState.getCol(), grid.get(0).size())) != TILE.ROCK){
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow() + 1)
-                                    .col(walkState.getCol())
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
-                    .build());
-        }
-
-        //right
-        if(grid.get(Math.floorMod(walkState.getRow(), grid.size())).get(Math.floorMod((walkState.getCol() + 1), grid.get(0).size())) != TILE.ROCK){
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow())
-                                    .col(walkState.getCol() + 1)
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
-                    .build());
-        }
-
-        //left
-        if(grid.get(Math.floorMod(walkState.getRow(), grid.size())).get(Math.floorMod((walkState.getCol() - 1), grid.get(0).size())) != TILE.ROCK){
-            walkStates.add(WalkState.builder()
-                    .coordinate(
-                            Coordinate.builder()
-                                    .row(walkState.getRow())
-                                    .col(walkState.getCol() - 1)
-                                    .build())
-                    .stepsRemaining(walkState.getStepsRemaining() - 1)
-                    .build());
-        }
-
-        return walkStates;
-    }
-
-
-
-
-
-    private static long walkPart2(List<List<TILE>> grid, WalkState start){
-        Set<WalkState> seenStates = new HashSet<>();
-
-        Queue<WalkState> queue = new LinkedList<>();
-        queue.add(start);
-        seenStates.add(start);
-        long count = 0;
-
-        while (!queue.isEmpty()) {
-            WalkState current = queue.remove();
-
-            if (current.getStepsRemaining() == 0) {
-                count++;
-
-            } else {
-                seenStates.remove(current);
-                List<WalkState> neighbors = getNeighborsPart2(grid, current);
-                for (WalkState walkState : neighbors) {
-                    if (!seenStates.contains(walkState)) {
-                        seenStates.add(walkState);
-                        queue.add(walkState);
-                    }
-                }
-            }
-
-        }
-
-        return count;
-    }
-
-    public long part2(int steps){
-        List<List<TILE>> grid = readFile();
-        WalkState start = WalkState.builder()
-                .coordinate(
-                        Coordinate.builder().row(startRow).col(startCol).build())
-                .stepsRemaining(steps).build();
-
-        return walkPart2(grid, start);
-    }
-
-
-    public static void main(String[] args) {
-        StepCounter stepCounter = new StepCounter();
-        int steps = 65;
-//        log.info("Part1: " + stepCounter.part1(steps));
-
-        log.info(6 + " Part2: " + stepCounter.part2(6));
-        log.info(10 + " Part2: " + stepCounter.part2(10));
-        log.info(50 + " Part2: " + stepCounter.part2(50));
-        log.info(100 + " Part2: " + stepCounter.part2(100));
-        log.info(500 + " Part2: " + stepCounter.part2(500));
-
-        /*
-In exactly 6 steps, he can still reach 16 garden plots.
-In exactly 10 steps, he can reach any of 50 garden plots.
-In exactly 50 steps, he can reach 1594 garden plots.
-In exactly 100 steps, he can reach 6536 garden plots.
-In exactly 500 steps, he can reach 167004 garden plots.
-In exactly 1000 steps, he can reach 668697 garden plots.
-In exactly 5000 steps, he can reach 16733044 garden plots.
-         */
-//
-//        steps += 131;
-//
-//        log.info(steps + " Part2: " + stepCounter.part2(steps));
-//
-//        steps += 131;
-//
-//        log.info(steps + " Part2: " + stepCounter.part2(steps));
-//
-//        steps += 131;
-//
-//        log.info(steps + " Part2: " + stepCounter.part2(steps));
-//
-//        steps += 131;
-//
-//        log.info(steps + " Part2: " + stepCounter.part2(steps));
+        return distanceMap;
     }
 }
