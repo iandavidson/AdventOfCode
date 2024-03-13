@@ -210,6 +210,10 @@ public class StepCounter {
         return walkStates;
     }
 
+
+
+
+
     private static long walkPart2(List<List<TILE>> grid, WalkState start){
         Set<WalkState> seenStates = new HashSet<>();
 
@@ -253,10 +257,32 @@ public class StepCounter {
 
     public static void main(String[] args) {
         StepCounter stepCounter = new StepCounter();
-        int steps = 10;
+        int steps = 65;
 //        log.info("Part1: " + stepCounter.part1(steps));
 
-        log.info(steps + " Part2: " + stepCounter.part2(steps));
+        log.info(6 + " Part2: " + stepCounter.part2(6));
+        log.info(10 + " Part2: " + stepCounter.part2(10));
+        log.info(50 + " Part2: " + stepCounter.part2(50));
+        log.info(100 + " Part2: " + stepCounter.part2(100));
+        log.info(500 + " Part2: " + stepCounter.part2(500));
+
+        /*
+In exactly 6 steps, he can still reach 16 garden plots.
+In exactly 10 steps, he can reach any of 50 garden plots.
+In exactly 50 steps, he can reach 1594 garden plots.
+In exactly 100 steps, he can reach 6536 garden plots.
+In exactly 500 steps, he can reach 167004 garden plots.
+In exactly 1000 steps, he can reach 668697 garden plots.
+In exactly 5000 steps, he can reach 16733044 garden plots.
+         */
+//
+//        steps += 131;
+//
+//        log.info(steps + " Part2: " + stepCounter.part2(steps));
+//
+//        steps += 131;
+//
+//        log.info(steps + " Part2: " + stepCounter.part2(steps));
 //
 //        steps += 131;
 //
