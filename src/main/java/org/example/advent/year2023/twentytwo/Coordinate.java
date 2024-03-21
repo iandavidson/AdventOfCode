@@ -7,14 +7,14 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 @Data
-public class Coordinate implements Comparable<Coordinate>{
+public class Coordinate implements Comparable<Coordinate> {
     private final Integer x;
     private final Integer y;
     private Integer z;
 
 
-    public void fall(){
-        setZ(this.z-1);
+    public void fall(int delta) {
+        setZ(z - delta);
     }
 
     @Override
