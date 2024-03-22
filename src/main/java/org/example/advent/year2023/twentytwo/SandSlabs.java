@@ -6,11 +6,14 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 public class SandSlabs {
 
@@ -21,6 +24,7 @@ public class SandSlabs {
     public static void main(String[] args) {
         SandSlabs sandSlabs = new SandSlabs();
         System.out.println("part 1: " + sandSlabs.part1());
+        System.out.println("part 2: " + sandSlabs.part2());
     }
 
     public long part1() {
@@ -28,17 +32,7 @@ public class SandSlabs {
         List<Slab> slabs = processInputs(inputs);
         Collections.sort(slabs);
         Map<Slab, Set<Slab>> supportedByMap = timber(slabs);
-
         Map<Slab, Set<Slab>> supportMap = createReverseMap(supportedByMap);
-
-        for (Map.Entry<Slab, Set<Slab>> entry : supportedByMap.entrySet()) {
-            System.out.println("key-hash: " + entry.getKey().hashCode() + " key: " + entry.getKey());
-            for (Slab s : entry.getValue()) {
-                System.out.println("value-hash: " + s.hashCode() + " value: " + s);
-            }
-            System.out.println("\n");
-        }
-
 
         return computeScore(supportMap, supportedByMap);
     }
@@ -78,13 +72,12 @@ public class SandSlabs {
     private Map<Slab, Set<Slab>> timber(List<Slab> slabs) {
         Map<Slab, Set<Slab>> supportedByMap = new HashMap<>();
 
-        int currentZ = 0;
+        int currentZ;
         for (int i = 0; i < slabs.size(); i++) {
             Slab slab = slabs.get(i);
             currentZ = slab.getBottomZ();
             int highestXYCollidingZ = 0;
 
-            //determine highestXYCollidingZ
             Set<Slab> supportedBy = new HashSet<>();
             for (int j = 0; j < i; j++) {
                 if (slab.willCollideAfterFall(slabs.get(j))) {
@@ -157,6 +150,108 @@ public class SandSlabs {
         return count;
     }
 
+    public long part2(){
+        List<String> inputs = readFile();
+        List<Slab> slabs = processInputs(inputs);
+        Collections.sort(slabs);
+        Map<Slab, Set<Slab>> supportedByMap = timber(slabs);
+        Map<Slab, Set<Slab>> supportMap = createReverseMap(supportedByMap);
+        Set<Slab> secureSlabSet = findSecureSlabs(supportMap, supportedByMap);
+        return computeChainReaction(supportMap, supportedByMap, secureSlabSet);
+    }
+
+    private Set<Slab> findSecureSlabs(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap) {
+        Set<Slab> slabSet = new HashSet<>();
+        for (var slabEntry : supportMap.entrySet()) {
+            boolean fullySupported = true;
+            for (Slab supporter : slabEntry.getValue()) {
+
+                Set<Slab> supporters = supportedByMap.get(supporter);
+
+                if (fullySupported && supporters.size() < 2) {
+                    fullySupported = false;
+                    break;
+                }
+            }
+
+            if (fullySupported) {
+                slabSet.add(slabEntry.getKey());
+            }
+
+        }
+        return slabSet;
+    }
+
+
+    private Long computeChainReaction(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap, Set<Slab> secureSlabSet) {
+        Set<Slab> alreadyProcessed = new HashSet<>();
+        Map<Slab, Long> weightMap = new HashMap<>();
+
+        Queue<Slab> queue = new LinkedList<>();
+
+        for(Slab slab: secureSlabSet){
+            //initialize slab entries for ones that can be safely removed (leafs included)
+            weightMap.put(slab, 0L);
+        }
+
+        for(Slab slab : supportMap.keySet()){
+            if(supportMap.get(slab).isEmpty()){
+                //leaf nodes, disintegrating causes none to fall
+                queue.add(slab);
+            }
+        }
+
+        Slab current = null;
+        while(!queue.isEmpty()){
+            current = queue.remove();
+
+            if(alreadyProcessed.contains(current)){
+                continue;
+            }
+
+            if(!weightMap.containsKey(current)){
+                //calculate how many are above
+                weightMap.put(current, calculateUniqueAncestors(current, supportMap));
+            }
+
+
+            //add supporters to queue to be processed
+            for(Slab supporter : supportedByMap.get(current)){
+                if(!alreadyProcessed.contains(supporter)){
+                    queue.add(supporter);
+                }
+            }
+
+            alreadyProcessed.add(current);
+
+        }
+
+        return weightMap.values().stream().mapToLong(Long::longValue).sum();
+        //answer being computed: "113700" is too high says AOC website
+    }
+
+    private Long calculateUniqueAncestors(Slab slab, Map<Slab, Set<Slab>> supportMap){
+        Queue<Slab> queue = new LinkedList<>();
+        Set<Slab> ancestors = new HashSet<>();
+        queue.add(slab);
+
+        while(!queue.isEmpty()){
+            Slab current = queue.remove();
+
+            if(ancestors.contains(current)){
+                continue;
+            }
+
+            for(Slab supportee : supportMap.get(current)){
+                queue.add(supportee);
+            }
+
+            ancestors.add(current);
+        }
+
+        return (long) ancestors.size() - 1;
+    }
+
     /*
     part 1 intuition:
 
@@ -166,10 +261,10 @@ public class SandSlabs {
     —> Iterate over set, ensure for all elements supported by B are supported by at least one other slab
 
 
-	     G
-         |
-         F
-         |
+	       G
+           |
+           F
+         /   \
 	     D   E
 	     |\ /|
 	      B C
@@ -184,5 +279,12 @@ C -> D
 C -> E
 D -> F
 F -> G
+
+
+
+    part 2 intuition:
+
+
+
      */
 }
