@@ -2,7 +2,15 @@ package org.example.advent.year2023.twentytwo;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Scanner;
+import java.util.Set;
 
 public class SandSlabs {
 
@@ -39,7 +47,7 @@ public class SandSlabs {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = SandSlabs.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -91,8 +99,6 @@ public class SandSlabs {
                 }
             }
 
-            supportedByMap.put(slab, supportedBy);
-
             if (highestXYCollidingZ + 1 == currentZ) {
                 // do nothing, can't fall any further
             } else if (highestXYCollidingZ != 0) {
@@ -102,6 +108,8 @@ public class SandSlabs {
                 // fall all the way to the ground
                 slab.fall(currentZ - 1);
             }
+
+            supportedByMap.put(slab, supportedBy);
         }
         return supportedByMap;
     }
@@ -130,16 +138,9 @@ public class SandSlabs {
     private Long computeScore(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap) {
         long count = 0L;
         for (var slabEntry : supportMap.entrySet()) {
-
-            System.out.println("code: " + slabEntry.getKey().hashCode() + "; slab: " + slabEntry.getKey());
-
             boolean fullySupported = true;
             for (Slab supporter : slabEntry.getValue()) {
 
-                System.out.println("supporter; code: " + supporter.hashCode() + "; slab: " + supporter);
-
-                // getting null pointer here
-                // I can see the hash code the object hashcode matches
                 Set<Slab> supporters = supportedByMap.get(supporter);
 
                 if (fullySupported && supporters.size() < 2) {
@@ -157,6 +158,7 @@ public class SandSlabs {
     }
 
     /*
+    part 1 intuition:
 
 1 -> no blocks sit on top (G); leafs can be deleted
 2 -> at least one other block supports the same block
@@ -182,7 +184,5 @@ C -> D
 C -> E
 D -> F
 F -> G
-
-
      */
 }
