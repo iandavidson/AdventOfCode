@@ -7,10 +7,12 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
 
 @Log
 public class SandSlabs {
@@ -28,7 +30,10 @@ public class SandSlabs {
         List<String> inputs = readFile();
         List<Slab> slabs = processInputs(inputs);
         Collections.sort(slabs);
-        Map<Slab, List<Slab>> supportedByMap = timber(slabs);
+        Map<Slab, Set<Slab>> supportedByMap = timber(slabs);
+
+        Map<Slab, Set<Slab>> reverseMap = createReverseMap(supportedByMap);
+
 
         return 0L;
     }
@@ -65,8 +70,8 @@ public class SandSlabs {
         return slabs;
     }
 
-    private Map<Slab, List<Slab>> timber(List<Slab> slabs) {
-        Map<Slab, List<Slab>> supportedByMap = new HashMap<>();
+    private Map<Slab, Set<Slab>> timber(List<Slab> slabs) {
+        Map<Slab, Set<Slab>> supportedByMap = new HashMap<>();
 
         int currentZ = 0;
         for (int i = 0; i < slabs.size(); i++) {
@@ -75,7 +80,7 @@ public class SandSlabs {
             int highestXYCollidingZ = 0;
 
             //determine highestXYCollidingZ
-            List<Slab> supportedBy = new ArrayList<>();
+            Set<Slab> supportedBy = new HashSet<>();
             for (int j = 0; j < i; j++) {
                 if (slab.willCollideAfterFall(slabs.get(j))) {
 
@@ -92,18 +97,33 @@ public class SandSlabs {
             supportedByMap.put(slab, supportedBy);
 
             if (highestXYCollidingZ + 1 == currentZ) {
-                //do nothing, can't fall
-
+                // do nothing, can't fall any further
             } else if (highestXYCollidingZ != 0) {
-                // if we found something in xy plane that we can fall to
+                // we found collision in xy plane that we can fall down to
                 slab.fall(currentZ - (highestXYCollidingZ + 1));
             } else {
                 // fall all the way to the ground
-                //starts at 10, falls to 1
                 slab.fall(currentZ - 1);
             }
         }
         return supportedByMap;
+    }
+
+    private Map<Slab, Set<Slab>> createReverseMap(Map<Slab, Set<Slab>> supportedByMap){
+        Map<Slab, Set<Slab>> supportsMap = new HashMap<>();
+        for(Map.Entry<Slab, Set<Slab>> entry: supportedByMap.entrySet()){
+            for(Slab slab : entry.getValue()){
+                if(!supportsMap.containsKey(slab)){
+                    Set<Slab> supports = new HashSet<>();
+                    supports.add(entry.getKey());
+                    supportsMap.put(slab, supports);
+                }else{
+                    supportsMap.get(slab).add(entry.getKey());
+                }
+            }
+        }
+
+        return supportsMap;
     }
 
     /* test case that works:
