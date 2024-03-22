@@ -41,3 +41,6 @@ bin/
 
 ### Mac OS ###
 .DS_Store
+
+### Advent of code resource files ###
+!**/src/main/resources/adventOfCode/**

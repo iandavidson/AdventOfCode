@@ -1,20 +1,9 @@
 package org.example.advent.year2023.twentytwo;
 
-import lombok.extern.java.Log;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
-@Log
 public class SandSlabs {
 
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day22/input-sample.txt";
@@ -23,7 +12,7 @@ public class SandSlabs {
 
     public static void main(String[] args) {
         SandSlabs sandSlabs = new SandSlabs();
-        log.info("part 1: " + sandSlabs.part1());
+        System.out.println("part 1: " + sandSlabs.part1());
     }
 
     public long part1() {
@@ -32,10 +21,18 @@ public class SandSlabs {
         Collections.sort(slabs);
         Map<Slab, Set<Slab>> supportedByMap = timber(slabs);
 
-        Map<Slab, Set<Slab>> reverseMap = createReverseMap(supportedByMap);
+        Map<Slab, Set<Slab>> supportMap = createReverseMap(supportedByMap);
+
+        for (Map.Entry<Slab, Set<Slab>> entry : supportedByMap.entrySet()) {
+            System.out.println("key-hash: " + entry.getKey().hashCode() + " key: " + entry.getKey());
+            for (Slab s : entry.getValue()) {
+                System.out.println("value-hash: " + s.hashCode() + " value: " + s);
+            }
+            System.out.println("\n");
+        }
 
 
-        return 0L;
+        return computeScore(supportMap, supportedByMap);
     }
 
     private static List<String> readFile() {
@@ -88,7 +85,7 @@ public class SandSlabs {
                         supportedBy.clear();
                         supportedBy.add(slabs.get(j));
                         highestXYCollidingZ = slabs.get(j).getTopZ();
-                    }else if (highestXYCollidingZ == slabs.get(j).getTopZ()) {
+                    } else if (highestXYCollidingZ == slabs.get(j).getTopZ()) {
                         supportedBy.add(slabs.get(j));
                     }
                 }
@@ -109,32 +106,63 @@ public class SandSlabs {
         return supportedByMap;
     }
 
-    private Map<Slab, Set<Slab>> createReverseMap(Map<Slab, Set<Slab>> supportedByMap){
+    private Map<Slab, Set<Slab>> createReverseMap(Map<Slab, Set<Slab>> supportedByMap) {
         Map<Slab, Set<Slab>> supportsMap = new HashMap<>();
-        for(Map.Entry<Slab, Set<Slab>> entry: supportedByMap.entrySet()){
-            for(Slab slab : entry.getValue()){
-                if(!supportsMap.containsKey(slab)){
+        for (Map.Entry<Slab, Set<Slab>> entry : supportedByMap.entrySet()) {
+            for (Slab slab : entry.getValue()) {
+                if (!supportsMap.containsKey(slab)) {
                     Set<Slab> supports = new HashSet<>();
                     supports.add(entry.getKey());
                     supportsMap.put(slab, supports);
-                }else{
+                } else {
                     supportsMap.get(slab).add(entry.getKey());
                 }
             }
         }
 
+        for (Slab slab : supportedByMap.keySet()) {
+            supportsMap.computeIfAbsent(slab, zilch -> new HashSet<>());
+        }
+
         return supportsMap;
     }
 
-    /* test case that works:
+    private Long computeScore(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap) {
+        long count = 0L;
+        for (var slabEntry : supportMap.entrySet()) {
 
-        1,0,4~1,2,4 -> falls on top of slab listed below
-        1,0,2~1,2,2 -> falls down to bottom by 1 value
+            System.out.println("code: " + slabEntry.getKey().hashCode() + "; slab: " + slabEntry.getKey());
 
-     */
+            boolean fullySupported = true;
+            for (Slab supporter : slabEntry.getValue()) {
 
+                System.out.println("supporter; code: " + supporter.hashCode() + "; slab: " + supporter);
+
+                // getting null pointer here
+                // I can see the hash code the object hashcode matches
+                Set<Slab> supporters = supportedByMap.get(supporter);
+
+                if (fullySupported && supporters.size() < 2) {
+                    fullySupported = false;
+                    break;
+                }
+            }
+
+            if (fullySupported) {
+                count++;
+            }
+
+        }
+        return count;
+    }
 
     /*
+
+1 -> no blocks sit on top (G); leafs can be deleted
+2 -> at least one other block supports the same block
+—> (B) supports both  {D, E}
+    —> Iterate over set, ensure for all elements supported by B are supported by at least one other slab
+
 
 	     G
          |
@@ -155,10 +183,6 @@ C -> E
 D -> F
 F -> G
 
-2 cases:
-1 -> no blocks sit on top (G); leafs can be deleted
-2 -> at least one other block supports the same block
-—> (B) supports both  {D, E}
-    —> Iterate over set, ensure for all elements supported by B are supported by at least one other slab
+
      */
 }
