@@ -20,6 +20,7 @@ public class SandSlabs {
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day22/input-sample.txt";
     private static final String INPUT_PATH = "adventOfCode/day22/input.txt";
     private static final String MINI_INPUT_PATH = "adventOfCode/day22/input-mini.txt";
+    private static final String MINI_INPUT_2_PATH = "adventOfCode/day22/input-mini2.txt";
 
     public static void main(String[] args) {
         SandSlabs sandSlabs = new SandSlabs();
@@ -41,7 +42,7 @@ public class SandSlabs {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = SandSlabs.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -186,7 +187,6 @@ public class SandSlabs {
     private Long computeChainReaction(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap, Set<Slab> secureSlabSet) {
         Set<Slab> alreadyProcessed = new HashSet<>();
         Map<Slab, Long> weightMap = new HashMap<>();
-
         Queue<Slab> queue = new LinkedList<>();
 
         for(Slab slab: secureSlabSet){
@@ -196,7 +196,7 @@ public class SandSlabs {
 
         for(Slab slab : supportMap.keySet()){
             if(supportMap.get(slab).isEmpty()){
-                //leaf nodes, disintegrating causes none to fall
+                //leaf nodes, disintegrating causes none to fall, start with these
                 queue.add(slab);
             }
         }
@@ -211,7 +211,7 @@ public class SandSlabs {
 
             if(!weightMap.containsKey(current)){
                 //calculate how many are above
-                weightMap.put(current, calculateUniqueAncestors(current, supportMap));
+                weightMap.put(current, howManyFall(current, supportMap, supportedByMap));
             }
 
 
@@ -228,12 +228,15 @@ public class SandSlabs {
 
         return weightMap.values().stream().mapToLong(Long::longValue).sum();
         //answer being computed: "113700" is too high says AOC website
+        //answer being computed: "35744" is too high says AOC website
     }
 
-    private Long calculateUniqueAncestors(Slab slab, Map<Slab, Set<Slab>> supportMap){
+    private Long howManyFall(Slab slab, Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap){
         Queue<Slab> queue = new LinkedList<>();
+        Set<Slab> seen = new HashSet<>();
         Set<Slab> ancestors = new HashSet<>();
         queue.add(slab);
+        seen.add(slab);
 
         while(!queue.isEmpty()){
             Slab current = queue.remove();
@@ -242,8 +245,22 @@ public class SandSlabs {
                 continue;
             }
 
+            //determine if slabs currently supported will also fall, if so add to queue.
             for(Slab supportee : supportMap.get(current)){
-                queue.add(supportee);
+                boolean willFall = true;
+                for(Slab under : supportedByMap.get(supportee)){
+
+                    if(!canFindDecendant(under, seen, supportedByMap)){
+//                    if(!seen.contains(under)){
+                        willFall = false;
+                        break;
+                    }
+                }
+
+                seen.add(supportee);
+                if(willFall){
+                    queue.add(supportee);
+                }
             }
 
             ancestors.add(current);
@@ -251,6 +268,35 @@ public class SandSlabs {
 
         return (long) ancestors.size() - 1;
     }
+
+    private boolean canFindDecendant(Slab under, Set<Slab> seen, Map<Slab, Set<Slab>> supportedByMap) {
+        Queue<Slab> queue = new LinkedList<>();
+        Set<Slab> complete = new HashSet<>();
+        queue.add(under);
+
+        Slab current;
+        while(!queue.isEmpty()){
+            current = queue.remove();
+
+            if(complete.contains(current)){
+                continue;
+            }
+
+            for(Slab slab : supportedByMap.get(current)){
+                if(seen.contains(slab)){
+                    return true;
+                }else{
+                    queue.add(slab);
+                }
+            }
+
+            complete.add(current);
+        }
+
+        return false;
+    }
+
+
 
     /*
     part 1 intuition:
@@ -284,6 +330,24 @@ F -> G
 
     part 2 intuition:
 
+current == B
+
+supportMap(B) => { A }
+
+    can only add A into queue if all supporters of A can reach slab(method parameter)
+    -> instaed right now I'm just looking in the Seen set, sounds like working all the way down to "slab" is a lot of work. close to n^3
+
+
+
+[  A  ]
+[B] [C]
+[D] [E]
+
+if D is removed, only B disintegrated.
+
+if E is removed, only C is disintegrated.
+
+but I counted A in both cases.
 
 
      */

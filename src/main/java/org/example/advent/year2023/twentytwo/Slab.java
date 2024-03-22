@@ -53,6 +53,4 @@ public class Slab implements Comparable<Slab> {
     public int compareTo(Slab other) {
         return this.start.compareTo(other.getStart());
     }
-
-
 }
