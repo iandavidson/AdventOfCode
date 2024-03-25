@@ -13,14 +13,14 @@ import java.util.Objects;
 import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.stream.Collectors;
+
 
 public class SandSlabs {
 
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day22/input-sample.txt";
     private static final String INPUT_PATH = "adventOfCode/day22/input.txt";
     private static final String MINI_INPUT_PATH = "adventOfCode/day22/input-mini.txt";
-    private static final String MINI_INPUT_2_PATH = "adventOfCode/day22/input-mini2.txt";
+    private static final String MINI_INPUT_2_PATH = "adventOfCode/day22/input-mini-2.txt";
 
     public static void main(String[] args) {
         SandSlabs sandSlabs = new SandSlabs();
@@ -32,8 +32,8 @@ public class SandSlabs {
         List<String> inputs = readFile();
         List<Slab> slabs = processInputs(inputs);
         Collections.sort(slabs);
-        Map<Slab, Set<Slab>> supportedByMap = timber(slabs);
-        Map<Slab, Set<Slab>> supportMap = createReverseMap(supportedByMap);
+        Map<Slab, Set<Slab>> supportedByMap = supportedByMap(slabs);
+        Map<Slab, Set<Slab>> supportMap = createSupportMap(supportedByMap);
 
         return computeScore(supportMap, supportedByMap);
     }
@@ -42,7 +42,7 @@ public class SandSlabs {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = SandSlabs.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(MINI_INPUT_2_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -70,7 +70,7 @@ public class SandSlabs {
         return slabs;
     }
 
-    private Map<Slab, Set<Slab>> timber(List<Slab> slabs) {
+    private Map<Slab, Set<Slab>> supportedByMap(List<Slab> slabs) {
         Map<Slab, Set<Slab>> supportedByMap = new HashMap<>();
 
         int currentZ;
@@ -108,7 +108,7 @@ public class SandSlabs {
         return supportedByMap;
     }
 
-    private Map<Slab, Set<Slab>> createReverseMap(Map<Slab, Set<Slab>> supportedByMap) {
+    private Map<Slab, Set<Slab>> createSupportMap(Map<Slab, Set<Slab>> supportedByMap) {
         Map<Slab, Set<Slab>> supportsMap = new HashMap<>();
         for (Map.Entry<Slab, Set<Slab>> entry : supportedByMap.entrySet()) {
             for (Slab slab : entry.getValue()) {
@@ -132,18 +132,18 @@ public class SandSlabs {
     private Long computeScore(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap) {
         long count = 0L;
         for (var slabEntry : supportMap.entrySet()) {
-            boolean fullySupported = true;
+            boolean safe = true;
             for (Slab supporter : slabEntry.getValue()) {
 
                 Set<Slab> supporters = supportedByMap.get(supporter);
 
-                if (fullySupported && supporters.size() < 2) {
-                    fullySupported = false;
+                if (safe && supporters.size() < 2) {
+                    safe = false;
                     break;
                 }
             }
 
-            if (fullySupported) {
+            if (safe) {
                 count++;
             }
 
@@ -155,27 +155,27 @@ public class SandSlabs {
         List<String> inputs = readFile();
         List<Slab> slabs = processInputs(inputs);
         Collections.sort(slabs);
-        Map<Slab, Set<Slab>> supportedByMap = timber(slabs);
-        Map<Slab, Set<Slab>> supportMap = createReverseMap(supportedByMap);
-        Set<Slab> secureSlabSet = findSecureSlabs(supportMap, supportedByMap);
-        return computeChainReaction(supportMap, supportedByMap, secureSlabSet);
+        Map<Slab, Set<Slab>> supportedByMap = supportedByMap(slabs);
+        Map<Slab, Set<Slab>> supportMap = createSupportMap(supportedByMap);
+        Set<Slab> safeToRemoves = findSafeToRemove(supportMap, supportedByMap);
+        return computeChainReaction(supportMap, supportedByMap, safeToRemoves);
     }
 
-    private Set<Slab> findSecureSlabs(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap) {
+    private Set<Slab> findSafeToRemove(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap) {
         Set<Slab> slabSet = new HashSet<>();
         for (var slabEntry : supportMap.entrySet()) {
-            boolean fullySupported = true;
+            boolean safe = true;
             for (Slab supporter : slabEntry.getValue()) {
 
                 Set<Slab> supporters = supportedByMap.get(supporter);
 
-                if (fullySupported && supporters.size() < 2) {
-                    fullySupported = false;
+                if (safe && supporters.size() < 2) {
+                    safe = false;
                     break;
                 }
             }
 
-            if (fullySupported) {
+            if (safe) {
                 slabSet.add(slabEntry.getKey());
             }
 
@@ -184,12 +184,12 @@ public class SandSlabs {
     }
 
 
-    private Long computeChainReaction(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap, Set<Slab> secureSlabSet) {
+    private Long computeChainReaction(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap, Set<Slab> safeToRemove) {
         Set<Slab> alreadyProcessed = new HashSet<>();
         Map<Slab, Long> weightMap = new HashMap<>();
         Queue<Slab> queue = new LinkedList<>();
 
-        for(Slab slab: secureSlabSet){
+        for(Slab slab: safeToRemove){
             //initialize slab entries for ones that can be safely removed (leafs included)
             weightMap.put(slab, 0L);
         }
@@ -228,6 +228,7 @@ public class SandSlabs {
 
         return weightMap.values().stream().mapToLong(Long::longValue).sum();
         //answer being computed: "113700" is too high says AOC website
+        //answer being computed: "48854" is too high says AOC website
         //answer being computed: "35744" is too high says AOC website
     }
 
@@ -235,7 +236,8 @@ public class SandSlabs {
         Queue<Slab> queue = new LinkedList<>();
         Set<Slab> seen = new HashSet<>();
         Set<Slab> ancestors = new HashSet<>();
-        queue.add(slab);
+        queue.addAll(supportMap.get(slab));
+        seen.addAll(supportMap.get(slab));
         seen.add(slab);
 
         while(!queue.isEmpty()){
@@ -266,7 +268,7 @@ public class SandSlabs {
             ancestors.add(current);
         }
 
-        return (long) ancestors.size() - 1;
+        return (long) ancestors.size();
     }
 
     private boolean canFindDecendant(Slab under, Set<Slab> seen, Map<Slab, Set<Slab>> supportedByMap) {
