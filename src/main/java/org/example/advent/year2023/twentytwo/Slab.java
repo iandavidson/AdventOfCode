@@ -15,6 +15,10 @@ public class Slab implements Comparable<Slab> {
     private final Coordinate start;
     private final Coordinate end;
 
+    public Slab clone(){
+        return Slab.builder().start(new Coordinate(this.start)).end(new Coordinate(this.end)).build();
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

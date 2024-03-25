@@ -10,6 +10,12 @@ import java.util.Objects;
 @Builder
 @Data
 public class Coordinate implements Comparable<Coordinate> {
+    public Coordinate(Coordinate coordinate) {
+        this.x = coordinate.x;
+        this.y = coordinate.y;
+        this.z = coordinate.z;
+    }
+
     private final Integer x;
     private final Integer y;
     private Integer z;
@@ -26,7 +32,6 @@ public class Coordinate implements Comparable<Coordinate> {
     public int hashCode() {
         return Objects.hash(x, y, z);
     }
-
 
 
     public void fall(int delta) {

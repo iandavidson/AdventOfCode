@@ -42,7 +42,7 @@ public class SandSlabs {
         List<String> input = new ArrayList<>();
         try {
             ClassLoader classLoader = SandSlabs.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(MINI_INPUT_2_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 input.add(myReader.nextLine());
@@ -151,7 +151,7 @@ public class SandSlabs {
         return count;
     }
 
-    public long part2(){
+    public long part2() {
         List<String> inputs = readFile();
         List<Slab> slabs = processInputs(inputs);
         Collections.sort(slabs);
@@ -183,41 +183,86 @@ public class SandSlabs {
         return slabSet;
     }
 
+    private Long computeChainReactionAttempt2(List<Slab> slabs) {
+        Long count = 0L;
+        List<Slab> tempSlabs;
+        for (int i = 0; i < slabs.size(); i++) {
+            long localCount = 0L;
+            Slab current = slabs.get(i);
+            tempSlabs = new ArrayList<>();
+
+            for (Slab slab : slabs) {
+                if (!slab.equals(current)) {
+                    tempSlabs.add(slab);
+                }
+            }
+
+            //compute which ones fall after index i:
+            int currentZ;
+            for (int j = i; j < tempSlabs.size(); j++) {
+                Slab slab = tempSlabs.get(j);
+                currentZ = slab.getBottomZ();
+                int highestXYCollidingZ = 0;
+
+                for (int k = 0; k < j; k++) {
+                    if (slab.willCollideAfterFall(tempSlabs.get(k))) {
+
+                        if (highestXYCollidingZ < tempSlabs.get(k).getTopZ()) {
+                            highestXYCollidingZ = tempSlabs.get(k).getTopZ();
+                        }
+                    }
+                }
+
+                if (highestXYCollidingZ + 1 == currentZ) {
+                    // do nothing, can't fall any further
+                } else if (highestXYCollidingZ != 0) {
+                    slab.fall(currentZ - (highestXYCollidingZ + 1));
+                    localCount++;
+                } else {
+                    slab.fall(currentZ - 1);
+                    localCount++;
+                }
+
+            }
+            count += localCount;
+        }
+        return count;
+    }
 
     private Long computeChainReaction(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap, Set<Slab> safeToRemove) {
         Set<Slab> alreadyProcessed = new HashSet<>();
         Map<Slab, Long> weightMap = new HashMap<>();
         Queue<Slab> queue = new LinkedList<>();
 
-        for(Slab slab: safeToRemove){
+        for (Slab slab : safeToRemove) {
             //initialize slab entries for ones that can be safely removed (leafs included)
             weightMap.put(slab, 0L);
         }
 
-        for(Slab slab : supportMap.keySet()){
-            if(supportMap.get(slab).isEmpty()){
+        for (Slab slab : supportMap.keySet()) {
+            if (supportMap.get(slab).isEmpty()) {
                 //leaf nodes, disintegrating causes none to fall, start with these
                 queue.add(slab);
             }
         }
 
         Slab current = null;
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             current = queue.remove();
 
-            if(alreadyProcessed.contains(current)){
+            if (alreadyProcessed.contains(current)) {
                 continue;
             }
 
-            if(!weightMap.containsKey(current)){
+            if (!weightMap.containsKey(current)) {
                 //calculate how many are above
                 weightMap.put(current, howManyFall(current, supportMap, supportedByMap));
             }
 
 
             //add supporters to queue to be processed
-            for(Slab supporter : supportedByMap.get(current)){
-                if(!alreadyProcessed.contains(supporter)){
+            for (Slab supporter : supportedByMap.get(current)) {
+                if (!alreadyProcessed.contains(supporter)) {
                     queue.add(supporter);
                 }
             }
@@ -230,29 +275,31 @@ public class SandSlabs {
         //answer being computed: "113700" is too high says AOC website
         //answer being computed: "48854" is too high says AOC website
         //answer being computed: "35744" is too high says AOC website
+        //correct answer : 35654
     }
 
-    private Long howManyFall(Slab slab, Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap){
+    private Long howManyFall(Slab slab, Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap) {
         Queue<Slab> queue = new LinkedList<>();
         Set<Slab> seen = new HashSet<>();
         Set<Slab> ancestors = new HashSet<>();
-        queue.addAll(supportMap.get(slab));
-        seen.addAll(supportMap.get(slab));
+//        queue.addAll(supportMap.get(slab));
+//        seen.addAll(supportMap.get(slab));
+        queue.add(slab);
         seen.add(slab);
 
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             Slab current = queue.remove();
 
-            if(ancestors.contains(current)){
+            if (ancestors.contains(current)) {
                 continue;
             }
 
             //determine if slabs currently supported will also fall, if so add to queue.
-            for(Slab supportee : supportMap.get(current)){
+            for (Slab supportee : supportMap.get(current)) {
                 boolean willFall = true;
-                for(Slab under : supportedByMap.get(supportee)){
+                for (Slab under : supportedByMap.get(supportee)) {
 
-                    if(!canFindDecendant(under, seen, supportedByMap)){
+                    if (!canFindDecendant(under, seen, supportedByMap)) {
 //                    if(!seen.contains(under)){
                         willFall = false;
                         break;
@@ -260,7 +307,7 @@ public class SandSlabs {
                 }
 
                 seen.add(supportee);
-                if(willFall){
+                if (willFall) {
                     queue.add(supportee);
                 }
             }
@@ -268,7 +315,7 @@ public class SandSlabs {
             ancestors.add(current);
         }
 
-        return (long) ancestors.size();
+        return (long) ancestors.size()-1;
     }
 
     private boolean canFindDecendant(Slab under, Set<Slab> seen, Map<Slab, Set<Slab>> supportedByMap) {
@@ -277,17 +324,17 @@ public class SandSlabs {
         queue.add(under);
 
         Slab current;
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             current = queue.remove();
 
-            if(complete.contains(current)){
+            if (complete.contains(current)) {
                 continue;
             }
 
-            for(Slab slab : supportedByMap.get(current)){
-                if(seen.contains(slab)){
+            for (Slab slab : supportedByMap.get(current)) {
+                if (seen.contains(slab)) {
                     return true;
-                }else{
+                } else {
                     queue.add(slab);
                 }
             }
