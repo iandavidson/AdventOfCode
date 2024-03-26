@@ -10,8 +10,8 @@ import java.util.Set;
 
 public class LavaMirrors {
 
-    private static final String INPUT_PATH = "adventOfCode/year2023/day13/input.txt";
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day13/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/day13/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day13/input-sample.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();

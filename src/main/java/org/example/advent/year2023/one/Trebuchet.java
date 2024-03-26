@@ -8,8 +8,8 @@ import java.util.Map;
 import java.util.Scanner;
 
 public class Trebuchet {
-    private static final String INPUT_PATH = "adventOfCode/year2023/day1/input.txt";
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/year2023/day1/input2.txt";
+    private static final String INPUT_PATH = "adventOfCode/day1/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day1/input2.txt";
     private static final String ZERO = "zero";
     private static final String ONE = "one";
     private static final String TWO = "two";

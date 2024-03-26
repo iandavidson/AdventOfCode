@@ -20,9 +20,9 @@ public class AnimalMaze {
 
     public static final Map<Character, PipeType> SYMBOL_MAP = Map.of('|', PipeType.Pipe, '-', PipeType.Hyphen, 'L', PipeType.L, 'J', PipeType.J, '7', PipeType.Seven, 'F', PipeType.F, '.', PipeType.Period, 'S', PipeType.Start);
     public static final Map<String, List<PipeType>> RELATIVE_START_MAP = new HashMap<>();
-    private static final String INPUT_PATH = "adventOfCode/year2023/day10/input.txt";
-    private static final String SAMPLE_INPUT_PATH_1 = "adventOfCode/year2023/day10/input-sample-1.txt";
-    private static final String SAMPLE_INPUT_PATH_2 = "adventOfCode/year2023/day10/input-sample-2.txt";
+    private static final String INPUT_PATH = "adventOfCode/day10/input.txt";
+    private static final String SAMPLE_INPUT_PATH_1 = "adventOfCode/day10/input-sample-1.txt";
+    private static final String SAMPLE_INPUT_PATH_2 = "adventOfCode/day10/input-sample-2.txt";
     public static int START_ROW = -1;
     public static int START_COL = -1;
 
