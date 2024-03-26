@@ -183,52 +183,6 @@ public class SandSlabs {
         return slabSet;
     }
 
-    private Long computeChainReactionAttempt2(List<Slab> slabs) {
-        Long count = 0L;
-        List<Slab> tempSlabs;
-        for (int i = 0; i < slabs.size(); i++) {
-            long localCount = 0L;
-            Slab current = slabs.get(i);
-            tempSlabs = new ArrayList<>();
-
-            for (Slab slab : slabs) {
-                if (!slab.equals(current)) {
-                    tempSlabs.add(slab);
-                }
-            }
-
-            //compute which ones fall after index i:
-            int currentZ;
-            for (int j = i; j < tempSlabs.size(); j++) {
-                Slab slab = tempSlabs.get(j);
-                currentZ = slab.getBottomZ();
-                int highestXYCollidingZ = 0;
-
-                for (int k = 0; k < j; k++) {
-                    if (slab.willCollideAfterFall(tempSlabs.get(k))) {
-
-                        if (highestXYCollidingZ < tempSlabs.get(k).getTopZ()) {
-                            highestXYCollidingZ = tempSlabs.get(k).getTopZ();
-                        }
-                    }
-                }
-
-                if (highestXYCollidingZ + 1 == currentZ) {
-                    // do nothing, can't fall any further
-                } else if (highestXYCollidingZ != 0) {
-                    slab.fall(currentZ - (highestXYCollidingZ + 1));
-                    localCount++;
-                } else {
-                    slab.fall(currentZ - 1);
-                    localCount++;
-                }
-
-            }
-            count += localCount;
-        }
-        return count;
-    }
-
     private Long computeChainReaction(Map<Slab, Set<Slab>> supportMap, Map<Slab, Set<Slab>> supportedByMap, Set<Slab> safeToRemove) {
         Set<Slab> alreadyProcessed = new HashSet<>();
         Map<Slab, Long> weightMap = new HashMap<>();
@@ -282,9 +236,9 @@ public class SandSlabs {
         Queue<Slab> queue = new LinkedList<>();
         Set<Slab> seen = new HashSet<>();
         Set<Slab> ancestors = new HashSet<>();
-//        queue.addAll(supportMap.get(slab));
-//        seen.addAll(supportMap.get(slab));
-        queue.add(slab);
+        queue.addAll(supportMap.get(slab));
+        seen.addAll(supportMap.get(slab));
+//        queue.add(slab);
         seen.add(slab);
 
         while (!queue.isEmpty()) {
@@ -299,8 +253,7 @@ public class SandSlabs {
                 boolean willFall = true;
                 for (Slab under : supportedByMap.get(supportee)) {
 
-                    if (!canFindDecendant(under, seen, supportedByMap)) {
-//                    if(!seen.contains(under)){
+                    if (!seen.contains(under)) {
                         willFall = false;
                         break;
                     }
@@ -315,37 +268,8 @@ public class SandSlabs {
             ancestors.add(current);
         }
 
-        return (long) ancestors.size()-1;
+        return (long) ancestors.size();
     }
-
-    private boolean canFindDecendant(Slab under, Set<Slab> seen, Map<Slab, Set<Slab>> supportedByMap) {
-        Queue<Slab> queue = new LinkedList<>();
-        Set<Slab> complete = new HashSet<>();
-        queue.add(under);
-
-        Slab current;
-        while (!queue.isEmpty()) {
-            current = queue.remove();
-
-            if (complete.contains(current)) {
-                continue;
-            }
-
-            for (Slab slab : supportedByMap.get(current)) {
-                if (seen.contains(slab)) {
-                    return true;
-                } else {
-                    queue.add(slab);
-                }
-            }
-
-            complete.add(current);
-        }
-
-        return false;
-    }
-
-
 
     /*
     part 1 intuition:
