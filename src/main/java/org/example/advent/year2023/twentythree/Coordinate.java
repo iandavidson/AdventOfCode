@@ -11,6 +11,7 @@ import java.util.Objects;
 @Builder
 public class Coordinate {
     private final int row;
+    private final int col;
 
     @Override
     public boolean equals(Object o) {
@@ -24,7 +25,4 @@ public class Coordinate {
     public int hashCode() {
         return Objects.hash(row, col);
     }
-
-    private final int col;
-
 }
