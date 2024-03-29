@@ -8,6 +8,9 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class HailCollision {
+
+    private static Long PART_1_PLANE_MIN = 200000000000000L;
+    private static Long PART_1_PLANE_MAX = 400000000000000L;
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/day24/input-sample.txt";
     private static final String INPUT_PATH = "adventOfCode/day24/input.txt";
 
@@ -67,14 +70,40 @@ public class HailCollision {
 
         for(int i = 0; i < trajectories.size(); i++){
             for(int j = i+1 ; j < trajectories.size(); j++){
-                //determine if trajectories[i] intersects with trajectories[j]
-                //if so count++;
-
-
-//                collide if their x, y, and z coordinates are the same at some time.
-
+                //determine if trajectories[i]{x,y} intersects with trajectories[j]{x,y}
+                // don't worry about calculating with respect to time, that probably part 2 🥸
+                if(isXYTrajectoryParallel(trajectories.get(i), trajectories.get(j))){
+                    System.out.println("parallel: " + trajectories.get(i).part1ToString() + trajectories.get(j).part1ToString());
+                } else if()
             }
         }
+
+        return count;
+    }
+
+    //may not need this
+    private boolean isXYTrajectoryParallel(HailTrajectory a, HailTrajectory b){
+        //counts both if they have the same trajectory (with different magnitude) or exactly opposite direction (with diff magnitude)
+        return (b.getDeltaX() / a.getDeltaX()) == (b.getDeltaY() / a.getDeltaY());
     }
 
 }
+
+/*
+part 1 intuition:
+I'm sure we can discount some scenarios by determining the following, more efficiently than computing where paths intersect:
+- are they parallel? -> yes, throw away case
+- based on comparing position and delta for x,y on both A & B; will they intersect at some point in the future?
+
+
+EG 1:
+    A: (0, 3) Delta(2, 0)
+    B: (5, 0) Delta(0, 2)
+
+    A has a positive X delta;
+    in order to determine if B will pass through A[y] : A[y] <= B[y] + B[dY]*B[cY]
+    in order to determine if B will pass through A[x] : A[x] <= B[x] + B[dX]*B[cX]
+
+Question is, this needs to hold is
+
+ */

@@ -16,4 +16,8 @@ public class HailTrajectory {
     private final long deltaY;
     private final long deltaZ;
 
+
+    public String part1ToString(){
+        return new StringBuilder().append("P{" + this.x + ", " + this.y + "}, D{" + this.deltaX + " ," + this.deltaY + "}; ").toString();
+    }
 }
