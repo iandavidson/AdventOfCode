@@ -19,6 +19,8 @@ public class HailCollision {
 
     public Long part1() {
         List<HailTrajectory> hailTrajectories = processInput();
+
+        return countPathsCrossed(hailTrajectories);
     }
 
     private List<HailTrajectory> processInput() {
@@ -26,7 +28,7 @@ public class HailCollision {
         List<String> inputs = new ArrayList<>();
         try {
             ClassLoader classLoader = HailCollision.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 inputs.add(myReader.nextLine());
@@ -59,4 +61,20 @@ public class HailCollision {
 
         return hailTrajectories;
     }
+
+    private Long countPathsCrossed(List<HailTrajectory> trajectories){
+        Long count = 0L;
+
+        for(int i = 0; i < trajectories.size(); i++){
+            for(int j = i+1 ; j < trajectories.size(); j++){
+                //determine if trajectories[i] intersects with trajectories[j]
+                //if so count++;
+
+
+//                collide if their x, y, and z coordinates are the same at some time.
+
+            }
+        }
+    }
+
 }
