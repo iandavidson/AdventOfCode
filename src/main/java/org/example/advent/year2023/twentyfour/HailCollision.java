@@ -17,12 +17,12 @@ public class HailCollision {
     public static void main(String[] args) {
         HailCollision hailCollision = new HailCollision();
         System.out.println("part1: " + hailCollision.part1());
+        System.out.println("part2: " + hailCollision.part2());
     }
 
 
     public Long part1() {
         List<HailTrajectory> hailTrajectories = processInput();
-
         return countPathsCrossed(hailTrajectories);
     }
 
@@ -31,7 +31,7 @@ public class HailCollision {
         List<String> inputs = new ArrayList<>();
         try {
             ClassLoader classLoader = HailCollision.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 inputs.add(myReader.nextLine());
@@ -69,24 +69,36 @@ public class HailCollision {
         Long count = 0L;
 
         for(int i = 0; i < trajectories.size(); i++){
+            HailTrajectory first = trajectories.get(i);
             for(int j = i+1 ; j < trajectories.size(); j++){
-                //determine if trajectories[i]{x,y} intersects with trajectories[j]{x,y}
-                // don't worry about calculating with respect to time, that probably part 2 🥸
-                if(isXYTrajectoryParallel(trajectories.get(i), trajectories.get(j))){
-                    System.out.println("parallel: " + trajectories.get(i).part1ToString() + trajectories.get(j).part1ToString());
-                } else if()
+                HailTrajectory second = trajectories.get(j);
+
+                Coordinate coordinate = first.crossesAt(second);
+
+                boolean xInBounds = coordinate.x() >= PART_1_PLANE_MIN && coordinate.x() <= PART_1_PLANE_MAX;
+                boolean yInBounds = coordinate.y() >= PART_1_PLANE_MIN && coordinate.y() <= PART_1_PLANE_MAX;
+
+                if ((first.getDeltaX() > 0 && coordinate.x() < first.getX()) || (first.getDeltaX() < 0 && coordinate.x() > first.getX())
+                        || (first.getDeltaY() > 0 && coordinate.y() < first.getY()) || (first.getDeltaY() < 0 && coordinate.y() > first.getY())) {
+                    // Hailstones crossed in the past for hailstone A, throw away
+                } else if ((second.getDeltaX() > 0 && coordinate.x() < second.getX()) || (second.getDeltaX() < 0 && coordinate.x() > second.getX())
+                        || (second.getDeltaY() > 0 && coordinate.y() < second.getY()) || (second.getDeltaY() < 0 && coordinate.y() > second.getY())) {
+                    // Hailstones crossed in the past for hailstone B, throw away
+                } else if (xInBounds && yInBounds) {
+                    count++;
+                } else {
+                    // Hailstones' paths will cross outside the test area, throw away
+                }
             }
         }
-
         return count;
     }
 
-    //may not need this
-    private boolean isXYTrajectoryParallel(HailTrajectory a, HailTrajectory b){
-        //counts both if they have the same trajectory (with different magnitude) or exactly opposite direction (with diff magnitude)
-        return (b.getDeltaX() / a.getDeltaX()) == (b.getDeltaY() / a.getDeltaY());
-    }
+    public Long part2(){
+        List<HailTrajectory> hailTrajectories = processInput();
 
+        return 0L;
+    }
 }
 
 /*
