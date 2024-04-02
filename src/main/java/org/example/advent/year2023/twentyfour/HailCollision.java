@@ -97,6 +97,7 @@ public class HailCollision {
     public Long part2(){
         List<HailTrajectory> hailTrajectories = processInput();
 
+        String temp = "a b";
         return 0L;
     }
 }
