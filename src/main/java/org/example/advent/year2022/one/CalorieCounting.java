@@ -4,13 +4,10 @@ package org.example.advent.year2022.one;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import org.example.advent.year2023.eighteen.LavaductLagoon;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -25,14 +22,20 @@ public class CalorieCounting {
     private static final String INPUT_PATH = "adventOfCode/2022/day1/input.txt";
 
 
-    public static void main(String [] args){
+    public static void main(String[] args) {
         CalorieCounting calorieCounting = new CalorieCounting();
         System.out.println("Part1: " + calorieCounting.part1());
+        System.out.println("Part2: " + calorieCounting.part2());
     }
 
-    public long part1(){
+    public long part1() {
         Queue<Long> elfBags = processInput();
         return elfBags.remove();
+    }
+
+    public long part2() {
+        Queue<Long> elfBags = processInput();
+        return elfBags.remove() + elfBags.remove() + elfBags.remove();
     }
 
     private static Queue<Long> processInput() {
@@ -45,10 +48,10 @@ public class CalorieCounting {
             Long temp = 0L;
             while (myReader.hasNextLine()) {
                 String line = myReader.nextLine();
-                if(line.isEmpty()){
+                if (line.isEmpty()) {
                     elfBags.add(temp);
                     temp = 0L;
-                }else{
+                } else {
                     temp += Long.parseLong(line);
                 }
             }
