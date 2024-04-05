@@ -13,10 +13,10 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class LavaductLagoon {
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day18/input-sample.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day18/input-sample.txt";
 
-    private static final String MINI_SAMPLE_INPUT_PATH = "adventOfCode/day18/input-sample-mini.txt";
-    private static final String INPUT_PATH = "adventOfCode/day18/input.txt";
+    private static final String MINI_SAMPLE_INPUT_PATH = "adventOfCode/2023/day18/input-sample-mini.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day18/input.txt";
 
     private static Edge parseInput(String inputLine, boolean part1) {
         String[] parts = inputLine.split("\\s+");

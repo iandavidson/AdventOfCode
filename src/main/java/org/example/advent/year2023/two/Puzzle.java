@@ -11,7 +11,7 @@ import java.util.Scanner;
 
 public class Puzzle {
 
-    private static final String INPUT_PATH = "adventOfCode/day2/input.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day2/input.txt";
     private static final String SAMPLE_INPUT_PATH = "aventOfCode/day2/input-sample.txt";
     private static final int BLUE_MAX = 14;
     private static final int GREEN_MAX = 13;

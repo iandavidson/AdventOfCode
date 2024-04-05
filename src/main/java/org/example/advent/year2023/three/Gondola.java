@@ -12,9 +12,9 @@ import java.util.Scanner;
 public class Gondola {
 
 
-    private static final String INPUT_PATH = "adventOfCode/day3/input.txt";
-    private static final String SAMPLE_INPUT_PATH_1 = "adventOfCode/day3/input2.txt";
-    private static final String SAMPLE_INPUT_PATH_2 = "adventOfCode/day3/input3.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day3/input.txt";
+    private static final String SAMPLE_INPUT_PATH_1 = "adventOfCode/2023/day3/input2.txt";
+    private static final String SAMPLE_INPUT_PATH_2 = "adventOfCode/2023/day3/input3.txt";
 
     private static boolean isSymbolValid(Character c) {
         return !Character.isLetterOrDigit(c) && !c.equals('.');

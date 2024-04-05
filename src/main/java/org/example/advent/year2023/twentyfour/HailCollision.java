@@ -12,8 +12,8 @@ public class HailCollision {
     private static final MathContext CONTEXT = MathContext.DECIMAL128;
     private static Long PART_1_PLANE_MIN = 200000000000000L;
     private static Long PART_1_PLANE_MAX = 400000000000000L;
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day24/input-sample.txt";
-    private static final String INPUT_PATH = "adventOfCode/day24/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day24/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day24/input.txt";
 
     public static void main(String[] args) {
         HailCollision hailCollision = new HailCollision();

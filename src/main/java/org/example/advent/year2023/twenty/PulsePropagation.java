@@ -22,9 +22,9 @@ import static org.example.advent.year2023.twenty.Broadcaster.BROADCASTER;
 @Log
 public class PulsePropagation {
 
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day20/input-sample.txt";
-    private static final String SAMPLE_INPUT_2_PATH = "adventOfCode/day20/input-sample2.txt";
-    private static final String INPUT_PATH = "adventOfCode/day20/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day20/input-sample.txt";
+    private static final String SAMPLE_INPUT_2_PATH = "adventOfCode/2023/day20/input-sample2.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day20/input.txt";
     private static final String FINAL_STATE = "sq";
 
     private List<String> readFile() {

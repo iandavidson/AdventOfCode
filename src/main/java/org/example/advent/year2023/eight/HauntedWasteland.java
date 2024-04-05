@@ -12,8 +12,8 @@ import lombok.Data;
 
 public class HauntedWasteland {
 
-    private static final String INPUT_PATH = "adventOfCode/day8/input.txt";
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day8/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day8/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day8/input-sample.txt";
 
     private final String start_key = "AAA";
     private final String final_key = "ZZZ";

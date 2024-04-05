@@ -11,8 +11,8 @@ import java.util.Objects;
 import java.util.Scanner;
 
 public class Scratcher {
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day4/input.txt";
-    private static final String INPUT_PATH = "adventOfCode/day4/input2.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day4/input.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day4/input2.txt";
 
 
     private static List<String> readFile() {
