@@ -15,8 +15,8 @@ import java.util.Scanner;
 
 @Log
 public class StepCounter {
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day21/input-sample.txt";
-    private static final String INPUT_PATH = "adventOfCode/day21/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day21/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day21/input.txt";
     private int startRow = -1;
     private int startCol = -1;
 

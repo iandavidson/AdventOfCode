@@ -17,10 +17,10 @@ import java.util.Set;
 
 public class ClumsyCrucible {
 
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day17/input-sample.txt";
-    private static final String SAMPLE_INPUT2_PATH = "adventOfCode/day17/input-sample2.txt";
-    private static final String MINI_SAMPLE_INPUT_PATH = "adventOfCode/day17/input-sample-mini.txt";
-    private static final String INPUT_PATH = "adventOfCode/day17/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day17/input-sample.txt";
+    private static final String SAMPLE_INPUT2_PATH = "adventOfCode/2023/day17/input-sample2.txt";
+    private static final String MINI_SAMPLE_INPUT_PATH = "adventOfCode/2023/day17/input-sample-mini.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day17/input.txt";
 
 
     public enum Direction {

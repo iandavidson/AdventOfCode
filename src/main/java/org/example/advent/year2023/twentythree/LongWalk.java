@@ -44,8 +44,8 @@ public class LongWalk {
     }
 
 
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day23/input-sample.txt";
-    private static final String INPUT_PATH = "adventOfCode/day23/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day23/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day23/input.txt";
 
     public static void main(String[] args) {
         LongWalk longWalk = new LongWalk();

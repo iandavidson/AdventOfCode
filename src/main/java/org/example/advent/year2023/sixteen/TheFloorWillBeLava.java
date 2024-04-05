@@ -66,8 +66,8 @@ public class TheFloorWillBeLava {
         U, D, L, R
     }
 
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day16/input-sample.txt";
-    private static final String INPUT_PATH = "adventOfCode/day16/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day16/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day16/input.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();

@@ -29,8 +29,8 @@ public class Aplenty {
 
     private static final String START_LABEL = "in";
 
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day19/input-sample.txt";
-    private static final String INPUT_PATH = "adventOfCode/day19/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day19/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day19/input.txt";
 
     private static List<List<String>> readFile() {
         List<List<String>> input = new ArrayList<>();

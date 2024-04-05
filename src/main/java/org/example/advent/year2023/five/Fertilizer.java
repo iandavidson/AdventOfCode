@@ -11,8 +11,8 @@ import lombok.Data;
 
 public class Fertilizer {
 
-    private static final String INPUT_PATH = "adventOfCode/day5/input.txt";
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day5/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day5/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day5/input-sample.txt";
     private Long currentIndex = 0L;
 
     private static List<String> readFile() {

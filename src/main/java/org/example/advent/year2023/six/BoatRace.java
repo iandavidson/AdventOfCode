@@ -12,8 +12,8 @@ import lombok.ToString;
 
 public class BoatRace {
 
-    private static final String INPUT_PATH = "adventOfCode/day6/input.txt";
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day6/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day6/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day6/input-sample.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();

@@ -18,8 +18,8 @@ import java.util.concurrent.atomic.LongAdder;
 
 public class HashAlgorithm {
 
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day15/input-sample.txt";
-    private static final String INPUT_PATH = "adventOfCode/day15/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day15/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day15/input.txt";
 
     private static List<String> readFile() {
         List<String> input = new ArrayList<>();

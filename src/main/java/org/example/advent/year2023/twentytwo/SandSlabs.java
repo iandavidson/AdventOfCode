@@ -17,10 +17,10 @@ import java.util.Set;
 
 public class SandSlabs {
 
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day22/input-sample.txt";
-    private static final String INPUT_PATH = "adventOfCode/day22/input.txt";
-    private static final String MINI_INPUT_PATH = "adventOfCode/day22/input-mini.txt";
-    private static final String MINI_INPUT_2_PATH = "adventOfCode/day22/input-mini-2.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day22/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day22/input.txt";
+    private static final String MINI_INPUT_PATH = "adventOfCode/2023/day22/input-mini.txt";
+    private static final String MINI_INPUT_2_PATH = "adventOfCode/2023/day22/input-mini-2.txt";
 
     public static void main(String[] args) {
         SandSlabs sandSlabs = new SandSlabs();

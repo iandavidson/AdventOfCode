@@ -13,8 +13,8 @@ import lombok.Data;
 
 public class CamelCards {
 
-    private static final String INPUT_PATH = "adventOfCode/day7/input.txt";
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day7/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day7/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day7/input-sample.txt";
 
     private static final Map<Character, Integer> CHARACTER_KEY = new HashMap<Character, Integer>() {{
         put('J', 0);

@@ -14,8 +14,8 @@ import lombok.Data;
 
 public class GalaxyMap {
 
-    private static final String INPUT_PATH = "adventOfCode/day11/input.txt";
-    private static final String SAMPLE_INPUT_PATH = "adventOfCode/day11/input-sample.txt";
+    private static final String INPUT_PATH = "adventOfCode/2023/day11/input.txt";
+    private static final String SAMPLE_INPUT_PATH = "adventOfCode/2023/day11/input-sample.txt";
 
     private static final Long PART_1_ADDITIONAL_EXPANSION_WEIGHT = 1L;
     private static final Long PART_2_ADDITIONAL_EXPANSION_WEIGHT = 999999L;
