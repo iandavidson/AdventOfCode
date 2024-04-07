@@ -14,7 +14,7 @@ public class RucksackReorganization {
     public static void main(String[] args) {
         RucksackReorganization reorganization = new RucksackReorganization();
         System.out.println("part1: " + reorganization.part1());
-        System.out.println("part1: " + reorganization.part2());
+        System.out.println("part2: " + reorganization.part2());
     }
 
     public Long part1() {
