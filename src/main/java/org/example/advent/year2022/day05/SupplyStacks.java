@@ -4,44 +4,51 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Deque;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Scanner;
 
 public class SupplyStacks {
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/2022/day05/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2022/day05/input.txt";
-//    private static final Integer INPUT_WIDTH = 9; //real
-    private static final Integer INPUT_WIDTH = 3; // sample
+    private static final Integer INPUT_WIDTH = 9; //real
+//    private static final Integer INPUT_WIDTH = 3; // sample
 
-//    private static final Integer INPUT_DEPTH = 8; // real
-    private static final Integer INPUT_DEPTH = 3; // sample
+    private static final Integer INPUT_DEPTH = 8; // real
+//    private static final Integer INPUT_DEPTH = 3; // sample
 
     public static void main(String[] args) {
         SupplyStacks supplyStacks = new SupplyStacks();
         System.out.println("Part1: " + supplyStacks.part1());
-//        System.out.println("Part2: " + supplyStacks.part2());
+        System.out.println("Part2: " + supplyStacks.part2());
     }
 
 
     public String part1() {
         List<String> inputLines = readFile();
-        List<Deque<Block>> stacks = processBlocks(inputLines);
+        List<Deque<Block>> deques = processBlocks(inputLines);
         List<Instruction> instructions = processInstructions(inputLines);
-        executeInstructions(stacks, instructions);
+        executeInstructions(deques, instructions);
 
-        return concatHeads(stacks);
-        //not correct: PJCCZPRLC
+        return concatHeads(deques);
+    }
+
+    public String part2() {
+        List<String> inputLines = readFile();
+        List<Deque<Block>> deques = processBlocks(inputLines);
+        List<Instruction> instructions = processInstructions(inputLines);
+        executeInstructionsPart2(deques, instructions);
+
+        return concatHeads(deques);
     }
 
     private List<String> readFile() {
         List<String> lines = new ArrayList<>();
         try {
             ClassLoader classLoader = SupplyStacks.class.getClassLoader();
-            File file = new File(Objects.requireNonNull(classLoader.getResource(SAMPLE_INPUT_PATH)).getFile());
+            File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
             Scanner myReader = new Scanner(file);
             while (myReader.hasNextLine()) {
                 lines.add(myReader.nextLine());
@@ -55,23 +62,30 @@ public class SupplyStacks {
     }
 
     private List<Deque<Block>> processBlocks(List<String> inputLines) {
-        List<Deque<Block>> deques = new ArrayList<>();
+        List<Deque<Block>> deques = new ArrayList<>(INPUT_WIDTH);
         for (int i = 0; i < INPUT_WIDTH; i++) {
             deques.add(new ArrayDeque<>());
         }
 
+        List<List<Block>> bigBlockTowers = new ArrayList<>();
+        for (int i = 0; i < INPUT_WIDTH; i++) {
+            bigBlockTowers.add(new ArrayList<>());
+        }
+
         for (int i = 0; i < INPUT_DEPTH; i++) {
-            String temp = inputLines.get(i);
+            String line = inputLines.get(i);
             for (int j = 0; j < INPUT_WIDTH; j++) {
-                if(temp.length() < (j * 4 + 1)){
+                if (line.length() < (j * 4 + 1)) {
                     continue;
-                } else if (temp.charAt(j * 4 + 1) != ' ') {
-                    deques.get(j).add(new Block(temp.charAt(j * 4 + 1)));
+                } else if (line.charAt(j * 4 + 1) != ' ') {
+                    bigBlockTowers.get(j).add(new Block(line.charAt(j * 4 + 1)));
                 }
             }
         }
 
-        //deques are upside down I think...
+        for (int i = 0; i < bigBlockTowers.size(); i++) {
+            deques.set(i, new ArrayDeque<>(bigBlockTowers.get(i)));
+        }
 
         return deques;
     }
@@ -93,17 +107,33 @@ public class SupplyStacks {
         return instructions;
     }
 
-    private void executeInstructions(List<Deque<Block>> stacks, List<Instruction> instructions) {
+    private void executeInstructions(List<Deque<Block>> deques, List<Instruction> instructions) {
         for (Instruction instruction : instructions) {
             for (int i = 0; i < instruction.moveAmount(); i++) {
-                stacks.get(instruction.toIndex()).add(stacks.get(instruction.fromIndex()).remove());
+                deques.get(instruction.toIndex()).push(deques.get(instruction.fromIndex()).pop());
             }
         }
     }
 
-    private String concatHeads(List<Deque<Block>> stacks) {
+    private void executeInstructionsPart2(List<Deque<Block>> deques, List<Instruction> instructions) {
+        for (Instruction instruction : instructions) {
+            List<Block> temp = new ArrayList<>();
+            for (int i = 0; i < instruction.moveAmount(); i++) {
+                temp.add(deques.get(instruction.fromIndex()).pop());
+            }
+
+            Collections.reverse(temp);
+
+            for (Block block : temp) {
+                deques.get(instruction.toIndex()).push(block);
+            }
+        }
+    }
+
+    private String concatHeads(List<Deque<Block>> deques) {
         StringBuilder sb = new StringBuilder();
-        for (Deque<Block> blockDeque : stacks) {
+        for (Deque<Block> blockDeque : deques) {
+            assert blockDeque.peek() != null;
             sb.append(blockDeque.peek().label());
         }
 
