@@ -57,14 +57,14 @@ public class RopeBridge {
         RopeKnot tail = new RopeKnot(new Coordinate(0L, 0L));
         tailVisited.add(tail.coordinate());
         for (Instruction instruction : instructions) {
-            for(int i = 0; i < instruction.magnitude(); i++){
+            for (int i = 0; i < instruction.magnitude(); i++) {
                 Coordinate headPrior = head.coordinate();
 
                 //move head
-                head = new RopeKnot( Coordinate.newCoordinate(headPrior, Direction.MOVE_MAP.get(instruction.direction())));
+                head = new RopeKnot(Coordinate.newCoordinate(headPrior, Direction.MOVE_MAP.get(instruction.direction())));
 
                 //if tail location is still
-                if(!isTailNeighbor(head, tail)){
+                if (!isTailNeighbor(head, tail)) {
                     //if tail is no long a neighbor we'll need to move it to head's prior location
                     tailVisited.add(headPrior);
                     tail = new RopeKnot(headPrior);
@@ -76,17 +76,38 @@ public class RopeBridge {
 
         return tailVisited.size();
     }
-    private long executeInstructionsPart2(final List<Instruction> instructions){
+
+    private long executeInstructionsPart2(final List<Instruction> instructions) {
         Set<Coordinate> tailVisited = new HashSet<>();
         List<RopeKnot> ropeKnots = new ArrayList<>();
-        for(int i = 0; i < 10; i++){
+        for (int i = 0; i < 10; i++) {
             ropeKnots.add(new RopeKnot(new Coordinate(0L, 0L)));
         }
 
+        tailVisited.add(new Coordinate(0L, 0L));
 
+        for (Instruction instruction : instructions) {
+            //head movement
+            Coordinate headPrior = ropeKnots.getFirst().coordinate();
+
+            ropeKnots.set(0, new RopeKnot(Coordinate.newCoordinate(headPrior, Direction.MOVE_MAP.get(instruction.direction()))));
+
+            //9 tail segments movement
+            for (int i = 1; i < 10; i++) {
+//                ropeKnots.get(i)
+
+                //case that wasn't obvious in part 1: when non head moves diagonal, its follower must also
+
+            }
+
+
+        }
+
+
+        return tailVisited.size();
     }
 
-    private boolean isTailNeighbor(final RopeKnot head, final RopeKnot tail){
+    private boolean isTailNeighbor(final RopeKnot head, final RopeKnot tail) {
         return Math.abs(head.row() - tail.row()) < 2 && Math.abs(head.col() - tail.col()) < 2;
     }
 
