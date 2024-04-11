@@ -26,4 +26,11 @@ public record Coordinate(Long row, Long col) {
     public static Coordinate newCoordinate(final Coordinate coordinate, final Coordinate delta){
         return newCoordinate(coordinate, delta.row(), delta.col());
     }
+
+    public boolean isDiagonal(Coordinate prior){
+        Long deltaX = Math.abs(prior.col() - this.col);
+        Long deltaY = Math.abs(prior.row() - this.row);
+
+        return deltaY.equals(deltaX) && deltaX == 1L && deltaY == 1L;
+    }
 }

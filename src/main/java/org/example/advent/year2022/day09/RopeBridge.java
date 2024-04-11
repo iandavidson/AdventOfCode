@@ -87,17 +87,90 @@ public class RopeBridge {
         tailVisited.add(new Coordinate(0L, 0L));
 
         for (Instruction instruction : instructions) {
-            //head movement
-            Coordinate headPrior = ropeKnots.getFirst().coordinate();
 
-            ropeKnots.set(0, new RopeKnot(Coordinate.newCoordinate(headPrior, Direction.MOVE_MAP.get(instruction.direction()))));
+            for (int i = 0; i < instruction.magnitude(); i++) {
+                //head movement
+                RopeKnot headPrior = ropeKnots.getFirst();
 
-            //9 tail segments movement
-            for (int i = 1; i < 10; i++) {
-//                ropeKnots.get(i)
+                RopeKnot headCurrent = new RopeKnot(Coordinate.newCoordinate(
+                        headPrior.coordinate(),
+                        Direction.MOVE_MAP.get(instruction.direction())));
 
-                //case that wasn't obvious in part 1: when non head moves diagonal, its follower must also
+                Boolean movedDiagonal = headCurrent.coordinate().isDiagonal(headPrior.coordinate());
+                Direction moveDirection =
 
+                ropeKnots.set(0, headCurrent);
+
+                //9 tail segments movement
+                for (int j = 1; j < 10; j++) {
+                    //  ropeKnots.get(i)
+
+                    //if head went diagonally, current should go same direction
+                    if(movedDiagonal){
+
+                    }
+
+                    if (isTailNeighbor(headPrior, ropeKnots.get(j))) {
+                        //if tail
+                        headPrior = ropeKnots.get(j);
+                    } else if (ropeKnots.get(j).coordinate().isDiagonal(headPrior.coordinate())) {
+//                1 moved diagonal ^>
+//                2 is no longer a neighbor of 1
+//-> therefore 2 needs to go the same direction
+//
+//                need to keep track of prior direction of movement
+
+
+                        //needs to move the same direction
+
+
+
+
+                    /*
+
+......
+......
+......
+....H.
+4321..
+
+......
+......
+....H.
+....P.
+4321..
+
+......
+......
+....H.
+....1.
+432P..
+
+1 moved diagonal ^>
+2 is no longer a neighbor of 1
+-> therefore 2 needs to go the same direction
+
+
+
+need to keep track of prior direction of movement
+
+......
+......
+....H.
+...21.
+43P...
+
+prior
+
+
+                     */
+
+                    }
+
+                    //case that wasn't obvious in part 1: when non head moves diagonal, its follower must also
+
+                    //reset headPrior
+                }
             }
 
 
@@ -111,5 +184,8 @@ public class RopeBridge {
         return Math.abs(head.row() - tail.row()) < 2 && Math.abs(head.col() - tail.col()) < 2;
     }
 
+    private Direction moveDirection(Coordinate current Coordinate prior){
+
+    }
 
 }
