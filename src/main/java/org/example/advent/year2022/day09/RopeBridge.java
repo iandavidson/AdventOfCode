@@ -126,8 +126,9 @@ public class RopeBridge {
 //                        new RopeKnot(Coordinate.newCoordinate(headPrior, Direction.MOVE_MAP.get(instruction.direction())));
                         Direction headMoveDirection = moveDirection(headCurrent.coordinate(), headPrior);
                         headCurrent  = new RopeKnot(Coordinate.newCoordinate(tailPrior, Direction.MOVE_MAP.get(headMoveDirection)));
-                        movedDiagonal = true;
                         headPrior = tailPrior;
+//                        movedDiagonal = true;
+                        movedDiagonal = headCurrent.coordinate().isDiagonal(headPrior);
                         ropeKnots.set(j, headCurrent);
 
                         //find if move was diagnonal
