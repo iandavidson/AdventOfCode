@@ -9,4 +9,9 @@ public record RopeKnot(Coordinate coordinate) {
         return coordinate.col();
     }
 
+    @Override
+    public String toString(){
+        return "Row: " + row() + "; Col: " + col();
+    }
+
 }
