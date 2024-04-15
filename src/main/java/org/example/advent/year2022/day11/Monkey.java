@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public record Monkey(List<Integer> startingItems, Operation operation, Integer operationOther, Boolean otherOld,
-                     Integer testDivisor, Integer trueIndex, Integer falseIndex) {
+                     Integer testDivisor, Integer trueIndex, Integer falseIndex, Long monkeyLevel) {
 
     public static Monkey newMonkey(List<String> lines) {
 
@@ -26,7 +26,13 @@ public record Monkey(List<Integer> startingItems, Operation operation, Integer o
         String [] falseIndexChunks = lines.get(5).split("\\s+");
         Integer falseIndex = Integer.parseInt(falseIndexChunks[falseIndexChunks.length-1]);
 
-        return new Monkey(startingItems, operation, operationOther, otherOld, testDivisor, trueIndex, falseIndex);
+        return new Monkey(startingItems, operation, operationOther, otherOld, testDivisor, trueIndex, falseIndex, 1);
+    }
+
+    public long applyOperation(){
+        if(operation.equals(Operation.PLUS)){
+
+        }
     }
 }
 
