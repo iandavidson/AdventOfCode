@@ -10,28 +10,74 @@ import java.util.Scanner;
 public class CathodeRayTube {
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/2022/day10/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2022/day10/input.txt";
+    private static final String MINI_INPUT_PATH = "adventOfCode/2022/day10/mini.txt";
 
 
-    public static void main(String [] args){
+    public static void main(String[] args) {
         CathodeRayTube cathodeRayTube = new CathodeRayTube();
         System.out.println("part1: " + cathodeRayTube.part1());
+        System.out.println("part2:");
+        cathodeRayTube.part2();
     }
 
-    public Long part1(){
+    public Long part1() {
         List<Instruction> instructions = readFile();
 
-        Long cycle = 0l;
-        Long register = 1l;
+        Long cycle = 1L;
+        Long register = 1L;
 
-        for(Instruction instruction : instructions){
-            cycle += instruction.instructionType().getCycles();
-            register += instruction.amount();
+        Long grandTotal = 0L;
 
-            if((cycle -20) % 40 == 0){
-                System.out.println
+        for (Instruction instruction : instructions) {
+            for (int i = 0; i < instruction.instructionType().getCycles(); i++) {
+                cycle++;
+
+                if (i == 1) {
+                    register += instruction.amount();
+                }
+
+                if ((cycle - 20) % 40 == 0) {
+                    System.out.println("cycle: " + cycle + "; register value: " + register + " product: " + cycle * register);
+                    grandTotal += cycle * register;
+                }
             }
         }
 
+        return grandTotal;
+    }
+
+    public void part2() {
+        List<Instruction> instructions = readFile();
+
+        Long cycle = 1L;
+        Long register = 1L;
+
+        List<Character> crt = new ArrayList<>();
+
+        for (Instruction instruction : instructions) {
+            for (int i = 0; i < instruction.instructionType().getCycles(); i++) {
+
+                if (register - 1 <= ((cycle - 1) % 40) && ((cycle - 1) % 40) <= register + 1) {
+                    crt.add('#');
+                } else {
+                    crt.add('.');
+                }
+
+                if (i == 1) {
+                    register += instruction.amount();
+                }
+
+                cycle++;
+            }
+        }
+
+        for (int i = 0; i < 6; i++) {
+            StringBuilder sb = new StringBuilder();
+            for (int j = 0; j < 40; j++) {
+                sb.append(crt.get(i * 40 + j));
+            }
+            System.out.println(sb);
+        }
     }
 
     private List<Instruction> readFile() {
