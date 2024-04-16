@@ -1,15 +1,18 @@
 package org.example.advent.year2022.day11;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Queue;
 
-public record Monkey(List<Integer> startingItems, Operation operation, Integer operationOther, Boolean otherOld,
-                     Integer testDivisor, Integer trueIndex, Integer falseIndex, Long monkeyLevel) {
+public record Monkey(Queue<Long> items, Operation operation, Integer operationOther, Boolean otherOld,
+                     Integer testDivisor, Integer trueIndex, Integer falseIndex) {
+    //, Long monkeyLevel
 
     public static Monkey newMonkey(List<String> lines) {
 
-        List<Integer> startingItems = Arrays.stream(lines.get(1).split(":")[1].split(","))
-                .map(String::trim).mapToInt(Integer::parseInt).boxed().toList();
+        Queue<Long> items = new LinkedList<>(Arrays.stream(lines.get(1).split(":")[1].split(","))
+                .map(String::trim).mapToLong(Long::parseLong).boxed().toList());
 
         String [] operationChunks = lines.get(2).split("\\s+");
         String other = operationChunks[operationChunks.length-1]; //other
@@ -26,13 +29,29 @@ public record Monkey(List<Integer> startingItems, Operation operation, Integer o
         String [] falseIndexChunks = lines.get(5).split("\\s+");
         Integer falseIndex = Integer.parseInt(falseIndexChunks[falseIndexChunks.length-1]);
 
-        return new Monkey(startingItems, operation, operationOther, otherOld, testDivisor, trueIndex, falseIndex, 1);
+        return new Monkey(items, operation, operationOther, otherOld, testDivisor, trueIndex, falseIndex);
     }
 
-    public long applyOperation(){
+    public long applyOperation(Long worryScore){
+//        Long otherSize = this.otherOld ? (long) worryScore : (long) this.operationOther;
         if(operation.equals(Operation.PLUS)){
-
+            return ((this.otherOld ? worryScore : (long) this.operationOther) + worryScore);
+        } else {
+            return ((this.otherOld ?  worryScore : (long) this.operationOther) * worryScore);
         }
+    }
+
+
+    public Integer throwToNewMonkey(Long worryScore){
+        if(worryScore % this.testDivisor == 0){
+            return this.trueIndex;
+        } else {
+            return this.falseIndex;
+        }
+    }
+
+    public Long loseInterest(Long worryScore){
+        return worryScore / 3;
     }
 }
 
