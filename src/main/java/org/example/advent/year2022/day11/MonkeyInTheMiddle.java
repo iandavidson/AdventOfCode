@@ -68,7 +68,7 @@ public class MonkeyInTheMiddle {
         List<List<String>> monkeyBunches = new ArrayList<>();
 
         ClassLoader cl = MonkeyInTheMiddle.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile()));
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             List<String> monkeyBunch = new ArrayList<>();
