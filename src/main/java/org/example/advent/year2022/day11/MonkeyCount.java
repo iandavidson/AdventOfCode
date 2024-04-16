@@ -13,7 +13,7 @@ public class MonkeyCount implements Comparable<MonkeyCount> {
     @Builder.Default
     private Long count = 0L;
 
-    public void incrementCount(){
+    public void incrementCount() {
         this.count++;
     }
 

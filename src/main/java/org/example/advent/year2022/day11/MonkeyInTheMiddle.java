@@ -22,37 +22,35 @@ public class MonkeyInTheMiddle {
     public Long part1() {
         List<MonkeyCount> monkeyList = readFile();
 
-        for(int i = 0; i < 20; i++){
-            for(int m = 0; m <  monkeyList.size(); m++){
+        for (int i = 0; i < 20; i++) {
+            for (int m = 0; m < monkeyList.size(); m++) {
                 Monkey monkey = monkeyList.get(m).getMonkey();
-                while( !monkey.items().isEmpty() ){
+                while (!monkey.items().isEmpty()) {
                     long itemScore = monkey.items().remove();
                     long afterOp = monkey.applyOperation(itemScore);
-
                     long afterInterestLost = monkey.loseInterest(afterOp);
 
-//                    System.out.println("initial: " + itemScore + "; afterOp: " + afterOp + "; afterInterest lost: "+ afterInterestLost + "; new monkey index: "+ monkey.throwToNewMonkey(afterInterestLost));
                     monkeyList.get(monkey.throwToNewMonkey(afterInterestLost)).getMonkey().items().add(afterInterestLost);
                     monkeyList.get(m).incrementCount();
                 }
             }
         }
         Collections.sort(monkeyList);
-        return monkeyList.get(monkeyList.size()-1).getCount() * monkeyList.get(monkeyList.size()-2).getCount();
+        return monkeyList.get(monkeyList.size() - 1).getCount() * monkeyList.get(monkeyList.size() - 2).getCount();
     }
 
-    private long part2(){
+    private long part2() {
         List<MonkeyCount> monkeyList = readFile();
 
-        long reducer = 1l;
-        for(MonkeyCount monkeyCount : monkeyList){
+        long reducer = 1L;
+        for (MonkeyCount monkeyCount : monkeyList) {
             reducer *= monkeyCount.getMonkey().testDivisor();
         }
 
-        for(int i = 0; i < 10000; i++){
-            for(int m = 0; m <  monkeyList.size(); m++){
+        for (int i = 0; i < 10000; i++) {
+            for (int m = 0; m < monkeyList.size(); m++) {
                 Monkey monkey = monkeyList.get(m).getMonkey();
-                while( !monkey.items().isEmpty() ){
+                while (!monkey.items().isEmpty()) {
                     long itemScore = monkey.items().remove();
                     long afterOp = monkey.applyOperation(itemScore);
                     long reduced = afterOp % reducer;
@@ -63,7 +61,7 @@ public class MonkeyInTheMiddle {
             }
         }
         Collections.sort(monkeyList);
-        return monkeyList.get(monkeyList.size()-1).getCount() * monkeyList.get(monkeyList.size()-2).getCount();
+        return monkeyList.get(monkeyList.size() - 1).getCount() * monkeyList.get(monkeyList.size() - 2).getCount();
     }
 
     private List<MonkeyCount> readFile() {
@@ -91,7 +89,7 @@ public class MonkeyInTheMiddle {
         }
 
         List<MonkeyCount> monkeyCounts = new ArrayList<>();
-        for(List<String> bunch: monkeyBunches){
+        for (List<String> bunch : monkeyBunches) {
             monkeyCounts.add(MonkeyCount.builder().monkey(Monkey.newMonkey(bunch)).build());
         }
         return monkeyCounts;
