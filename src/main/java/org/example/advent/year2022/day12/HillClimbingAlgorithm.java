@@ -3,8 +3,11 @@ package org.example.advent.year2022.day12;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
@@ -17,77 +20,119 @@ public class HillClimbingAlgorithm {
     private static final String INPUT_PATH = "adventOfCode/2022/day12/input.txt";
     private static final Character START = 'S';
     private static final Character END = 'E';
-    private static final List<List<Integer>> NEIGHBOR_MAP = List.of(List.of(1,0), List.of(-1,0), List.of(0,1), List.of(0,-1));
+    private static final List<List<Integer>> NEIGHBOR_MAP = List.of(List.of(1, 0), List.of(-1, 0), List.of(0, 1), List.of(0, -1));
 
-    public static void main(String [] args){
+    public static void main(String[] args) {
         HillClimbingAlgorithm hillClimbingAlgorithm = new HillClimbingAlgorithm();
-        System.out.println("part1: " + hillClimbingAlgorithm);
+        System.out.println("part1: " + hillClimbingAlgorithm.part1());
     }
 
-    public Long part1(){
+    public Long part1() {
         List<List<Character>> grid = readFile();
         Coordinate start = null;
         Coordinate end = null;
-        for(int i = 0 ; i < grid.size(); i++){
-            for(int j = 0; j < grid.get(i).size(); j++){
-                if(grid.get(i).get(j).equals('S')){
+        for (int i = 0; i < grid.size(); i++) {
+            for (int j = 0; j < grid.get(i).size(); j++) {
+                if (grid.get(i).get(j).equals('S')) {
                     start = new Coordinate(i, j);
-                }else if(grid.get(i).get(j).equals('E')){
+                } else if (grid.get(i).get(j).equals('E')) {
                     end = new Coordinate(i, j);
                 }
             }
         }
 
         return dijkstra(grid, start, end);
-
     }
 
     private Long dijkstra(List<List<Character>> grid, Coordinate start, Coordinate end) {
         WalkState current = new WalkState(start, 0L);
-        Queue<WalkState> unsettled = new PriorityQueue<>();
-        Set<WalkState> settled = new HashSet<>();
+        Queue<WalkState> unsettled = new LinkedList<>(); //new PriorityQueue<>();
+        Map<Coordinate, Long> coordinateStepMap = new HashMap<>();
+//        coordinateStepMap.put(start, 0L);
+
+//        Set<WalkState> settled = new HashSet<>();
 
         unsettled.add(current);
-        while(!unsettled.isEmpty()){
+        while (!unsettled.isEmpty()) {
             current = unsettled.remove();
 
-            if(settled.contains(current)){
+            if(coordinateStepMap.containsKey(current.coordinate()) && coordinateStepMap.get(current.coordinate()) <= current.steps()){
                 continue;
             }
 
-            if(current.row() == end.row() && current.col() == end.col()){
+//            if (settled.contains(current) || current.steps() >= coordinateStepMap.getOrDefault(current.coordinate(), Long.MAX_VALUE)) {
+//                continue;
+//            }
+
+//            System.out.println("processing: row; " + current.row() + " ; col: " + current.col());
+
+            if (current.row() == end.row() && current.col() == end.col()) {
                 return current.steps();
             }
 
-            getNeighbors(current, grid, unsettled);
+            getNeighbors(current, grid, unsettled, coordinateStepMap);
 
-            settled.add(current);
+//            settled.add(current);
+            coordinateStepMap.put(current.coordinate(), current.steps());
         }
 
 
         return -1L;
     }
 
-    private void getNeighbors(WalkState current, List<List<Character>> grid, Queue<WalkState> unsettled) {
-        for(List<Integer> row_col_delta : NEIGHBOR_MAP){
+    private void getNeighbors(WalkState current, List<List<Character>> grid, Queue<WalkState> unsettled, Map<Coordinate, Long> walkMap) {
+//        System.out.println("current: " + current.row() + "," + current.col() + " ; " + grid.get(current.row()).get(current.col()));
+        for (List<Integer> row_col_delta : NEIGHBOR_MAP) {
             int newRow = current.row() + row_col_delta.get(0);
             int newCol = current.col() + row_col_delta.get(1);
 
+            if (newRow < 0 || newRow >= grid.size() || newCol < 0 || newCol >= grid.getFirst().size()) {
+                continue;
+            }
 
+            char neighbor = treatValue(grid.get(newRow).get(newCol));
+            char currentChar = treatValue(grid.get(current.row()).get(current.col()));
+//            int diff = Math.abs(neighbor - currentChar);
+            int diff = neighbor - currentChar;
+
+            // 6 - 5
+
+//            System.out.println("neighbor: " + neighbor + "; difference :" + diff);
+
+//            if (diff == 0 || diff == 1) {
+                if (diff < 2) {
+                //add
+                unsettled.add(
+                        new WalkState(new Coordinate(newRow, newCol), current.steps() + 1)
+                );
+            }
 
         }
+
+//        System.out.println();
     }
 
-    private List<List<Character>> readFile(){
+    private Character treatValue(Character c) {
+        if (c == 'S') {
+            return 'a';
+        } else if (c == 'E') {
+            return 'z';
+        }
+
+        return c;
+    }
+
+
+    private List<List<Character>> readFile() {
         List<List<Character>> inputs = new ArrayList<>();
 
         ClassLoader cl = HillClimbingAlgorithm.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
-            while(scanner.hasNextLine()){
-                List<Character> line= new ArrayList<>();
-                for(Character ch : scanner.nextLine().toCharArray()){
+            while (scanner.hasNextLine()) {
+                List<Character> line = new ArrayList<>();
+                for (Character ch : scanner.nextLine().toCharArray()) {
                     line.add(ch);
                 }
                 inputs.add(line);

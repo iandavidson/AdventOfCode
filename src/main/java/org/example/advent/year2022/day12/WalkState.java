@@ -8,7 +8,8 @@ public record WalkState(Coordinate coordinate, Long steps) implements  Comparabl
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WalkState walkState = (WalkState) o;
-        return Objects.equals(coordinate, walkState.coordinate) && Objects.equals(steps, walkState.steps);
+//        return Objects.equals(coordinate, walkState.coordinate) && Objects.equals(steps, walkState.steps);
+        return Objects.equals(coordinate, walkState.coordinate);
     }
 
     @Override
