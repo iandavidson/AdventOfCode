@@ -58,10 +58,7 @@ public class HillClimbingAlgorithm {
 
         Long min = Long.MAX_VALUE;
         for (Coordinate start : starts) {
-            Long temp = dijkstra(grid, start, end);
-            if (temp != -1) {
-                min = Math.min(min, temp);
-            }
+            min = Math.min(min, dijkstra(grid, start, end));
         }
         return min;
     }
@@ -89,7 +86,7 @@ public class HillClimbingAlgorithm {
         }
 
 
-        return -1L;
+        return Long.MAX_VALUE;
     }
 
     private void getNeighbors(WalkState current, List<List<Character>> grid, Queue<WalkState> unsettled, Map<Coordinate, Long> walkMap) {
