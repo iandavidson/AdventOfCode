@@ -2,14 +2,13 @@ package org.example.advent.year2022.day12;
 
 import java.util.Objects;
 
-public record WalkState(Coordinate coordinate, Long steps) implements  Comparable<WalkState> {
+public record WalkState(Coordinate coordinate, Long steps) implements Comparable<WalkState> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         WalkState walkState = (WalkState) o;
-//        return Objects.equals(coordinate, walkState.coordinate) && Objects.equals(steps, walkState.steps);
-        return Objects.equals(coordinate, walkState.coordinate);
+        return Objects.equals(coordinate, walkState.coordinate) && Objects.equals(steps, walkState.steps);
     }
 
     @Override
@@ -22,11 +21,11 @@ public record WalkState(Coordinate coordinate, Long steps) implements  Comparabl
         return (int) (steps - o.steps());
     }
 
-    public Integer row(){
+    public Integer row() {
         return coordinate().row();
     }
 
-    public Integer col(){
+    public Integer col() {
         return coordinate().col();
     }
 }

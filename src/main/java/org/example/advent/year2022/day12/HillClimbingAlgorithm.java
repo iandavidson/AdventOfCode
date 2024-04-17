@@ -4,15 +4,12 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Scanner;
-import java.util.Set;
 
 public class HillClimbingAlgorithm {
 
@@ -25,6 +22,7 @@ public class HillClimbingAlgorithm {
     public static void main(String[] args) {
         HillClimbingAlgorithm hillClimbingAlgorithm = new HillClimbingAlgorithm();
         System.out.println("part1: " + hillClimbingAlgorithm.part1());
+        System.out.println("part2: " + hillClimbingAlgorithm.part2());
     }
 
     public Long part1() {
@@ -44,35 +42,49 @@ public class HillClimbingAlgorithm {
         return dijkstra(grid, start, end);
     }
 
+    public Long part2() {
+        List<List<Character>> grid = readFile();
+        List<Coordinate> starts = new ArrayList<>();
+        Coordinate end = null;
+        for (int i = 0; i < grid.size(); i++) {
+            for (int j = 0; j < grid.get(i).size(); j++) {
+                if (grid.get(i).get(j).equals('S') || grid.get(i).get(j).equals('a')) {
+                    starts.add(new Coordinate(i, j));
+                } else if (grid.get(i).get(j).equals('E')) {
+                    end = new Coordinate(i, j);
+                }
+            }
+        }
+
+        Long min = Long.MAX_VALUE;
+        for (Coordinate start : starts) {
+            Long temp = dijkstra(grid, start, end);
+            if (temp != -1) {
+                min = Math.min(min, temp);
+            }
+        }
+        return min;
+    }
+
     private Long dijkstra(List<List<Character>> grid, Coordinate start, Coordinate end) {
         WalkState current = new WalkState(start, 0L);
-        Queue<WalkState> unsettled = new LinkedList<>(); //new PriorityQueue<>();
-        Map<Coordinate, Long> coordinateStepMap = new HashMap<>();
-//        coordinateStepMap.put(start, 0L);
-
-//        Set<WalkState> settled = new HashSet<>();
-
+        Queue<WalkState> unsettled = new PriorityQueue<>();
         unsettled.add(current);
+
+        Map<Coordinate, Long> coordinateStepMap = new HashMap<>();
+
         while (!unsettled.isEmpty()) {
             current = unsettled.remove();
 
-            if(coordinateStepMap.containsKey(current.coordinate()) && coordinateStepMap.get(current.coordinate()) <= current.steps()){
+            if (coordinateStepMap.containsKey(current.coordinate()) && coordinateStepMap.get(current.coordinate()) <= current.steps()) {
                 continue;
             }
-
-//            if (settled.contains(current) || current.steps() >= coordinateStepMap.getOrDefault(current.coordinate(), Long.MAX_VALUE)) {
-//                continue;
-//            }
-
-//            System.out.println("processing: row; " + current.row() + " ; col: " + current.col());
 
             if (current.row() == end.row() && current.col() == end.col()) {
                 return current.steps();
             }
 
             getNeighbors(current, grid, unsettled, coordinateStepMap);
-
-//            settled.add(current);
             coordinateStepMap.put(current.coordinate(), current.steps());
         }
 
@@ -81,7 +93,6 @@ public class HillClimbingAlgorithm {
     }
 
     private void getNeighbors(WalkState current, List<List<Character>> grid, Queue<WalkState> unsettled, Map<Coordinate, Long> walkMap) {
-//        System.out.println("current: " + current.row() + "," + current.col() + " ; " + grid.get(current.row()).get(current.col()));
         for (List<Integer> row_col_delta : NEIGHBOR_MAP) {
             int newRow = current.row() + row_col_delta.get(0);
             int newCol = current.col() + row_col_delta.get(1);
@@ -92,24 +103,16 @@ public class HillClimbingAlgorithm {
 
             char neighbor = treatValue(grid.get(newRow).get(newCol));
             char currentChar = treatValue(grid.get(current.row()).get(current.col()));
-//            int diff = Math.abs(neighbor - currentChar);
             int diff = neighbor - currentChar;
 
-            // 6 - 5
 
-//            System.out.println("neighbor: " + neighbor + "; difference :" + diff);
-
-//            if (diff == 0 || diff == 1) {
-                if (diff < 2) {
-                //add
+            if (diff < 2) {
                 unsettled.add(
                         new WalkState(new Coordinate(newRow, newCol), current.steps() + 1)
                 );
             }
 
         }
-
-//        System.out.println();
     }
 
     private Character treatValue(Character c) {
