@@ -37,12 +37,12 @@ public class DistressElement implements Comparable<DistressElement> {
     public DistressElement(final String line) {
         this.rawElement = line;
         if (line.charAt(0) == L_B) {
+
             String trimmedLine = line.substring(1, line.length() - 1);
-
             List<DistressElement> innerPackets = new ArrayList<>();
-
             int level = 0;
             StringBuilder tmp = new StringBuilder();
+
             for (char c : trimmedLine.toCharArray()) {
                 if (c == COMMA && level == 0) {
                     innerPackets.add(new DistressElement(tmp.toString()));
@@ -52,15 +52,16 @@ public class DistressElement implements Comparable<DistressElement> {
                     tmp.append(c);
                 }
             }
+
             if (!tmp.toString().isBlank()) {
                 innerPackets.add(new DistressElement(tmp.toString()));
             }
 
             this.innerPackets = innerPackets;
             this.isNumber = false;
+
         } else {
             this.value = Integer.parseInt(line);
-
         }
     }
 
