@@ -1,74 +1,87 @@
 package org.example.advent.year2022.day13;
 
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
-@Builder
 @Data
-@AllArgsConstructor
-public class DistressElement {
+public class DistressElement implements Comparable<DistressElement> {
 
     private static final Character L_B = '[';
     private static final Character R_B = ']';
     private static final Character COMMA = ',';
 
-    @Builder.Default
     private List<DistressElement> innerPackets = new ArrayList<>();
 
-    @Builder.Default
-    private Integer value = null;
+    private Integer value = -1;
 
-    private ElementType elementType;
+    private Boolean isNumber = true;
+    private final String rawElement;
 
-    public static DistressElement newDistressPacket(final String line) {
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        DistressElement that = (DistressElement) o;
+        return Objects.equals(rawElement, that.rawElement);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(rawElement);
+    }
+
+    public DistressElement(final String line) {
+        this.rawElement = line;
         if (line.charAt(0) == L_B) {
             String trimmedLine = line.substring(1, line.length() - 1);
-            if(trimmedLine.isEmpty()){
-                return DistressElement.builder().innerPackets(new ArrayList<>()).elementType(ElementType.EMPTY_LIST).build();
-            }
 
             List<DistressElement> innerPackets = new ArrayList<>();
 
-            List<Integer> splitIndexes = findValidCommaIndexes(trimmedLine);
-            //add length of trimmed string so we have left and right boundaries for substring call
-            splitIndexes.add(trimmedLine.length());
-
-            int leftIndex = 0;
-            for(Integer rightIndex : splitIndexes){
-                innerPackets.add(
-                        newDistressPacket(trimmedLine.substring(leftIndex, rightIndex))
-                );
-
-                leftIndex = rightIndex + 1;
+            int level = 0;
+            StringBuilder tmp = new StringBuilder();
+            for (char c : trimmedLine.toCharArray()) {
+                if (c == COMMA && level == 0) {
+                    innerPackets.add(new DistressElement(tmp.toString()));
+                    tmp = new StringBuilder();
+                } else {
+                    level += (c == L_B) ? 1 : (c == R_B) ? -1 : 0;
+                    tmp.append(c);
+                }
+            }
+            if (!tmp.toString().isBlank()) {
+                innerPackets.add(new DistressElement(tmp.toString()));
             }
 
-            return DistressElement.builder().innerPackets(innerPackets).elementType(ElementType.LIST).build();
+            this.innerPackets = innerPackets;
+            this.isNumber = false;
         } else {
+            this.value = Integer.parseInt(line);
 
-            Integer value = Integer.parseInt(line);
-            return DistressElement.builder().value(value).elementType(ElementType.SINGLE_ITEM).build();
         }
     }
 
-    private static List<Integer> findValidCommaIndexes(String trimmedLine){
-        List<Integer> foundValidSplitIndexes = new ArrayList<>();
-        int left = 0;
-        int right = 0;
-        for(int i = 0; i < trimmedLine.length(); i++){
-            if(trimmedLine.charAt(i) == L_B){
-                left++;
-            } else if(trimmedLine.charAt(i) == R_B){
-                right++;
-            } else if(trimmedLine.charAt(i) == COMMA && left == right){
-                foundValidSplitIndexes.add(i);
-            }
+    @Override
+    public int compareTo(DistressElement o) {
+        if (this.isNumber && o.isNumber) {
+            return Integer.compare(o.getValue(), this.value);
         }
 
-        return foundValidSplitIndexes;
+        if (!this.isNumber && !o.getIsNumber()) {
+            for (int i = 0; i < Math.min(this.innerPackets.size(), o.getInnerPackets().size()); i++) {
+                int val = this.innerPackets.get(i).compareTo(o.getInnerPackets().get(i));
+                if (val != 0) {
+                    return val;
+                }
+            }
+            return o.getInnerPackets().size() - this.innerPackets.size();
+        }
+
+        DistressElement deThis = this.isNumber ? new DistressElement(L_B.toString() + this.value + R_B) : this;
+        DistressElement deOther = o.getIsNumber() ? new DistressElement(L_B.toString() + o.getValue() + R_B) : o;
+        return deThis.compareTo(deOther);
     }
 }
