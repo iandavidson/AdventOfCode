@@ -19,13 +19,15 @@ public class RegolithReservoir {
     public static void main(String[] args) {
         RegolithReservoir regolithReservoir = new RegolithReservoir();
         System.out.println("part1: " + regolithReservoir.part1());
+        System.out.println("part2: " + regolithReservoir.part2());
     }
 
     public int part1() {
         List<RockFormation> rockFormations = readFile();
 
+        Map<Coordinate, Wall> rockMap = new HashMap<>();
         // x , y
-        Map<Coordinate, Wall> rockMap = buildMap(rockFormations);
+        buildMap(rockMap, rockFormations);
         int count = 0;
 
         while (!rockMap.containsKey(DROP_SPOT)) {
@@ -61,8 +63,49 @@ public class RegolithReservoir {
         return count;
     }
 
-    private Map<Coordinate, Wall> buildMap(List<RockFormation> rockFormations) {
+    public Integer part2(){
+        List<RockFormation> rockFormations = readFile();
         Map<Coordinate, Wall> rockMap = new HashMap<>();
+        Integer highestY = buildMap(rockMap, rockFormations);
+
+        int count = 0;
+
+        while (!rockMap.containsKey(DROP_SPOT)) {
+            //drop another piece of sand
+            Coordinate coordinate = new Coordinate(DROP_SPOT.x(), DROP_SPOT.y());
+            int z = 0;
+            while (true) {
+
+                if(coordinate.y() == highestY-1){
+                    System.out.println("whoops");
+                }
+
+                //fall until it can't
+                if (!rockMap.containsKey(new Coordinate(coordinate.x(), coordinate.y() + 1)) && (coordinate.y() + 1) < highestY ) {
+                    coordinate = new Coordinate(coordinate.x(), coordinate.y() + 1);
+                    z++;
+                    if(z > 10){
+                        System.out.println("whoops");
+                    }
+
+                } else if (!rockMap.containsKey(new Coordinate(coordinate.x() - 1, coordinate.y() + 1)) && (coordinate.y() + 1) < highestY) {
+                    coordinate = new Coordinate(coordinate.x() - 1, coordinate.y() + 1);
+
+                } else if (!rockMap.containsKey(new Coordinate(coordinate.x() + 1, coordinate.y() + 1)) && (coordinate.y() + 1) < highestY) {
+                    coordinate = new Coordinate(coordinate.x() + 1, coordinate.y() + 1);
+
+                } else {
+                    rockMap.put(coordinate, Wall.SAND);
+                    count++;
+                    break;
+                }
+            }
+        }
+        return count;
+    }
+
+    private Integer buildMap(Map<Coordinate, Wall> rockMap, final List<RockFormation> rockFormations){
+        Integer highest = 0;
         for (RockFormation rockFormation : rockFormations) {
             for (int i = 1; i < rockFormation.getPathCorners().size(); i++) {
                 Coordinate start = rockFormation.getPathCorners().get(i - 1);
@@ -86,17 +129,23 @@ public class RegolithReservoir {
                         rockMap.put(new Coordinate(j, start.y()), Wall.ROCK);
                     }
                 }
+
+                highest = Math.max(Math.max(start.y(), end.y()), highest);
             }
         }
 
-        return rockMap;
+        return highest;
     }
+
+//    private Map<Coordinate, Wall> buildMap(final List<RockFormation> rockFormations) {
+//
+//    }
 
     private List<RockFormation> readFile() {
         List<RockFormation> rockFormations = new ArrayList<>();
 
         ClassLoader cl = RegolithReservoir.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
