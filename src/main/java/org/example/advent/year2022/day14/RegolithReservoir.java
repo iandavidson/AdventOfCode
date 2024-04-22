@@ -28,47 +28,34 @@ public class RegolithReservoir {
         Map<Coordinate, Wall> rockMap = buildMap(rockFormations);
         int count = 0;
 
-
-
         while (!rockMap.containsKey(DROP_SPOT)) {
             //drop another piece of sand
             Coordinate coordinate = new Coordinate(DROP_SPOT.x(), DROP_SPOT.y());
 
-            int zzz = 0;
+            int fallingCount = 0;
 
             while (true) {
-                if(coordinate.x() == 494 && coordinate.y() == 8){
-                    System.out.println("found");
-                }
-
 
                 //fall until it can't
                 if (!rockMap.containsKey(new Coordinate(coordinate.x(), coordinate.y() + 1))) {
-//                    System.out.println(coordinate.x() + ", " + coordinate.y() + 1);
                     coordinate = new Coordinate(coordinate.x(), coordinate.y() + 1);
-                    zzz++;
-                    if(zzz > 15){
-                        System.out.println("droppin");
+                    fallingCount++;
+                    if(fallingCount > 100){
+                        return count;
                     }
 
                 } else if (!rockMap.containsKey(new Coordinate(coordinate.x() - 1, coordinate.y() + 1))) {
-//                    System.out.println((coordinate.x() - 1) + ", " + (coordinate.y() + 1));
                     coordinate = new Coordinate(coordinate.x() - 1, coordinate.y() + 1);
 
                 } else if (!rockMap.containsKey(new Coordinate(coordinate.x() + 1, coordinate.y() + 1))) {
-//                    System.out.println((coordinate.x() + 1) + ", " + (coordinate.y() + 1));
                     coordinate = new Coordinate(coordinate.x() + 1, coordinate.y() + 1);
 
                 } else {
                     rockMap.put(coordinate, Wall.SAND);
-                    System.out.println("new sand: " +  coordinate.x() + ", " + coordinate.y());
                     count++;
                     break;
                 }
-
-
             }
-
         }
 
         return count;
@@ -109,7 +96,7 @@ public class RegolithReservoir {
         List<RockFormation> rockFormations = new ArrayList<>();
 
         ClassLoader cl = RegolithReservoir.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
