@@ -2,7 +2,7 @@ package org.example.advent.year2022.day14;
 
 import java.util.Objects;
 
-public record Coordinate(long x, long y) {
+public record Coordinate(int x, int y) {
 
 
     @Override
