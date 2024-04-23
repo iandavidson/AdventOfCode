@@ -3,7 +3,9 @@ package org.example.advent.year2022.day16;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -17,12 +19,12 @@ public class ProboscideaVolcanium {
     }
 
     public long part1(){
-        List<Valve> valves = readFile();
+        Map<String, Valve> valves = readFile();
         return 0L;
     }
 
-    private List<Valve> readFile(){
-        List<Valve> valves = new ArrayList<>();
+    private Map<String, Valve> readFile(){
+        Map<String, Valve> valves = new HashMap<>();
         ClassLoader cl = ProboscideaVolcanium.class.getClassLoader();
         File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
         try {
@@ -37,7 +39,7 @@ public class ProboscideaVolcanium {
                     outputs.add(chunks[i].trim());
                 }
 
-                valves.add(new Valve(chunks[0].trim(), outputs, Integer.parseInt(chunks[1].trim())));
+                valves.put(chunks[0].trim(), new Valve(chunks[0].trim(), outputs, Integer.parseInt(chunks[1].trim()), false));
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -46,5 +48,14 @@ public class ProboscideaVolcanium {
         return valves;
     }
 
+    /*
+    intuition:
 
+    Start at "AA"
+    -> look at tunnels from AA, Decide based on the following:
+            -> tunnel has highest pressure
+            -> tunnel is closed (that means we can open and release more pressure)
+
+            --> eventually look past immediate tunnels to tunnels-of-tunnels
+     */
 }
