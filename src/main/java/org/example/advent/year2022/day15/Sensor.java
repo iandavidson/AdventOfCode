@@ -7,4 +7,8 @@ public record Sensor(Coordinate location, int distance) {
         int dY = Math.max(location.y(), nearestBeacon.y()) - Math.min(location.y(), nearestBeacon.y());
         return new Sensor(location, dX + dY);
     }
+
+    public boolean inBounds(int x, int y){
+        return Math.abs(x - location.x()) + Math.abs(y - location().y()) <= distance;
+    }
 }
