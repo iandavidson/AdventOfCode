@@ -3,6 +3,7 @@ package org.example.advent.year2022.day16;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,15 +32,13 @@ public class ProboscideaVolcanium {
             Scanner scanner = new Scanner(file);
             while(scanner.hasNextLine()){
                 String line = scanner.nextLine();
-                line = line.replace("Valve ","").replace(" has flow rate=", ", ").replace("; tunnels lead to valves ", ", ");
-                System.out.println("...");
-                String [] chunks = line.split(",");
-                List<String> outputs = new ArrayList<>();
-                for(int i = 2; i < chunks.length; i++){
-                    outputs.add(chunks[i].trim());
-                }
 
-                valves.put(chunks[0].trim(), new Valve(chunks[0].trim(), outputs, Integer.parseInt(chunks[1].trim()), false));
+                String [] chunksNew = line.split("\\s+");
+                String label = chunksNew[1].trim();
+                int magnitude = Integer.parseInt(chunksNew[4].substring(chunksNew[4].indexOf("=")+1, chunksNew[4].indexOf(";")));
+                List<String> outputs = Arrays.stream(chunksNew).skip(9).map(str -> str.charAt(str.length()-1) == ',' ? str.substring(0, str.length()-1) : str).toList();
+
+                valves.put(label, new Valve(label, outputs, magnitude, false));
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
