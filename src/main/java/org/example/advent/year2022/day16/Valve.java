@@ -3,7 +3,7 @@ package org.example.advent.year2022.day16;
 import java.util.List;
 import java.util.Objects;
 
-public record Valve(String label, List<String> out, int flowRate) {
+public record Valve(String label, List<String> outs, int flowRate) implements Comparable<Valve> {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -15,5 +15,10 @@ public record Valve(String label, List<String> out, int flowRate) {
     @Override
     public int hashCode() {
         return Objects.hash(label);
+    }
+
+    @Override
+    public int compareTo(Valve o) {
+        return Integer.compare(flowRate, o.flowRate);
     }
 }
