@@ -14,9 +14,6 @@ public class PyroclasticFlow {
     private static final String SAMPLE_PATH = "adventOfCode/2022/day17/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2022/day17/input.txt";
 
-    private static final int LEFT_BOUNDARY = 0;
-    private static final int RIGHT_BOUNDARY = 6;
-
     public static void main(String[] args) {
         PyroclasticFlow pyroclasticFlow = new PyroclasticFlow();
         System.out.println("Part1: " + pyroclasticFlow.part1());
@@ -52,19 +49,27 @@ public class PyroclasticFlow {
         int rockCount = 0;
         int streamIndex = 0;
 
-        while (rockCount < remainingRocks && streamIndex < jetStream.size()) {
+        while (rockCount < remainingRocks) {
 
             ROCKTYPE nextToBeDropped = rockTypes.get(rockCount % 5);
 
             Rock beforeDropped = nextDropped(nextToBeDropped, currentHeight);
-
-            //first move with jetStream
-
-            //then move down
-
-
-
             Collections.sort(rocks);
+
+            boolean noFallingCollision = true;
+            while (noFallingCollision) {
+                //first attempt to move with jetStream
+                DIRECTION direction = jetStream.get(streamIndex % jetStream.size());
+                streamIndex++;
+                beforeDropped = beforeDropped.applyJetStream(direction);
+
+                //then attempt to move down
+
+
+            }
+
+
+            rockCount++;
         }
 
         return currentHeight;
@@ -75,6 +80,8 @@ public class PyroclasticFlow {
         List<Coordinate> coordinates = new ArrayList<>();
         int adjustedHeight = currentHeight + 3;
         int highestY = 0;
+        int leftMostX = 0;
+        int rightMostX = 7;
         switch (rocktype) {
             case HORZ -> {
                 coordinates.add(new Coordinate(2, adjustedHeight));
@@ -82,6 +89,9 @@ public class PyroclasticFlow {
                 coordinates.add(new Coordinate(4, adjustedHeight));
                 coordinates.add(new Coordinate(5, adjustedHeight));
                 highestY = adjustedHeight;
+                leftMostX = 2;
+                rightMostX = 5;
+
 /*
 |..@@@@.|
 |.......|
@@ -97,6 +107,8 @@ public class PyroclasticFlow {
                 coordinates.add(new Coordinate(2, adjustedHeight + 1));
                 coordinates.add(new Coordinate(4, adjustedHeight + 1));
                 highestY = adjustedHeight + 2;
+                leftMostX = 2;
+                rightMostX = 4;
 
 /*
 |...@...|
@@ -115,6 +127,8 @@ public class PyroclasticFlow {
                 coordinates.add(new Coordinate(4, adjustedHeight + 1));
                 coordinates.add(new Coordinate(4, adjustedHeight + 2));
                 highestY = adjustedHeight + 2;
+                leftMostX = 2;
+                rightMostX = 4;
 
 /*
 |....@..|
@@ -132,6 +146,8 @@ public class PyroclasticFlow {
                 coordinates.add(new Coordinate(2, adjustedHeight + 2));
                 coordinates.add(new Coordinate(2, adjustedHeight + 3));
                 highestY = adjustedHeight + 3;
+                leftMostX = 2;
+                rightMostX = 2;
 /*
 |..@....|
 |..@....|
@@ -149,6 +165,8 @@ public class PyroclasticFlow {
                 coordinates.add(new Coordinate(2, adjustedHeight + 1));
                 coordinates.add(new Coordinate(3, adjustedHeight + 1));
                 highestY = adjustedHeight + 1;
+                leftMostX = 2;
+                rightMostX = 3;
 /*
 |..@@...|
 |..@@...|
@@ -165,6 +183,6 @@ public class PyroclasticFlow {
 
         }
 
-        return Rock.newRock(coordinates, rocktype, highestY);
+        return new Rock(coordinates, rocktype, highestY, leftMostX, rightMostX);
     }
 }
