@@ -54,33 +54,35 @@ public class PyroclasticFlow {
             ROCKTYPE nextToBeDropped = rockTypes.get(rockCount % 5);
 
             Rock current = nextDropped(nextToBeDropped, currentHeight);
-            Collections.sort(rocks);
 
             boolean stillFalling = true;
             while (stillFalling) {
-                //first attempt to move with jetStream
+
                 DIRECTION direction = jetStream.get(streamIndex % jetStream.size());
 
+                //move with jetStream
                 Rock next = current.applyJetStream(direction);
                 if(next != null){
-                    //if we moved left or right then increment jetstream index
-                    streamIndex++;
+                    // next contains current rock with x shift
                     current = next;
                 }
+                streamIndex++;
 
+                //then attempt to move down,
                 next = current.applyMoveDown(rocks);
-                //then attempt to move down
                 if(next != null){
-                    //move down
+                    // next contains current rock with y-1
                     current = next;
                 }else{
                     stillFalling = false;
-                    currentHeight = Math.max(currentHeight, current.getHighestY());
+                    currentHeight = Math.max(currentHeight, current.highestY());
                 }
             }
 
             rocks.add(current);
             rockCount++;
+            Collections.sort(rocks);
+//            currentHeight = rocks.getFirst().highestY();
         }
 
         return currentHeight;
