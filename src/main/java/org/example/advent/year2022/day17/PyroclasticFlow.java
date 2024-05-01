@@ -11,6 +11,21 @@ import java.util.Scanner;
 
 public class PyroclasticFlow {
 
+    /*
+    part 2 intuition:
+
+    (|potential shapes| * |jet-stream|) * (n) == cycle size
+
+    (5 * 10092) * (n); how to find N
+
+    we can naively detect cycle by checking:
+        - see the same rock 3 times,
+           - same x values
+           - same difference between y values
+
+           //we kind of expect that the difference in streamIndex for each is larger than |jet-stream|, maybe even multiple |jet-streams|
+     */
+
     private static final String SAMPLE_PATH = "adventOfCode/2022/day17/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2022/day17/input.txt";
 
@@ -22,17 +37,22 @@ public class PyroclasticFlow {
 
     public int part1() {
         List<DIRECTION> jetStream = readFile();
-        return dropRocks(2022, jetStream);
+        return dropRocks(2022L, jetStream);
+    }
+
+    public int part2() {
+        List<DIRECTION> jetStream = readFile();
+        return dropRocks(1_000_000_000_000L, jetStream);
     }
 
     private List<DIRECTION> readFile() {
         ClassLoader cl = PyroclasticFlow.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         List<DIRECTION> jetStream = null;
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNext()) {
-                jetStream = Arrays.stream(scanner.nextLine().split("")).map(str -> str.equals(">") ? DIRECTION.LEFT : DIRECTION.RIGHT).toList();
+                jetStream = Arrays.stream(scanner.nextLine().split("")).map(str -> str.equals("<") ? DIRECTION.LEFT : DIRECTION.RIGHT).toList();
             }
         } catch (FileNotFoundException e) {
             throw new RuntimeException(e);
@@ -41,9 +61,13 @@ public class PyroclasticFlow {
         return jetStream;
     }
 
-    private int dropRocks(final int remainingRocks, final List<DIRECTION> jetStream) {
+    private int dropRocks(final long remainingRocks, final List<DIRECTION> jetStream) {
         List<ROCKTYPE> rockTypes = List.of(ROCKTYPE.values());
         List<Rock> rocks = new ArrayList<>();
+        char [][] visual = new char[30][7];
+        for(char [] sub: visual){
+            Arrays.fill(sub, '.');
+        }
 
         int currentHeight = 0;
         int rockCount = 0;
@@ -56,17 +80,22 @@ public class PyroclasticFlow {
             Rock current = nextDropped(nextToBeDropped, currentHeight);
 
             boolean stillFalling = true;
+
             while (stillFalling) {
 
                 DIRECTION direction = jetStream.get(streamIndex % jetStream.size());
 
                 //move with jetStream
-                Rock next = current.applyJetStream(direction);
+                Rock next = current.applyJetStream(direction, rocks);
                 if(next != null){
                     // next contains current rock with x shift
                     current = next;
                 }
                 streamIndex++;
+
+                if(current.rockType() == ROCKTYPE.L){
+                    int x = 1;
+                }
 
                 //then attempt to move down,
                 next = current.applyMoveDown(rocks);
@@ -82,17 +111,39 @@ public class PyroclasticFlow {
             rocks.add(current);
             rockCount++;
             Collections.sort(rocks);
-//            currentHeight = rocks.getFirst().highestY();
+
+            if(rockCount < 12){
+                //add from
+                for(Coordinate coor : current.coordinates()){
+                    visual[coor.y()][coor.x()] = '#';
+                }
+
+                printAllCoords(visual);
+
+                System.out.println("\n");
+
+            }
         }
 
         return currentHeight;
     }
 
+    private void printAllCoords(char [][] board) {
+        for(int y = board.length-1; y > 0; y--){
+            StringBuilder sb = new StringBuilder();
+            sb.append('|');
+            for(int x = 0; x < board[0].length; x++){
+                sb.append(board[y][x]);
+            }
+            sb.append('|');
+            System.out.println(sb);
+        }
+    }
 
 
     private Rock nextDropped(final ROCKTYPE rocktype, final int currentHeight) {
         List<Coordinate> coordinates = new ArrayList<>();
-        int adjustedHeight = currentHeight + 3;
+        int adjustedHeight = currentHeight + 4;
         int highestY = 0;
         int leftMostX = 0;
         int rightMostX = 7;

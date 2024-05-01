@@ -2,7 +2,7 @@ package org.example.advent.year2022.day17;
 
 import java.util.Objects;
 
-public record Coordinate(int x, int y){
+public record Coordinate(int x, int y) implements Comparable<Coordinate>{
 
     @Override
     public boolean equals(Object o) {
@@ -16,5 +16,15 @@ public record Coordinate(int x, int y){
     public int hashCode() {
         return Objects.hash(x, y);
     }
+
+    @Override
+    public int compareTo(Coordinate o) {
+        if(y == o.y){
+            return x - o.x;
+        }
+
+        return o.y - y;
+    }
+
 
 }
