@@ -1,5 +1,8 @@
 package org.example.advent.year2022.day17;
 
+import lombok.Getter;
+
+@Getter
 public enum DIRECTION {
 
     LEFT("<"), RIGHT(">");
@@ -10,7 +13,4 @@ public enum DIRECTION {
         this.value = value;
     }
 
-    public String getValue() {
-        return value;
-    }
 }

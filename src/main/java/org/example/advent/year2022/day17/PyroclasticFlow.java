@@ -14,20 +14,26 @@ public class PyroclasticFlow {
     /*
     part 2 intuition:
 
-    (|potential shapes| * |jet-stream|) * (n) == cycle size
+    look for condition: streamIndex % jetStream.size() == 0
+    this should give enough information to naively figure out cycle size, height gained per cycle, etc.
 
-    (5 * 10092) * (n); how to find N
-
-    we can naively detect cycle by checking:
-        - see the same rock 3 times,
-           - same x values
-           - same difference between y values
-
-           //we kind of expect that the difference in streamIndex for each is larger than |jet-stream|, maybe even multiple |jet-streams|
-
+change in rocks per cycle of jetstream: 1715
+0
+1723
+3438
+5153
+6868
+8583
 
 
-           We see state of the top repeat it self
+height diffs with respect to above; diff: 2574
+0
+2605
+5179
+7753
+10327
+12901
+
      */
 
     private static final String SAMPLE_PATH = "adventOfCode/2022/day17/sample.txt";
@@ -35,19 +41,19 @@ public class PyroclasticFlow {
 
     public static void main(String[] args) {
         PyroclasticFlow pyroclasticFlow = new PyroclasticFlow();
-//        System.out.println("Part1: " + pyroclasticFlow.part1());
+        System.out.println("Part1: " + pyroclasticFlow.part1());
         System.out.println("Part2: " + pyroclasticFlow.part2());
     }
 
 
-    public int part1() {
+    public long part1() {
         List<DIRECTION> jetStream = readFile();
-        return dropRocks(2022L, jetStream);
+        return dropRocks(2022L, jetStream, false);
     }
 
-    public int part2() {
+    public long part2() {
         List<DIRECTION> jetStream = readFile();
-        return dropRocks(1_000_000_000_000L, jetStream);
+        return dropRocks(1730, jetStream, true);
     }
 
     private List<DIRECTION> readFile() {
@@ -66,17 +72,13 @@ public class PyroclasticFlow {
         return jetStream;
     }
 
-    private int dropRocks(final long remainingRocks, final List<DIRECTION> jetStream) {
+    private long dropRocks(final long remainingRocks, final List<DIRECTION> jetStream, final boolean part2) {
         List<ROCKTYPE> rockTypes = List.of(ROCKTYPE.values());
         List<Rock> rocks = new ArrayList<>();
-//        List<Integer> cycleStatesL = new ArrayList<>();
-        List<CycleState> cycleStates = new ArrayList<>();
 
         int currentHeight = 0;
         int rockCount = 0;
         int streamIndex = 0;
-        int priorLIndex = 0;
-        int priorLRockIndex = 0;
 
         while (rockCount < remainingRocks) {
 
@@ -89,58 +91,42 @@ public class PyroclasticFlow {
                 DIRECTION direction = jetStream.get(streamIndex % jetStream.size());
 
                 Rock next = current.applyJetStream(direction, rocks);
-                if(next != null){
+                if (next != null) {
                     current = next;
                 }
 
                 streamIndex++;
 
                 next = current.applyMoveDown(rocks);
-                if(next != null){
+                if (next != null) {
                     // next contains current rock with y-1
                     current = next;
-                }else{
+                } else {
                     stillFalling = false;
                     currentHeight = Math.max(currentHeight, current.highestY());
                 }
             }
 
-            if(current.rockType() == ROCKTYPE.L){
-//                System.out.println("StreamIndex: " + streamIndex + ", moddedIndex: " + (streamIndex % jetStream.size()) + " ; rockType: " + current.rockType().name() + "; indexDiff from last: " + (streamIndex - priorLIndex));
-//                int jetDiff = ;
-                CycleState cycleState = new CycleState(streamIndex - priorLIndex, rockCount);
-                for(CycleState other : cycleStates){
-                    if(cycleState.equals(other)){
-
-                        System.out.println("potential cycle, diff: " + cycleState.jetDiff() + "; diff in rock#: " + (cycleState.rockNumber() - other.rockNumber()));
-//                        break;
-                    }
-                }
-
-                System.out.println("\n");
-                cycleStates.add(cycleState);
-//                System.out.println("rock#: " + rockCount + "; jetstreamIndex Diff from last L: " + (streamIndex - priorLIndex));
-
-                priorLRockIndex = rockCount;
-                priorLIndex = streamIndex;
-
-            }
-
             rocks.add(current);
             rockCount++;
             Collections.sort(rocks);
+
         }
 
-        return currentHeight;
+        // 1 Trillion // |myCycleSize(1715)| => 583090379L
+        // height gained from one cycle => 2574L
+        //method actually passes over 1 full cycle plus offset (1Trillion % |cycle|), so subtract 1 from 583...9L
+        long part2Rest = 583090378L * 2574L; //height gained from cycles we aren't going to simulate.
+        return part2 ? currentHeight + part2Rest : currentHeight;
     }
 
 
     private Rock nextDropped(final ROCKTYPE rocktype, final int currentHeight) {
         List<Coordinate> coordinates = new ArrayList<>();
         int adjustedHeight = currentHeight + 4;
-        int highestY = 0;
-        int leftMostX = 0;
-        int rightMostX = 7;
+        int highestY;
+        int leftMostX;
+        int rightMostX;
         switch (rocktype) {
             case HORZ -> {
                 coordinates.add(new Coordinate(2, adjustedHeight));

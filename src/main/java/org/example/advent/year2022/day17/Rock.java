@@ -10,24 +10,13 @@ public record Rock(List<Coordinate> coordinates, ROCKTYPE rockType, int highestY
     private boolean canApplyJetStream(final DIRECTION direction, final List<Rock> rocks) {
         //is still in bounds after move
         boolean clearFromSides = (direction == DIRECTION.RIGHT && rightMostX + 1 < RIGHT_OUT) || (direction == DIRECTION.LEFT && leftMostX - 1 > LEFT_OUT);
-        if(!clearFromSides){
+        if (!clearFromSides) {
             return false;
         }
 
-        switch(direction){
-            case LEFT -> {
-                for(Rock other : rocks) {
-                    if(!canMove(other, -1,0)){
-                        return false;
-                    }
-                }
-            }
-            case RIGHT -> {
-                for(Rock other : rocks) {
-                    if(!canMove(other, 1,0)){
-                        return false;
-                    }
-                }
+        for (Rock other : rocks) {
+            if (!canMove(other, direction == DIRECTION.LEFT ? -1 : 1, 0)) {
+                return false;
             }
         }
 
@@ -53,7 +42,7 @@ public record Rock(List<Coordinate> coordinates, ROCKTYPE rockType, int highestY
 
     public Rock applyMoveDown(final List<Rock> rocks) {
         for (Coordinate coordinate : coordinates) {
-            if ((coordinate.y() -1) == 0) {
+            if ((coordinate.y() - 1) == 0) {
                 return null;
             }
         }
@@ -80,6 +69,7 @@ public record Rock(List<Coordinate> coordinates, ROCKTYPE rockType, int highestY
         return true;
     }
 
+    //sort high to low
     @Override
     public int compareTo(Rock o) {
         return Integer.compare(o.highestY, this.highestY);
