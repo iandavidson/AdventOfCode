@@ -16,8 +16,6 @@ public record Rock(List<Coordinate> coordinates, ROCKTYPE rockType, int highestY
 
         switch(direction){
             case LEFT -> {
-
-
                 for(Rock other : rocks) {
                     if(!canMove(other, -1,0)){
                         return false;
@@ -68,18 +66,6 @@ public record Rock(List<Coordinate> coordinates, ROCKTYPE rockType, int highestY
 
         List<Coordinate> moved = coordinates.stream().map(coor -> new Coordinate(coor.x(), coor.y() - 1)).toList();
         return new Rock(moved, rockType, highestY - 1, leftMostX, rightMostX);
-    }
-
-    private boolean canMoveDown(Rock other) {
-        for (Coordinate coordinate : coordinates) {
-            for (Coordinate otherCoord : other.coordinates) {
-                if (coordinate.y() - 1 == otherCoord.y() && coordinate.x() == otherCoord.x()) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
     }
 
     private boolean canMove(final Rock other, final int deltaX, final int deltaY) {

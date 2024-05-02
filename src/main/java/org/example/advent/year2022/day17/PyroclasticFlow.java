@@ -24,6 +24,10 @@ public class PyroclasticFlow {
            - same difference between y values
 
            //we kind of expect that the difference in streamIndex for each is larger than |jet-stream|, maybe even multiple |jet-streams|
+
+
+
+           We see state of the top repeat it self
      */
 
     private static final String SAMPLE_PATH = "adventOfCode/2022/day17/sample.txt";
@@ -31,7 +35,8 @@ public class PyroclasticFlow {
 
     public static void main(String[] args) {
         PyroclasticFlow pyroclasticFlow = new PyroclasticFlow();
-        System.out.println("Part1: " + pyroclasticFlow.part1());
+//        System.out.println("Part1: " + pyroclasticFlow.part1());
+        System.out.println("Part2: " + pyroclasticFlow.part2());
     }
 
 
@@ -64,40 +69,32 @@ public class PyroclasticFlow {
     private int dropRocks(final long remainingRocks, final List<DIRECTION> jetStream) {
         List<ROCKTYPE> rockTypes = List.of(ROCKTYPE.values());
         List<Rock> rocks = new ArrayList<>();
-        char [][] visual = new char[30][7];
-        for(char [] sub: visual){
-            Arrays.fill(sub, '.');
-        }
+//        List<Integer> cycleStatesL = new ArrayList<>();
+        List<CycleState> cycleStates = new ArrayList<>();
 
         int currentHeight = 0;
         int rockCount = 0;
         int streamIndex = 0;
+        int priorLIndex = 0;
+        int priorLRockIndex = 0;
 
         while (rockCount < remainingRocks) {
 
             ROCKTYPE nextToBeDropped = rockTypes.get(rockCount % 5);
-
             Rock current = nextDropped(nextToBeDropped, currentHeight);
-
             boolean stillFalling = true;
 
             while (stillFalling) {
 
                 DIRECTION direction = jetStream.get(streamIndex % jetStream.size());
 
-                //move with jetStream
                 Rock next = current.applyJetStream(direction, rocks);
                 if(next != null){
-                    // next contains current rock with x shift
                     current = next;
                 }
+
                 streamIndex++;
 
-                if(current.rockType() == ROCKTYPE.L){
-                    int x = 1;
-                }
-
-                //then attempt to move down,
                 next = current.applyMoveDown(rocks);
                 if(next != null){
                     // next contains current rock with y-1
@@ -108,36 +105,33 @@ public class PyroclasticFlow {
                 }
             }
 
+            if(current.rockType() == ROCKTYPE.L){
+//                System.out.println("StreamIndex: " + streamIndex + ", moddedIndex: " + (streamIndex % jetStream.size()) + " ; rockType: " + current.rockType().name() + "; indexDiff from last: " + (streamIndex - priorLIndex));
+//                int jetDiff = ;
+                CycleState cycleState = new CycleState(streamIndex - priorLIndex, rockCount);
+                for(CycleState other : cycleStates){
+                    if(cycleState.equals(other)){
+
+                        System.out.println("potential cycle, diff: " + cycleState.jetDiff() + "; diff in rock#: " + (cycleState.rockNumber() - other.rockNumber()));
+//                        break;
+                    }
+                }
+
+                System.out.println("\n");
+                cycleStates.add(cycleState);
+//                System.out.println("rock#: " + rockCount + "; jetstreamIndex Diff from last L: " + (streamIndex - priorLIndex));
+
+                priorLRockIndex = rockCount;
+                priorLIndex = streamIndex;
+
+            }
+
             rocks.add(current);
             rockCount++;
             Collections.sort(rocks);
-
-            if(rockCount < 12){
-                //add from
-                for(Coordinate coor : current.coordinates()){
-                    visual[coor.y()][coor.x()] = '#';
-                }
-
-                printAllCoords(visual);
-
-                System.out.println("\n");
-
-            }
         }
 
         return currentHeight;
-    }
-
-    private void printAllCoords(char [][] board) {
-        for(int y = board.length-1; y > 0; y--){
-            StringBuilder sb = new StringBuilder();
-            sb.append('|');
-            for(int x = 0; x < board[0].length; x++){
-                sb.append(board[y][x]);
-            }
-            sb.append('|');
-            System.out.println(sb);
-        }
     }
 
 
