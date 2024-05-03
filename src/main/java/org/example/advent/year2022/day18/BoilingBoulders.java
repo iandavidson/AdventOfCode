@@ -34,20 +34,20 @@ public class BoilingBoulders {
 
     public long part1() {
         List<Coordinate> boulders = readFile();
-        int [][][] grid = new int[MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE];
+        int[][][] grid = new int[MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE];
 
-        for(Coordinate boulder : boulders){
+        for (Coordinate boulder : boulders) {
             grid[boulder.x()][boulder.y()][boulder.z()] = 1;
         }
 
         return findAllSurfaceArea(boulders, grid);
     }
 
-    public long part2(){
+    public long part2() {
         List<Coordinate> boulders = readFile();
-        int [][][] grid = new int[MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE];
+        int[][][] grid = new int[MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE][MAX_COORDINATE_VALUE];
 
-        for(Coordinate boulder : boulders){
+        for (Coordinate boulder : boulders) {
             grid[boulder.x()][boulder.y()][boulder.z()] = 1;
         }
 
@@ -72,12 +72,12 @@ public class BoilingBoulders {
         return boulders;
     }
 
-    private long findAllSurfaceArea(final List<Coordinate> boulders, final int [][][] grid){
+    private long findAllSurfaceArea(final List<Coordinate> boulders, final int[][][] grid) {
         long count = 0L;
 
-        for(Coordinate boulder : boulders){
-            for (Coordinate xyzDelta : DIRECTION_DELTAS){
-                if(isExposed(boulder, grid, xyzDelta, 0)){
+        for (Coordinate boulder : boulders) {
+            for (Coordinate xyzDelta : DIRECTION_DELTAS) {
+                if (isExposed(boulder, grid, xyzDelta, 0)) {
                     count++;
                 }
             }
@@ -86,24 +86,24 @@ public class BoilingBoulders {
         return count;
     }
 
-    private long findOnlyExposedSurface(final List<Coordinate> boulders, final int [][][] grid){
+    private long findOnlyExposedSurface(final List<Coordinate> boulders, final int[][][] grid) {
         //flood fill:
         Set<Coordinate> visited = new HashSet<>();
         Queue<Coordinate> queue = new LinkedList<>();
-        Coordinate current = new Coordinate(0,0,0);
+        Coordinate current = new Coordinate(0, 0, 0);
         queue.add(current);
 
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
             current = queue.remove();
 
-            if(visited.contains(current)){
+            if (visited.contains(current)) {
                 continue;
             }
 
             List<Coordinate> validNeighbors = findValidNeighbors(current, grid);
 
-            for(Coordinate coordinate : validNeighbors){
-                if(!visited.contains(coordinate)){
+            for (Coordinate coordinate : validNeighbors) {
+                if (!visited.contains(coordinate)) {
                     queue.add(coordinate);
                 }
             }
@@ -111,43 +111,39 @@ public class BoilingBoulders {
             visited.add(current);
         }
 
-
         long count = 0L;
 
         //visited should contain the full set of outside air coordinates
-
-        for(Coordinate airParticle : visited){
-            for(Coordinate xyzDelta : DIRECTION_DELTAS){
-                if(isExposed(airParticle, grid, xyzDelta, 1)){
+        for (Coordinate airParticle : visited) {
+            for (Coordinate xyzDelta : DIRECTION_DELTAS) {
+                if (isExposed(airParticle, grid, xyzDelta, 1)) {
                     count++;
                 }
             }
         }
 
-
-
         return count;
     }
 
-    private boolean isExposed(final Coordinate Coordinate, final int [][][] grid, final Coordinate xyzDelta, final int expectedNeighbor){
+    private boolean isExposed(final Coordinate Coordinate, final int[][][] grid, final Coordinate xyzDelta, final int expectedNeighbor) {
         int newX = Coordinate.x() + xyzDelta.x();
         int newY = Coordinate.y() + xyzDelta.y();
         int newZ = Coordinate.z() + xyzDelta.z();
 
         //boundary check no coordinates
-        if(newX == -1 || newY == -1 || newZ == -1 || newX == MAX_COORDINATE_VALUE || newY == MAX_COORDINATE_VALUE || newZ == MAX_COORDINATE_VALUE){
+        if (newX == -1 || newY == -1 || newZ == -1 || newX == MAX_COORDINATE_VALUE || newY == MAX_COORDINATE_VALUE || newZ == MAX_COORDINATE_VALUE) {
             return false;
         }
 
         return grid[newX][newY][newZ] == expectedNeighbor;
     }
 
-    private List<Coordinate> findValidNeighbors(final Coordinate current, final int [][][] grid){
-            // valid neighbors should only be air, non rocks
+    private List<Coordinate> findValidNeighbors(final Coordinate current, final int[][][] grid) {
+        // valid neighbors should only be air, non rocks
         List<Coordinate> neighbors = new ArrayList<>();
 
-        for(Coordinate xyzDelta : DIRECTION_DELTAS){
-            if(isExposed(current, grid, xyzDelta, 0)){
+        for (Coordinate xyzDelta : DIRECTION_DELTAS) {
+            if (isExposed(current, grid, xyzDelta, 0)) {
                 neighbors.add(new Coordinate(current.x() + xyzDelta.x(), current.y() + xyzDelta.y(), current.z() + xyzDelta.z()));
             }
         }
