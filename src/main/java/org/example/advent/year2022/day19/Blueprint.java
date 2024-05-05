@@ -1,42 +1,26 @@
 package org.example.advent.year2022.day19;
 
-import lombok.Getter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
-import java.util.ArrayList;
-import java.util.List;
-
-public record Blueprint(int id, Cost oreRobot, Cost clayRobot, Cost obsidianRobot, Cost geodeRobot) {
-    @Getter
-    enum RESOURCE {
-        //Blueprint 1: Each ore robot costs 2 ore. Each clay robot costs 4 ore. Each obsidian robot costs 4 ore and 15 clay. Each geode robot costs 2 ore and 20 obsidian.
-        ORE("ore"), CLAY("clay"), OBSIDIAN("obsidian");
-
-        private final String wordName;
-
-        RESOURCE(String wordName) {
-            this.wordName = wordName;
-        }
-    }
+public record Blueprint(int id, int oreRobotCost, int clayRobotOreCost, int obsidianRobotOreCost, int obsidianRobotClayCost, int geodeRobotOreCost, int geodeRobotObsidianCost) {
 
     public static Blueprint newBlueprint(final String line) {
-        int id = Integer.parseInt(line.substring(10, line.indexOf(":")));
+        final Pattern p = Pattern.compile(
+                "Blueprint (\\d+): Each ore robot costs (\\d+) ore. Each clay robot costs (\\d+) ore. Each obsidian robot costs (\\d+) ore and (\\d+) clay. Each geode robot costs (\\d+) ore and (\\d+) obsidian.");
 
-        String robots = line.split(":")[1].trim();
-
-        String[] robotChunks = robots.split("\\.", 4);
-        List<Cost> costs = new ArrayList<>();
-        for (String robotChunk : robotChunks) {
-            String[] parts = robotChunk.substring(robotChunk.indexOf("costs") + 5).trim().split("\\s+");
-            if (parts.length == 2) {
-
-            } else {
-
-            }
-
-            //"4 ore" OR "3 ore and 14 clay"
+        final Matcher m = p.matcher(line);
+        if (m.find()) {
+            return new Blueprint(Integer.parseInt(m.group(1)), Integer.parseInt(m.group(2)),
+                    Integer.parseInt(m.group(3)), Integer.parseInt(m.group(4)), Integer.parseInt(m.group(5)),
+                    Integer.parseInt(m.group(6)), Integer.parseInt(m.group(7)));
         }
 
-        return new Blueprint(id, null, null, null, null);
+        throw new IllegalStateException("invalid input");
     }
-//Blueprint 1: Each ore robot costs 4 ore. Each clay robot costs 2 ore. Each obsidian robot costs 3 ore and 14 clay. Each geode robot costs 2 ore and 7 obsidian.
 }
+
+
+
+
+
