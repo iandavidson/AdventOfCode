@@ -38,7 +38,7 @@ public class NotEnoughMinerals {
         List<Blueprint> blueprints = new ArrayList<>();
 
         ClassLoader cl = NotEnoughMinerals.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
@@ -57,8 +57,11 @@ public class NotEnoughMinerals {
         }
 
         final int maxOre = Math.max(blueprint.oreRobotCost(), Math.max(blueprint.clayRobotOreCost(), Math.max(blueprint.obsidianRobotOreCost(), blueprint.geodeRobotOreCost())));
-        if (robotType == RobotType.ORE && state.ore() >= maxOre || robotType == RobotType.CLAY && state.clay() >= blueprint.obsidianRobotClayCost()
-                || robotType == RobotType.OBSIDIAN && (state.obsidian() >= blueprint.geodeRobotObsidianCost() || state.clay() == 0) || robotType == RobotType.GEODE && state.obsidian() == 0) {
+        if (robotType == RobotType.ORE && state.ore() >= maxOre
+                || robotType == RobotType.CLAY && state.clay() >= blueprint.obsidianRobotClayCost()
+                || robotType == RobotType.OBSIDIAN && (state.obsidian() >= blueprint.geodeRobotObsidianCost()
+                || state.clay() == 0) || robotType == RobotType.GEODE && state.obsidian() == 0) {
+
             return 0;
         }
 
@@ -74,17 +77,34 @@ public class NotEnoughMinerals {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
-                            current.ore(), current.clay(), current.obsidian(), current.geodes(), current.oreRobots() + 1, current.clayRobots(), current.obsidianRobots(), current.geodeRobots(), current.minutesLeft() - 1
+                            current.ore() - blueprint.oreRobotCost() + current.oreRobots(),
+                            current.clay() + current.clayRobots(),
+                            current.obsidian() + current.obsidianRobots(),
+                            current.geodes() + current.geodeRobots(),
+                            current.oreRobots() + 1,
+                            current.clayRobots(),
+                            current.obsidianRobots(),
+                            current.geodeRobots(),
+                            current.minutesLeft() - 1
                     ), cache, rt));
                 }
                 max = Math.max(max, tempMax);
                 cache.put(current, max);
                 return max;
+
             } else if (robotType.equals(RobotType.CLAY) && current.ore() >= blueprint.clayRobotOreCost()) {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
-                            current.ore(), current.clay(), current.obsidian(), current.geodes(), current.oreRobots(), current.clayRobots() + 1, current.obsidianRobots(), current.geodeRobots(), current.minutesLeft() - 1
+                            current.ore() - blueprint.clayRobotOreCost() + current.oreRobots(),
+                            current.clay() + current.clayRobots(),
+                            current.obsidian() + current.obsidianRobots(),
+                            current.geodes() + current.geodeRobots(),
+                            current.oreRobots(),
+                            current.clayRobots() + 1,
+                            current.obsidianRobots(),
+                            current.geodeRobots(),
+                            current.minutesLeft() - 1
                     ), cache, rt));
                 }
                 max = Math.max(max, tempMax);
@@ -95,7 +115,15 @@ public class NotEnoughMinerals {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
-                            current.ore(), current.clay(), current.obsidian(), current.geodes(), current.oreRobots(), current.clayRobots(), current.obsidianRobots() + 1, current.geodeRobots(), current.minutesLeft() - 1
+                            current.ore() - blueprint.obsidianRobotOreCost() + current.oreRobots(),
+                            current.clay()  - blueprint.obsidianRobotClayCost() + current.clayRobots(),
+                            current.obsidian() + current.obsidianRobots(),
+                            current.geodes() + current.geodeRobots(),
+                            current.oreRobots(),
+                            current.clayRobots(),
+                            current.obsidianRobots() + 1,
+                            current.geodeRobots(),
+                            current.minutesLeft() - 1
                     ), cache, rt));
                 }
                 max = Math.max(max, tempMax);
@@ -106,7 +134,15 @@ public class NotEnoughMinerals {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
-                            current.ore(), current.clay(), current.obsidian(), current.geodes(), current.oreRobots(), current.clayRobots(), current.obsidianRobots(), current.geodeRobots() + 1, current.minutesLeft() - 1
+                            current.ore() - blueprint.geodeRobotOreCost() + current.oreRobots(),
+                            current.clay() + current.clayRobots(),
+                            current.obsidian() - blueprint.geodeRobotObsidianCost() + current.obsidianRobots(),
+                            current.geodes() + current.geodeRobots(),
+                            current.oreRobots(),
+                            current.clayRobots(),
+                            current.obsidianRobots(),
+                            current.geodeRobots() + 1,
+                            current.minutesLeft() - 1
                     ), cache, rt));
                 }
                 max = Math.max(max, tempMax);
@@ -127,22 +163,6 @@ public class NotEnoughMinerals {
             );
 
             max = Math.max(max, current.geodes());
-            /*
-             // Can not build a robot, so continue gathering resources.
-            minutesLeft--;
-            nrOre += nrOreRobots;
-            nrClay += nrClayRobots;
-            nrOb += nrObRobots;
-            nrGeo += nrGeoRobots;
-            max = Math.max(max, nrGeo);
-             */
-
-
-
-
-
-
-
         }
 
         cache.put(current, max);
