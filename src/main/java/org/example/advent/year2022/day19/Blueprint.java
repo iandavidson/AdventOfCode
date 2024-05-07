@@ -3,7 +3,7 @@ package org.example.advent.year2022.day19;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record Blueprint(int id, int oreRobotCost, int clayRobotOreCost, int obsidianRobotOreCost, int obsidianRobotClayCost, int geodeRobotOreCost, int geodeRobotObsidianCost) {
+public record Blueprint(int id, int oreRobotOreCost, int clayRobotOreCost, int obsidianRobotOreCost, int obsidianRobotClayCost, int geodeRobotOreCost, int geodeRobotObsidianCost) {
 
     public static Blueprint newBlueprint(final String line) {
         final Pattern p = Pattern.compile(
