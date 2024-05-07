@@ -21,10 +21,11 @@ public class NotEnoughMinerals {
 
     public long part1() {
         List<Blueprint> blueprints = readFile();
-        Map<HarvestState, Integer> cache = new HashMap<>();
+        Map<HarvestState, Integer> cache;
         long count = 0L;
 
         for (int i = 0; i < blueprints.size(); i++) {
+            cache = new HashMap<>();
             long max = 0;
             for (RobotType rt : RobotType.values()) {
                 max = Math.max(max, (long) blueprints.get(i).id() * process(blueprints.get(i), HarvestState.builder().oreRobots(1).minutesLeft(24).robotType(rt).build(), cache));
@@ -33,6 +34,7 @@ public class NotEnoughMinerals {
         }
         return count;
         //1887 too low.
+        //2170 wrong
         //2343 too high.
     }
 
