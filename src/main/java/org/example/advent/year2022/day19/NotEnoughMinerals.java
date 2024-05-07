@@ -27,11 +27,13 @@ public class NotEnoughMinerals {
         for (int i = 0; i < blueprints.size(); i++) {
             long max = 0;
             for (RobotType rt : RobotType.values()) {
-                max = Math.max(max, (long) blueprints.get(i).id() * process(blueprints.get(i), HarvestState.builder().oreRobots(1).minutesLeft(24).build(), cache, rt));
+                max = Math.max(max, (long) blueprints.get(i).id() * process(blueprints.get(i), HarvestState.builder().oreRobots(1).minutesLeft(24).robotType(rt).build(), cache));
             }
             count += max;
         }
         return count;
+        //1887 too low.
+        //2343 too high.
     }
 
     private List<Blueprint> readFile() {
@@ -51,16 +53,16 @@ public class NotEnoughMinerals {
         return blueprints;
     }
 
-    private int process(final Blueprint blueprint, final HarvestState state, final Map<HarvestState, Integer> cache, final RobotType robotType) {
+    private int process(final Blueprint blueprint, final HarvestState state, final Map<HarvestState, Integer> cache) {
         if (state.minutesLeft() == 0) {
             return state.geodes();
         }
 
         final int maxOre = Math.max(blueprint.oreRobotCost(), Math.max(blueprint.clayRobotOreCost(), Math.max(blueprint.obsidianRobotOreCost(), blueprint.geodeRobotOreCost())));
-        if (robotType == RobotType.ORE && state.ore() >= maxOre
-                || robotType == RobotType.CLAY && state.clay() >= blueprint.obsidianRobotClayCost()
-                || robotType == RobotType.OBSIDIAN && (state.obsidian() >= blueprint.geodeRobotObsidianCost()
-                || state.clay() == 0) || robotType == RobotType.GEODE && state.obsidian() == 0) {
+        if (state.robotType() == RobotType.ORE && state.ore() >= maxOre
+                || state.robotType()== RobotType.CLAY && state.clay() >= blueprint.obsidianRobotClayCost()
+                || state.robotType() == RobotType.OBSIDIAN && (state.obsidian() >= blueprint.geodeRobotObsidianCost() || state.clay() == 0)
+                || state.robotType() == RobotType.GEODE && state.obsidian() == 0) {
 
             return 0;
         }
@@ -73,7 +75,7 @@ public class NotEnoughMinerals {
         HarvestState current = state;
 
         while (current.minutesLeft() > 0) {
-            if (robotType.equals(RobotType.ORE) && current.ore() >= blueprint.oreRobotCost()) {
+            if (state.robotType().equals(RobotType.ORE) && current.ore() >= blueprint.oreRobotCost()) {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
@@ -85,14 +87,15 @@ public class NotEnoughMinerals {
                             current.clayRobots(),
                             current.obsidianRobots(),
                             current.geodeRobots(),
-                            current.minutesLeft() - 1
-                    ), cache, rt));
+                            current.minutesLeft() - 1,
+                            rt
+                    ), cache));
                 }
                 max = Math.max(max, tempMax);
                 cache.put(current, max);
                 return max;
 
-            } else if (robotType.equals(RobotType.CLAY) && current.ore() >= blueprint.clayRobotOreCost()) {
+            } else if (state.robotType().equals(RobotType.CLAY) && current.ore() >= blueprint.clayRobotOreCost()) {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
@@ -104,33 +107,35 @@ public class NotEnoughMinerals {
                             current.clayRobots() + 1,
                             current.obsidianRobots(),
                             current.geodeRobots(),
-                            current.minutesLeft() - 1
-                    ), cache, rt));
+                            current.minutesLeft() - 1,
+                            rt
+                    ), cache));
                 }
                 max = Math.max(max, tempMax);
                 cache.put(current, max);
                 return max;
 
-            } else if (robotType.equals(RobotType.OBSIDIAN) && current.ore() >= blueprint.obsidianRobotOreCost() && current.clay() >= blueprint.obsidianRobotClayCost()) {
+            } else if (state.robotType().equals(RobotType.OBSIDIAN) && current.ore() >= blueprint.obsidianRobotOreCost() && current.clay() >= blueprint.obsidianRobotClayCost()) {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
                             current.ore() - blueprint.obsidianRobotOreCost() + current.oreRobots(),
-                            current.clay()  - blueprint.obsidianRobotClayCost() + current.clayRobots(),
+                            current.clay() - blueprint.obsidianRobotClayCost() + current.clayRobots(),
                             current.obsidian() + current.obsidianRobots(),
                             current.geodes() + current.geodeRobots(),
                             current.oreRobots(),
                             current.clayRobots(),
                             current.obsidianRobots() + 1,
                             current.geodeRobots(),
-                            current.minutesLeft() - 1
-                    ), cache, rt));
+                            current.minutesLeft() - 1,
+                            rt
+                    ), cache));
                 }
                 max = Math.max(max, tempMax);
                 cache.put(current, max);
                 return max;
 
-            } else if (robotType.equals(RobotType.GEODE) && current.ore() >= blueprint.geodeRobotOreCost() && current.obsidian() >= blueprint.geodeRobotObsidianCost()) {
+            } else if (state.robotType().equals(RobotType.GEODE) && current.ore() >= blueprint.geodeRobotOreCost() && current.obsidian() >= blueprint.geodeRobotObsidianCost()) {
                 int tempMax = 0;
                 for (RobotType rt : RobotType.values()) {
                     tempMax = Math.max(tempMax, process(blueprint, new HarvestState(
@@ -142,8 +147,9 @@ public class NotEnoughMinerals {
                             current.clayRobots(),
                             current.obsidianRobots(),
                             current.geodeRobots() + 1,
-                            current.minutesLeft() - 1
-                    ), cache, rt));
+                            current.minutesLeft() - 1,
+                            rt
+                    ), cache));
                 }
                 max = Math.max(max, tempMax);
                 cache.put(current, max);
@@ -151,15 +157,16 @@ public class NotEnoughMinerals {
             }
 
             current = new HarvestState(
-                current.ore()  + current.oreRobots(),
-                current.clay() + current.clayRobots(),
-                current.obsidian() + current.obsidianRobots(),
-                current.geodes() + current.geodeRobots(),
-                current.oreRobots(),
-                current.clayRobots(),
-                current.obsidianRobots(),
+                    current.ore() + current.oreRobots(),
+                    current.clay() + current.clayRobots(),
+                    current.obsidian() + current.obsidianRobots(),
+                    current.geodes() + current.geodeRobots(),
+                    current.oreRobots(),
+                    current.clayRobots(),
+                    current.obsidianRobots(),
                     current.geodeRobots(),
-                    current.minutesLeft()-1
+                    current.minutesLeft() - 1,
+                    current.robotType()
             );
 
             max = Math.max(max, current.geodes());
