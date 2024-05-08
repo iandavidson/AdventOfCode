@@ -14,6 +14,14 @@ public class KLowestOccurrences {
         int [] input = {3,3,3,2,2,1};
         int [] results = kLowestOccurrences.topKFrequent(input, 2);
         System.out.println(Arrays.toString(results));
+
+
+        input = new int[]{1};
+        System.out.println(Arrays.toString(kLowestOccurrences.topKFrequent(input, 1)));
+
+
+        input = new int[]{1,1,1,2,2,2,3,3,3};
+        System.out.println(Arrays.toString(kLowestOccurrences.topKFrequent(input, 3)));
     }
 
     public int[] topKFrequent(int[] nums, int k) {
@@ -27,8 +35,8 @@ public class KLowestOccurrences {
             }
         }
 
-        List<List<Integer>> count2d = new ArrayList<>(nums.length);
-        for(int i = 0; i < nums.length; i++){
+        List<List<Integer>> count2d = new ArrayList<>(nums.length + 1);
+        for (int i = 0; i < nums.length + 1; i++) {
             count2d.add(new ArrayList<>());
         }
 
@@ -44,18 +52,27 @@ public class KLowestOccurrences {
             if (inner.isEmpty()) {
                 continue;
             }
-            for (Integer i : inner) {
-                resultList.add(i);
-                if (resultList.size() >= 2) {
-                    break;
+
+            if(inner.size() <= k - resultList.size()){
+                for (Integer i : inner) {
+                    resultList.add(i);
+                    if (resultList.size() >= k) {
+                        break;
+                    }
                 }
             }
-            if (resultList.size() >= 2) {
+            if (resultList.size() >= k) {
                 break;
             }
         }
 
-        return new int [] {resultList.get(0), resultList.get(1)};
+        int [] result = new int [k];
+
+        for(int i = 0; i < resultList.size() ; i++){
+            result[i] = resultList.get(i);
+        }
+
+        return result;
     }
 
 
