@@ -1,4 +1,4 @@
-package org.example.kLowestOccurrences;
+package kLowestOccurrences;
 
 import java.util.ArrayList;
 import java.util.Arrays;
