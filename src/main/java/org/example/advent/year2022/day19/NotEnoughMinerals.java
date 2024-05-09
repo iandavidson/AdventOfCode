@@ -42,7 +42,7 @@ public class NotEnoughMinerals {
         List<Blueprint> blueprints = new ArrayList<>();
 
         ClassLoader cl = NotEnoughMinerals.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
