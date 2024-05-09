@@ -17,6 +17,7 @@ public class NotEnoughMinerals {
     public static void main(String[] args) {
         NotEnoughMinerals notEnoughMinerals = new NotEnoughMinerals();
         System.out.println("Part1 : " + notEnoughMinerals.part1());
+        System.out.println("Part2 : " + notEnoughMinerals.part2());
     }
 
     public long part1() {
@@ -33,16 +34,29 @@ public class NotEnoughMinerals {
             count += max;
         }
         return count;
-        //1887 too low.
-        //2170 wrong
-        //2343 too high.
+    }
+
+    public long part2(){
+        List<Blueprint> blueprints = readFile();
+        Map<HarvestState, Integer> cache;
+        long product = 1L;
+
+        for (int i = 0; i < 3; i++) {
+            cache = new HashMap<>();
+            long max = 0;
+            for (RobotType rt : RobotType.values()) {
+                max = Math.max(max, (long) blueprints.get(i).id() * process(blueprints.get(i), HarvestState.builder().oreRobots(1).minutesLeft(32).robotType(rt).build(), cache));
+            }
+            product *= max;
+        }
+        return product;
     }
 
     private List<Blueprint> readFile() {
         List<Blueprint> blueprints = new ArrayList<>();
 
         ClassLoader cl = NotEnoughMinerals.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
