@@ -11,7 +11,6 @@ public class CarWithSpeedAbove65Iterator implements Iterator<Car> {
         this.currentIndex = 0;
     }
 
-
     @Override
     public boolean hasNext() {
         int tempIndex = currentIndex;
