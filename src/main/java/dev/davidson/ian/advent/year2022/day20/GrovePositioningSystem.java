@@ -40,7 +40,7 @@ public class GrovePositioningSystem {
         List<Integer> inputs = new ArrayList<>();
 
         ClassLoader cl = GrovePositioningSystem.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while(scanner.hasNext()){
@@ -56,13 +56,13 @@ public class GrovePositioningSystem {
     private void processPart1(final List<Integer> og, final List<Integer> workingList) {
 
         for (Integer element : og) {
-            System.out.println(workingList);
+//            System.out.println(workingList);
 
             int index = workingList.indexOf(element);
             int valueShift = element % (og.size() - 1);
             int newIndex = index + valueShift;
 
-            if (newIndex >= og.size()) {
+            if (newIndex >= og.size() -1) {
                 // add 1 to the new index if we are _ON_ the last index or outside of upper
                 // bounds
                 newIndex = newIndex - og.size() + 1;
@@ -79,6 +79,6 @@ public class GrovePositioningSystem {
             workingList.add(newIndex, element);
         }
 
-        System.out.println(workingList);
+//        System.out.println(workingList);
     }
 }
