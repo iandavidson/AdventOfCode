@@ -1,4 +1,4 @@
-package dev.davidson.ian.advent.year2015;
+package dev.davidson.ian.advent.year2015.day01;
 
 import java.io.File;
 import java.io.FileNotFoundException;
