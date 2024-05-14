@@ -2,9 +2,11 @@ package dev.davidson.ian.advent.year2015.day03;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
+import java.util.Set;
 
 public class PerfectlySphericalHousesInAVacuum {
 
@@ -21,39 +23,50 @@ public class PerfectlySphericalHousesInAVacuum {
     public static void main(String[] args) {
         PerfectlySphericalHousesInAVacuum perfectlySphericalHousesInAVacuum = new PerfectlySphericalHousesInAVacuum();
         System.out.println(perfectlySphericalHousesInAVacuum.part1());
+        System.out.println(perfectlySphericalHousesInAVacuum.part2());
     }
 
     public Integer part1() {
         char[] inputs = readFile();
-        Map<Coordinate, Integer> houseMapCount = new HashMap<>();
-        Coordinate current = new Coordinate(0,0);
-        houseMapCount.put(current, 1);
+        Set<Coordinate> houseCount = new HashSet<>();
+        Coordinate current = new Coordinate(0, 0);
+        houseCount.add(current);
 
-        for(char ch : inputs){
-            Coordinate next = Coordinate.newCoordinate(current, SHIFT_MAP.get(ch));
-            if(houseMapCount.containsKey(next)){
-                houseMapCount.put(next, houseMapCount.get(next)+1);
-            }else{
-                houseMapCount.put(next, 1);
-            }
+        for (char ch : inputs) {
+            current = Coordinate.newCoordinate(current, SHIFT_MAP.get(ch));
 
-            current = next;
+            houseCount.add(current);
         }
 
-        Integer multiplePresentsCount = 0;
-        for(Integer count : houseMapCount.values()){
-            if(count > 1){
-                multiplePresentsCount++;
-            }
-        }
-
-        //1762 too low
-        return multiplePresentsCount;
+        return houseCount.size();
     }
+
+    public Integer part2() {
+        char[] inputs = readFile();
+        Set<Coordinate> houseCount = new HashSet<>();
+        Coordinate realSanta = new Coordinate(0, 0);
+        Coordinate robotSanta = new Coordinate(0, 0);
+        houseCount.add(realSanta);
+
+        for (int i = 0; i < inputs.length; i++) {
+            if (i % 2 == 0) {
+                //real
+                realSanta = Coordinate.newCoordinate(realSanta, SHIFT_MAP.get(inputs[i]));
+                houseCount.add(realSanta);
+            } else {
+                //robo
+                robotSanta = Coordinate.newCoordinate(robotSanta, SHIFT_MAP.get(inputs[i]));
+                houseCount.add(robotSanta);
+            }
+        }
+
+        return houseCount.size();
+    }
+
 
     private char[] readFile() {
         ClassLoader cl = PerfectlySphericalHousesInAVacuum.class.getClassLoader();
-        File file = new File(cl.getResource(INPUT_PATH).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
