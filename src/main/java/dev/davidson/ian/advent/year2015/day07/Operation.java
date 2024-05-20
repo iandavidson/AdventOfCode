@@ -5,4 +5,5 @@ import java.util.Map;
 public interface Operation {
     Integer evaluate(final Map<String, Integer> labelMap);
     String getResultLabel();
+    Boolean isEligible(final Map<String, Integer> labelMap);
 }

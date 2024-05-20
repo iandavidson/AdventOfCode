@@ -2,6 +2,7 @@ package dev.davidson.ian.advent.year2015.day07.instruction;
 
 import dev.davidson.ian.advent.year2015.day07.Instruction;
 import dev.davidson.ian.advent.year2015.day07.Operation;
+import dev.davidson.ian.advent.year2015.day07.Wire;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -11,26 +12,26 @@ import java.util.Map;
 @ToString(callSuper = true)
 public class AndInstruction extends Instruction implements Operation {
 
-    private final String leftLabel;
-    private final String rightLabel;
+    private final Wire left;
+    private final Wire right;
 
-    public AndInstruction(final String leftLabel, final String rightLabel, final String resultLabel) {
+    public AndInstruction(final Wire left, final Wire right, final String resultLabel) {
         super(resultLabel);
-        this.leftLabel = leftLabel;
-        this.rightLabel = rightLabel;
+        this.left = left;
+        this.right = right;
     }
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if (canEvaluate(labelMap)) {
-            return labelMap.get(leftLabel) & labelMap.get(rightLabel);
+        if (isEligible(labelMap)) {
+            return labelMap.get(left) & labelMap.get(right);
         }
 
         return null;
     }
 
-
-    protected Boolean canEvaluate(Map<String, Integer> labelMap) {
-        return labelMap.containsKey(leftLabel) && labelMap.containsKey(rightLabel);
+    @Override
+    public Boolean isEligible(Map<String, Integer> labelMap) {
+        return left.isEligible(labelMap) && right.isEligible(labelMap);
     }
 }

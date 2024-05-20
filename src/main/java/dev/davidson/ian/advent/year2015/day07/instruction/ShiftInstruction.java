@@ -2,6 +2,7 @@ package dev.davidson.ian.advent.year2015.day07.instruction;
 
 import dev.davidson.ian.advent.year2015.day07.Instruction;
 import dev.davidson.ian.advent.year2015.day07.Operation;
+import dev.davidson.ian.advent.year2015.day07.Wire;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -12,10 +13,10 @@ import java.util.Map;
 public class ShiftInstruction extends Instruction implements Operation {
 
     private final DIRECTION direction;
-    private final String operandLabel;
+    private final Wire operandLabel;
     private final Integer shiftMagnitude;
 
-    public ShiftInstruction(final String direction, final String operandLabel, final Integer shiftMagnitude, final String resultLabel) {
+    public ShiftInstruction(final String direction, final Wire operandLabel, final Integer shiftMagnitude, final String resultLabel) {
         super(resultLabel);
         this.direction = DIRECTION.valueOf(direction);
         this.operandLabel = operandLabel;
@@ -34,6 +35,11 @@ public class ShiftInstruction extends Instruction implements Operation {
         }
 
         return null;
+    }
+
+    @Override
+    public Boolean isEligible(Map<String, Integer> labelMap) {
+        return operandLabel.isEligible(labelMap);
     }
 
     enum DIRECTION {
