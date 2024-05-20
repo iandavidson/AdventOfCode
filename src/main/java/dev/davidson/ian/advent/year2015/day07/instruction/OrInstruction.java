@@ -10,7 +10,7 @@ import java.util.Map;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class OrInstruction extends Instruction implements Operation {
-    //          x OR y -> e
+    // x OR y -> e
     private final String leftLabel;
     private final String rightLabel;
 

@@ -17,6 +17,7 @@ x OR y -> e
 x LSHIFT 2 -> f
 y RSHIFT 2 -> g
 NOT x -> h
+
          */
         String[] split = line.split("\\s+->\\s+");
         String[] operationTokens = split[0].split("\\s+");
@@ -41,6 +42,7 @@ NOT x -> h
         } else {
             //outright assignment
             //123 -> x
+            // y -> x !!!!!
             try{
                 return new StaticAssignmentInstruction(Integer.parseInt(split[0].trim()), split[1].trim());
             }catch(Exception e){
