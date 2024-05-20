@@ -1,10 +1,15 @@
 package dev.davidson.ian.advent.year2015.day07.instruction;
 
 import dev.davidson.ian.advent.year2015.day07.Instruction;
+import dev.davidson.ian.advent.year2015.day07.Operation;
+import lombok.EqualsAndHashCode;
+import lombok.ToString;
 
 import java.util.Map;
 
-public class AndInstruction extends Instruction {
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
+public class AndInstruction extends Instruction implements Operation {
 
     private final String leftLabel;
     private final String rightLabel;
@@ -24,7 +29,7 @@ public class AndInstruction extends Instruction {
         return null;
     }
 
-    @Override
+
     protected Boolean canEvaluate(Map<String, Integer> labelMap) {
         return labelMap.containsKey(leftLabel) && labelMap.containsKey(rightLabel);
     }

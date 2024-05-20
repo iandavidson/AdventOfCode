@@ -1,8 +1,7 @@
 package dev.davidson.ian.advent.year2015.day07.instruction;
 
 import dev.davidson.ian.advent.year2015.day07.Instruction;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import dev.davidson.ian.advent.year2015.day07.Operation;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -10,9 +9,7 @@ import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@Data
-@AllArgsConstructor
-public class ShiftInstruction extends Instruction {
+public class ShiftInstruction extends Instruction implements Operation {
 
     private final DIRECTION direction;
     private final String operandLabel;
@@ -27,7 +24,7 @@ public class ShiftInstruction extends Instruction {
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if (canEvaluate(labelMap)) {
+        if (labelMap.containsKey(operandLabel)) {
             int tempResult = labelMap.get(operandLabel);
             for (int i = 0; i < shiftMagnitude; i++) {
                 tempResult = direction == DIRECTION.LSHIFT ? tempResult << 1 : tempResult >> 1;
@@ -37,11 +34,6 @@ public class ShiftInstruction extends Instruction {
         }
 
         return null;
-    }
-
-    @Override
-    protected Boolean canEvaluate(Map<String, Integer> labelMap) {
-        return labelMap.containsKey(operandLabel);
     }
 
     enum DIRECTION {

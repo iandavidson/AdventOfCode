@@ -1,8 +1,7 @@
 package dev.davidson.ian.advent.year2015.day07.instruction;
 
 import dev.davidson.ian.advent.year2015.day07.Instruction;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import dev.davidson.ian.advent.year2015.day07.Operation;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -10,25 +9,21 @@ import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@Data
-@AllArgsConstructor
-public class AssignmentInstruction extends Instruction {
+public class AssignmentInstruction extends Instruction implements Operation {
 
-    private final Integer assigned;
+    private final String operandLabel;
 
-    public AssignmentInstruction(final Integer assigned, final String resultLabel) {
+    public AssignmentInstruction(final String operandLabel, final String resultLabel){
         super(resultLabel);
-        this.assigned = assigned;
+        this.operandLabel = operandLabel;
     }
-
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        return assigned;
-    }
+        if(labelMap.containsKey(operandLabel)){
+            return labelMap.get(operandLabel);
+        }
 
-    @Override
-    protected Boolean canEvaluate(Map<String, Integer> labelMap) {
-        return true;
+        return null;
     }
 }

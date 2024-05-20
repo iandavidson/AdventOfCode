@@ -1,8 +1,7 @@
 package dev.davidson.ian.advent.year2015.day07.instruction;
 
 import dev.davidson.ian.advent.year2015.day07.Instruction;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import dev.davidson.ian.advent.year2015.day07.Operation;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
@@ -10,9 +9,7 @@ import java.util.Map;
 
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-@Data
-@AllArgsConstructor
-public class OrInstruction extends Instruction {
+public class OrInstruction extends Instruction implements Operation {
     //          x OR y -> e
     private final String leftLabel;
     private final String rightLabel;
@@ -25,15 +22,10 @@ public class OrInstruction extends Instruction {
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if (canEvaluate(labelMap)) {
+        if (labelMap.containsKey(leftLabel) && labelMap.containsKey(rightLabel)) {
             return labelMap.get(leftLabel) | labelMap.get(rightLabel);
         }
 
         return null;
-    }
-
-    @Override
-    protected Boolean canEvaluate(Map<String, Integer> labelMap) {
-        return labelMap.containsKey(leftLabel) && labelMap.containsKey(rightLabel);
     }
 }

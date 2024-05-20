@@ -7,22 +7,21 @@ import lombok.ToString;
 
 import java.util.Map;
 
+
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class NotInstruction extends Instruction implements Operation {
-    private final String operandLabel;
+public class StaticAssignmentInstruction extends Instruction implements Operation {
 
-    public NotInstruction(final String operandLabel, final String resultLabel) {
+    private final Integer assigned;
+
+    public StaticAssignmentInstruction(final Integer assigned, final String resultLabel) {
         super(resultLabel);
-        this.operandLabel = operandLabel;
+        this.assigned = assigned;
     }
+
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if(labelMap.containsKey(operandLabel)){
-            return ~labelMap.get(operandLabel) & 0xffff;
-        }
-
-        return null;
+        return assigned;
     }
 }
