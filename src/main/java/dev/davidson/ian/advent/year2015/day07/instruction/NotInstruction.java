@@ -14,11 +14,15 @@ public class NotInstruction extends Instruction {
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        return 0;
+        if(canEvaluate(labelMap)){
+            return ~labelMap.get(operandLabel);
+        }
+
+        return null;
     }
 
     @Override
     protected Boolean canEvaluate(Map<String, Integer> labelMap) {
-        return null;
+        return labelMap.containsKey(operandLabel);
     }
 }
