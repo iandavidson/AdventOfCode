@@ -23,8 +23,8 @@ public class OrInstruction extends Instruction implements Operation {
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if (labelMap.containsKey(left) && labelMap.containsKey(right)) {
-            return labelMap.get(left) | labelMap.get(right);
+        if (isEligible(labelMap)) {
+            return left.get(labelMap) | right.get(labelMap);
         }
 
         return null;

@@ -38,4 +38,12 @@ public class Wire {
             return labelMap.containsKey(label);
         }
     }
+
+    public Integer get(Map<String, Integer> labelMap){
+        if(value != null){
+            return value;
+        }else{
+            return labelMap.getOrDefault(label, null);
+        }
+    }
 }

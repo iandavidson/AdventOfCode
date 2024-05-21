@@ -24,7 +24,7 @@ public class AndInstruction extends Instruction implements Operation {
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
         if (isEligible(labelMap)) {
-            return labelMap.get(left) & labelMap.get(right);
+            return left.get(labelMap) & left.get(labelMap);
         }
 
         return null;

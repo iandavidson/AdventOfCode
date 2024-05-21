@@ -21,8 +21,8 @@ public class AssignmentInstruction extends Instruction implements Operation {
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if(labelMap.containsKey(operand)){
-            return labelMap.get(operand);
+        if(isEligible(labelMap)){
+            return operand.get(labelMap);
         }
 
         return null;

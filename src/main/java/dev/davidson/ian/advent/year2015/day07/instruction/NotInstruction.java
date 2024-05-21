@@ -20,8 +20,8 @@ public class NotInstruction extends Instruction implements Operation {
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if(labelMap.containsKey(operand)){
-            return ~labelMap.get(operand) & 0xffff;
+        if(isEligible(labelMap)){
+            return ~operand.get(labelMap) & 0xffff;
         }
 
         return null;

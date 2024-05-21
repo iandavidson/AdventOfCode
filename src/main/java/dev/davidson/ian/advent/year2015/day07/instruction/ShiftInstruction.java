@@ -25,13 +25,13 @@ public class ShiftInstruction extends Instruction implements Operation {
 
     @Override
     public Integer evaluate(Map<String, Integer> labelMap) {
-        if (labelMap.containsKey(operandLabel)) {
-            int tempResult = labelMap.get(operandLabel);
+        if (isEligible(labelMap)) {
+            int tempResult = operandLabel.get(labelMap);
             for (int i = 0; i < shiftMagnitude; i++) {
                 tempResult = direction == DIRECTION.LSHIFT ? tempResult << 1 : tempResult >> 1;
             }
 
-            return tempResult;
+            return tempResult & 0xffff;
         }
 
         return null;
