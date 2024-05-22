@@ -13,22 +13,30 @@ import java.util.Map;
 public class NotInstruction extends Instruction implements Operation {
     private final Wire operand;
 
-    public NotInstruction(final Wire operand, final String resultLabel) {
+    public NotInstruction(final Wire operand, final Wire resultLabel) {
         super(resultLabel);
         this.operand = operand;
     }
 
     @Override
-    public Integer evaluate(Map<String, Integer> labelMap) {
-        if(isEligible(labelMap)){
-            return ~operand.get(labelMap) & 0xffff;
+    public Boolean evaluate(Map<String, Integer> labelMap) {
+        if(isEligible()){
+            int result = ~operand.get() & 0xffff;
+            this.getResult().setValue(result);
+            labelMap.putIfAbsent(this.getResult().getLabel(), result);
+            return true;
         }
 
-        return null;
+        return false;
     }
 
     @Override
-    public Boolean isEligible(Map<String, Integer> labelMap) {
-        return operand.isEligible(labelMap);
+    public String getResultLabel() {
+        return this.getResult().getLabel();
+    }
+
+    @Override
+    public Boolean isEligible() {
+        return operand.isEligible();
     }
 }

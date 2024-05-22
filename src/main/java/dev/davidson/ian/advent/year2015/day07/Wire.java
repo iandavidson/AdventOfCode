@@ -5,7 +5,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -31,19 +30,16 @@ public class Wire {
         }
     }
 
-    public Boolean isEligible(Map<String, Integer> labelMap) {
-        if(value != null){
-            return true;
-        }else {
-            return labelMap.containsKey(label);
-        }
+    public Boolean isEligible() {
+        return value != null;
+
     }
 
-    public Integer get(Map<String, Integer> labelMap){
+    public Integer get(){
         if(value != null){
             return value;
         }else{
-            return labelMap.getOrDefault(label, null);
+            return null;
         }
     }
 }

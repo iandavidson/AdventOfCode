@@ -15,23 +15,31 @@ public class AndInstruction extends Instruction implements Operation {
     private final Wire left;
     private final Wire right;
 
-    public AndInstruction(final Wire left, final Wire right, final String resultLabel) {
+    public AndInstruction(final Wire left, final Wire right, final Wire resultLabel) {
         super(resultLabel);
         this.left = left;
         this.right = right;
     }
 
     @Override
-    public Integer evaluate(Map<String, Integer> labelMap) {
-        if (isEligible(labelMap)) {
-            return left.get(labelMap) & left.get(labelMap);
+    public Boolean evaluate(Map<String, Integer> labelMap) {
+        if (isEligible()) {
+            int result = left.get() & left.get();
+            this.getResult().setValue(result);
+            labelMap.putIfAbsent(this.getResult().getLabel(), result);
+            return true;
         }
 
-        return null;
+        return false;
     }
 
     @Override
-    public Boolean isEligible(Map<String, Integer> labelMap) {
-        return left.isEligible(labelMap) && right.isEligible(labelMap);
+    public String getResultLabel() {
+        return this.getResult().getLabel();
+    }
+
+    @Override
+    public Boolean isEligible() {
+        return left.isEligible() && right.isEligible();
     }
 }

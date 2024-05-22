@@ -14,8 +14,8 @@ import java.util.Scanner;
 @Slf4j
 public class SomeAssemblyRequired {
 
-    private static final String TERMINAL_LABEL = "a";
-//    private static final String TERMINAL_LABEL = "i";
+//    private static final String TERMINAL_LABEL = "a";
+    private static final String TERMINAL_LABEL = "i";
 
     private static final String SAMPLE_PATH = "adventOfCode/2015/day07/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2015/day07/input.txt";
@@ -31,8 +31,8 @@ public class SomeAssemblyRequired {
 
         while (!map.containsKey(TERMINAL_LABEL)) {
             for (Operation current : operations) {
-                if(current.isEligible(map)){
-                    map.put(current.getResultLabel(), current.evaluate(map));
+                if(current.isEligible()){
+                    current.evaluate(map);
                 }
             }
         }
@@ -57,7 +57,7 @@ y: 456
         List<Operation> operations = new ArrayList<>();
 
         ClassLoader cl = SomeAssemblyRequired.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {

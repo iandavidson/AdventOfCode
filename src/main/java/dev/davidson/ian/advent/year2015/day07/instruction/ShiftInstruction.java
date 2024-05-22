@@ -16,7 +16,7 @@ public class ShiftInstruction extends Instruction implements Operation {
     private final Wire operandLabel;
     private final Integer shiftMagnitude;
 
-    public ShiftInstruction(final String direction, final Wire operandLabel, final Integer shiftMagnitude, final String resultLabel) {
+    public ShiftInstruction(final String direction, final Wire operandLabel, final Integer shiftMagnitude, final Wire resultLabel) {
         super(resultLabel);
         this.direction = DIRECTION.valueOf(direction);
         this.operandLabel = operandLabel;
@@ -24,22 +24,29 @@ public class ShiftInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public Integer evaluate(Map<String, Integer> labelMap) {
-        if (isEligible(labelMap)) {
-            int tempResult = operandLabel.get(labelMap);
+    public Boolean evaluate(Map<String, Integer> labelMap) {
+        if (isEligible()) {
+            int tempResult = operandLabel.get();
             for (int i = 0; i < shiftMagnitude; i++) {
                 tempResult = direction == DIRECTION.LSHIFT ? tempResult << 1 : tempResult >> 1;
             }
-
-            return tempResult & 0xffff;
+            int result = tempResult & 0xffff;
+            this.getResult().setValue(result);
+            labelMap.putIfAbsent(this.getResult().getLabel(), result);
+            return true;
         }
 
-        return null;
+        return false;
     }
 
     @Override
-    public Boolean isEligible(Map<String, Integer> labelMap) {
-        return operandLabel.isEligible(labelMap);
+    public String getResultLabel() {
+        return this.getResult().getLabel();
+    }
+
+    @Override
+    public Boolean isEligible() {
+        return operandLabel.isEligible();
     }
 
     enum DIRECTION {
