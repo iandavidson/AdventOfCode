@@ -3,6 +3,7 @@ package dev.davidson.ian.advent.year2015.day07;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.util.regex.Matcher;
@@ -12,6 +13,7 @@ import java.util.regex.Pattern;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Wire {
     private Integer value;
     private String label;
@@ -28,11 +30,6 @@ public class Wire {
             this.value = null;
             this.label = value.trim();
         }
-    }
-
-    public Boolean isEligible() {
-        return value != null;
-
     }
 
     public Integer get(){

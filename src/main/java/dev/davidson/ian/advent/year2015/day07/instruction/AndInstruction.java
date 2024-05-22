@@ -22,11 +22,10 @@ public class AndInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public Boolean evaluate(Map<String, Integer> labelMap) {
+    public Boolean evaluate() {
         if (isEligible()) {
             int result = left.get() & left.get();
-            this.getResult().setValue(result);
-            labelMap.putIfAbsent(this.getResult().getLabel(), result);
+            this.getResult().setValue(result & 0xffff);
             return true;
         }
 
@@ -34,12 +33,7 @@ public class AndInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public String getResultLabel() {
-        return this.getResult().getLabel();
-    }
-
-    @Override
     public Boolean isEligible() {
-        return left.isEligible() && right.isEligible();
+        return left.getValue() != null && right.getValue() != null;
     }
 }

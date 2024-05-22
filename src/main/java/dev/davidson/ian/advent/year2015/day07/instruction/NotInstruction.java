@@ -19,11 +19,10 @@ public class NotInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public Boolean evaluate(Map<String, Integer> labelMap) {
+    public Boolean evaluate() {
         if(isEligible()){
             int result = ~operand.get() & 0xffff;
             this.getResult().setValue(result);
-            labelMap.putIfAbsent(this.getResult().getLabel(), result);
             return true;
         }
 
@@ -31,12 +30,7 @@ public class NotInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public String getResultLabel() {
-        return this.getResult().getLabel();
-    }
-
-    @Override
     public Boolean isEligible() {
-        return operand.isEligible();
+        return operand.getValue() != null;
     }
 }

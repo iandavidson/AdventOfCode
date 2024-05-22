@@ -6,33 +6,30 @@ import dev.davidson.ian.advent.year2015.day07.Wire;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Map;
-
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ShiftInstruction extends Instruction implements Operation {
 
     private final DIRECTION direction;
-    private final Wire operandLabel;
+    private final Wire operand;
     private final Integer shiftMagnitude;
 
     public ShiftInstruction(final String direction, final Wire operandLabel, final Integer shiftMagnitude, final Wire resultLabel) {
         super(resultLabel);
         this.direction = DIRECTION.valueOf(direction);
-        this.operandLabel = operandLabel;
+        this.operand = operandLabel;
         this.shiftMagnitude = shiftMagnitude;
     }
 
     @Override
-    public Boolean evaluate(Map<String, Integer> labelMap) {
+    public Boolean evaluate() {
         if (isEligible()) {
-            int tempResult = operandLabel.get();
+            int tempResult = operand.get();
             for (int i = 0; i < shiftMagnitude; i++) {
                 tempResult = direction == DIRECTION.LSHIFT ? tempResult << 1 : tempResult >> 1;
             }
             int result = tempResult & 0xffff;
             this.getResult().setValue(result);
-            labelMap.putIfAbsent(this.getResult().getLabel(), result);
             return true;
         }
 
@@ -40,13 +37,8 @@ public class ShiftInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public String getResultLabel() {
-        return this.getResult().getLabel();
-    }
-
-    @Override
     public Boolean isEligible() {
-        return operandLabel.isEligible();
+        return operand.getValue() != null;
     }
 
     enum DIRECTION {

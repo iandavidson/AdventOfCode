@@ -6,8 +6,14 @@ import dev.davidson.ian.advent.year2015.day07.instruction.NotInstruction;
 import dev.davidson.ian.advent.year2015.day07.instruction.OrInstruction;
 import dev.davidson.ian.advent.year2015.day07.instruction.ShiftInstruction;
 
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class OperationFactory {
-    public static Operation newOperation(final String line) {
+    private static final Pattern LABEL_PATTERN = Pattern.compile("\\D+");
+
+    public static Operation newOperation(final String line, Map<String, Wire> map) {
         /*
 
 456 -> y
@@ -23,26 +29,43 @@ NOT x -> h
 
         if (line.contains("AND")) {
 //            x AND y -> d
-            return new AndInstruction(new Wire(operationTokens[0].trim()), new Wire(operationTokens[2]), new Wire(split[1].trim()));
+            return new AndInstruction(newWire(operationTokens[0].trim(), map), newWire(operationTokens[2], map), newWire(split[1].trim(), map));
 
         } else if (line.contains("OR")) {
 //            x OR y -> e
-            return new OrInstruction(new Wire(operationTokens[0].trim()), new Wire(operationTokens[2]), new Wire(split[1].trim()));
+            return new OrInstruction(newWire(operationTokens[0].trim(), map), newWire(operationTokens[2], map), newWire(split[1].trim(), map));
 
         } else if (line.contains("SHIFT")) {
 //            x LSHIFT 2 -> f
-            return new ShiftInstruction(operationTokens[1].trim(), new Wire(operationTokens[0].trim()),
-                    Integer.parseInt(operationTokens[2].trim()), new Wire(split[1].trim()));
+            return new ShiftInstruction(operationTokens[1].trim(), newWire(operationTokens[0].trim(), map),
+                    Integer.parseInt(operationTokens[2].trim()), newWire(split[1].trim(), map));
 
         } else if (line.contains("NOT")) {
             //NOT x -> h
-            return new NotInstruction(new Wire(operationTokens[1].trim()), new Wire(split[1].trim()));
+            return new NotInstruction(newWire(operationTokens[1].trim(), map), newWire(split[1].trim(), map));
 
         } else {
             //outright assignment
             //123 -> x
             // y -> x !!!!!
-            return new AssignmentInstruction(new Wire(split[0].trim()), new Wire(split[1].trim())) ;
+            return new AssignmentInstruction(newWire(split[0].trim(), map), newWire(split[1].trim(), map));
+        }
+    }
+
+    public static Wire newWire(String val, Map<String, Wire> map) {
+
+        Matcher m = LABEL_PATTERN.matcher(val);
+        if (m.find()) {
+            //value is a string
+            if (map.containsKey(m.group(0))) {
+                return map.get(val);
+            } else {
+                Wire wire = new Wire(val);
+                map.put(val, wire);
+                return wire;
+            }
+        } else {
+            return new Wire(val);
         }
     }
 }

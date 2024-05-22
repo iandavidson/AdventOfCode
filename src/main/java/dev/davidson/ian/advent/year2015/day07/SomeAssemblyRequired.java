@@ -14,8 +14,8 @@ import java.util.Scanner;
 @Slf4j
 public class SomeAssemblyRequired {
 
-//    private static final String TERMINAL_LABEL = "a";
-    private static final String TERMINAL_LABEL = "i";
+    private static final String TERMINAL_LABEL = "a";
+//    private static final String TERMINAL_LABEL = "i";
 
     private static final String SAMPLE_PATH = "adventOfCode/2015/day07/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2015/day07/input.txt";
@@ -26,21 +26,21 @@ public class SomeAssemblyRequired {
     }
 
     public int part1() {
-        List<Operation> operations = readFile();
-        Map<String, Integer> map = new HashMap<>();
+        Map<String, Wire> map = new HashMap<>();
+        List<Operation> operations = readFile(map);
 
-        while (!map.containsKey(TERMINAL_LABEL)) {
+        while (map.get(TERMINAL_LABEL).getValue() == null) {
             for (Operation current : operations) {
-                if(current.isEligible()){
-                    current.evaluate(map);
+                if (current.isEligible()) {
+                    current.evaluate();
                 }
             }
         }
 
-//        65326 too high\
-//        65535
+//        65535 too high
+//        65326 too high
 
-        return map.get(TERMINAL_LABEL);
+        return map.get(TERMINAL_LABEL).getValue();
         /*
 d: 72
 e: 507
@@ -53,17 +53,17 @@ y: 456
          */
     }
 
-    private List<Operation> readFile() {
+    private List<Operation> readFile(Map<String, Wire> map) {
         List<Operation> operations = new ArrayList<>();
 
         ClassLoader cl = SomeAssemblyRequired.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
                 String next = scanner.nextLine();
-                operations.add(OperationFactory.newOperation(next));
-                int i  = 0;
+                operations.add(OperationFactory.newOperation(next, map));
+                int i = 0;
             }
         } catch (FileNotFoundException e) {
             throw new IllegalStateException();

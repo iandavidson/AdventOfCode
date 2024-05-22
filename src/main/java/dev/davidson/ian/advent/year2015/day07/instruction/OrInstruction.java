@@ -6,8 +6,6 @@ import dev.davidson.ian.advent.year2015.day07.Wire;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Map;
-
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class OrInstruction extends Instruction implements Operation {
@@ -22,11 +20,10 @@ public class OrInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public Boolean evaluate(Map<String, Integer> labelMap) {
+    public Boolean evaluate() {
         if (isEligible()) {
             int result = left.get() | right.get();
-            this.getResult().setValue(result);
-            labelMap.putIfAbsent(this.getResult().getLabel(), result);
+            this.getResult().setValue(result & 0xffff);
             return true;
         }
 
@@ -34,12 +31,7 @@ public class OrInstruction extends Instruction implements Operation {
     }
 
     @Override
-    public String getResultLabel() {
-        return this.getResult().getLabel();
-    }
-
-    @Override
     public Boolean isEligible() {
-        return left.isEligible() && right.isEligible();
+        return left.getValue() != null && right.getValue() != null;
     }
 }
