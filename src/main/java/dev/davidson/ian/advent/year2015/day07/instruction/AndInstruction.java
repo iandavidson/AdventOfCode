@@ -6,8 +6,6 @@ import dev.davidson.ian.advent.year2015.day07.Wire;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
 
-import java.util.Map;
-
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class AndInstruction extends Instruction implements Operation {
@@ -24,7 +22,7 @@ public class AndInstruction extends Instruction implements Operation {
     @Override
     public Boolean evaluate() {
         if (isEligible()) {
-            int result = left.get() & left.get();
+            int result = left.get() & right.get();
             this.getResult().setValue(result & 0xffff);
             return true;
         }

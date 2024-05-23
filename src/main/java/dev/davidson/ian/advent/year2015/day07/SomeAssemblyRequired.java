@@ -1,5 +1,6 @@
 package dev.davidson.ian.advent.year2015.day07;
 
+import dev.davidson.ian.advent.year2015.day07.instruction.AssignmentInstruction;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -15,7 +16,6 @@ import java.util.Scanner;
 public class SomeAssemblyRequired {
 
     private static final String TERMINAL_LABEL = "a";
-//    private static final String TERMINAL_LABEL = "i";
 
     private static final String SAMPLE_PATH = "adventOfCode/2015/day07/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2015/day07/input.txt";
@@ -23,6 +23,7 @@ public class SomeAssemblyRequired {
     public static void main(String[] args) {
         SomeAssemblyRequired someAssemblyRequired = new SomeAssemblyRequired();
         log.info("part1: {}", someAssemblyRequired.part1());
+        log.info("part2: {}", someAssemblyRequired.part2());
     }
 
     public int part1() {
@@ -37,20 +38,28 @@ public class SomeAssemblyRequired {
             }
         }
 
-//        65535 too high
-//        65326 too high
+        return map.get(TERMINAL_LABEL).getValue();
+    }
+
+    public int part2(){
+        Map<String, Wire> map = new HashMap<>();
+        List<Operation> operations = readFile(map);
+
+        while (map.get(TERMINAL_LABEL).getValue() == null) {
+            for (Operation current : operations) {
+                if(current instanceof AssignmentInstruction assignmentInstruction
+                        && ((AssignmentInstruction) current).getResult().getLabel().equals("b")){
+
+                    assignmentInstruction.getOperand().setValue(46065);
+                }
+
+                if (current.isEligible()) {
+                    current.evaluate();
+                }
+            }
+        }
 
         return map.get(TERMINAL_LABEL).getValue();
-        /*
-d: 72
-e: 507
-f: 492
-g: 114
-h: 65412
-i: 65079
-x: 123
-y: 456
-         */
     }
 
     private List<Operation> readFile(Map<String, Wire> map) {
