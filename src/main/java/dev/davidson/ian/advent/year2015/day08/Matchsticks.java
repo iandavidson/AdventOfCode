@@ -18,6 +18,8 @@ public class Matchsticks {
     public static void main(String [] args){
         Matchsticks matchsticks = new Matchsticks();
         log.info("part1: {}", matchsticks.part1());
+        log.info("part2: {}", matchsticks.part2());
+
     }
 
     public int part1(){
@@ -27,19 +29,32 @@ public class Matchsticks {
         long memTotal = 0L;
 
         for(Code code : codes){
-            literalTotal += code.literalLength();
-            memTotal += code.inMemLength();
+            literalTotal += code.raw().length();
+            memTotal += code.inMem().length();
         }
 
-        //1461 too high
         return (int) (literalTotal - memTotal);
+    }
+
+    public int part2(){
+        List<Code> codes = readFile();
+
+        long literalTotal = 0L;
+        long encodedTotal = 0L;
+
+        for(Code code : codes){
+            literalTotal += code.raw().length();
+            encodedTotal += code.encoded().length();
+        }
+
+        return (int) (encodedTotal - literalTotal);
     }
 
     private List<Code> readFile(){
         List<Code> codes = new ArrayList<>();
 
         ClassLoader cl = Matchsticks.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try{
             Scanner scanner = new Scanner(file);
             while(scanner.hasNextLine()){
