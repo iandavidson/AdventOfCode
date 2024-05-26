@@ -14,27 +14,10 @@ public class ElvesLookElvesSay {
 
     public static void main(String [] args){
         ElvesLookElvesSay elvesLookElvesSay = new ElvesLookElvesSay();
-//        log.info("part1: {}", elvesLookElvesSay.part1());
-        log.info("part2: {}", elvesLookElvesSay.part2());
+        elvesLookElvesSay.execute();
     }
 
-    public int part1(){
-        String line = readFile();
-        for(int i = 0; i < 40; i++){
-
-            String [] chunks = line.split("(?<=(.))(?!\\1)");
-            String next = "";
-            for(String chunk: chunks){
-                next = next + chunk.length() +  chunk.charAt(0);
-            }
-
-            line = next;
-        }
-
-        return line.length();
-    }
-
-    public int part2(){
+    public void execute(){
         String line = readFile();
         for(int i = 0; i < 50; i++){
 
@@ -45,11 +28,15 @@ public class ElvesLookElvesSay {
             }
 
             line = next;
-            System.out.println(i + ": "+ line.length());
 
+            if(i == 39){
+                log.info("part1: {}", line.length());
+            }
+
+            if(i == 49){
+                log.info("part2: {}", line.length());
+            }
         }
-
-        return line.length();
     }
 
     private String readFile(){
