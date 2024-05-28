@@ -22,12 +22,12 @@ public class ElvesLookElvesSay {
         for(int i = 0; i < 50; i++){
 
             String [] chunks = line.split("(?<=(.))(?!\\1)");
-            String next = "";
+            StringBuilder next = new StringBuilder();
             for(String chunk: chunks){
-                next = next + chunk.length() +  chunk.charAt(0);
+                next.append(chunk.length()).append(chunk.charAt(0));
             }
 
-            line = next;
+            line = next.toString();
 
             if(i == 39){
                 log.info("part1: {}", line.length());
