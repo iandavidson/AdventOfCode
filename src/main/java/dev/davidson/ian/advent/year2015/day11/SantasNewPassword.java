@@ -17,51 +17,48 @@ public class SantasNewPassword {
 
     public static void main(String[] args) {
         SantasNewPassword santasNewPassword = new SantasNewPassword();
-        log.info("Part1: {}", santasNewPassword.part1());
+        String intialPassword = santasNewPassword.readFile();
+        log.info("Part1: {}", santasNewPassword.part1(intialPassword));
+        log.info("Part2: {}", santasNewPassword.part1(santasNewPassword.part1(intialPassword)));
     }
 
-    public String part1() {
-        String initial = readFile();
-        char[] password = initial.toCharArray();
+    public String part1(final String initialPassword) {
+        char[] password = initialPassword.toCharArray();
         while (true) {
 
-            if(isValidPart1(password)){
+            int index = password.length - 1;
+
+            next(password, index);
+
+            if (isValidPart1(password)) {
                 return new String(password);
             }
 
-            int index = password.length-1;
-
-            nextChar(password, index);
-            boolean carry = password[index] == 'z';
-            while(carry){
-                if(password[index] == 'z'){
+            boolean carry = password[index] == 'z' + 1;
+            while (carry) {
+                if (password[index] == 'z' + 1) {
                     password[index] = 'a';
                     index--;
                 }
 
-                nextChar(password, index);
+                next(password, index);
+                if (isValidPart1(password)) {
+                    return new String(password);
+                }
 
-                carry = password[index] == 'z';
+                carry = password[index] == 'z' + 1;
             }
 
-
-            if(isValidPart1(password)){
+            if (isValidPart1(password)) {
                 return new String(password);
             }
 
         }
-/*
-
-    Passwords must include one increasing straight of at least three letters, like abc, bcd, cde, and so on, up to xyz. They cannot skip letters; abd doesn't count.
-    Passwords may not contain the letters i, o, or l, as these letters can be mistaken for other characters and are therefore confusing.
-    Passwords must contain at least two different, non-overlapping pairs of letters, like aa, bb, or zz.
- */
-
     }
 
-    private void nextChar(char[] password, int index) {
+    private void next(char[] password, int index) {
         password[index]++;
-        while (NOT_ALLOWED.contains(password[index])) {
+        if (NOT_ALLOWED.contains(password[index])) {
             password[index]++;
         }
     }
@@ -95,7 +92,7 @@ public class SantasNewPassword {
         return false;
     }
 
-    private String readFile() {
+    public String readFile() {
         ClassLoader cl = SantasNewPassword.class.getClassLoader();
         File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
