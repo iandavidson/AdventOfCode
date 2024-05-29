@@ -58,10 +58,10 @@ public class JSAbacusFramework {
             }
             case OBJECT -> {
                 for (Map.Entry<String, JsonNode> child : jsonNode.properties()) {
-                    if(part2 && child.getValue().asText().equals("red")){
+                    if (part2 && child.getValue().asText().equals("red")) {
                         sum = 0;
                         break;
-                    }else{
+                    } else {
                         sum += computeSumPart1(child.getValue(), part2);
                     }
                 }
