@@ -11,12 +11,14 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Scanner;
 
 @Slf4j
 public class JSAbacusFramework {
 
     private static final String SAMPLE_PATH = "adventOfCode/2015/day12/sample.txt";
+    private static final String SAMPLE_PATH_2 = "adventOfCode/2015/day12/sample2.txt";
     private static final String INPUT_PATH = "adventOfCode/2015/day12/input.txt";
 
     public static void main(String[] args) {
@@ -76,7 +78,7 @@ public class JSAbacusFramework {
 
     private String readFile() {
         ClassLoader cl = JSAbacusFramework.class.getClassLoader();
-        File file = new File(cl.getResource(INPUT_PATH).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             return scanner.nextLine();
