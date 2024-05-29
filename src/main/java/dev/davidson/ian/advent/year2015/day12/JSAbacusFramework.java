@@ -1,4 +1,4 @@
-package dev.davidson.ian.advent.year2015;
+package dev.davidson.ian.advent.year2015.day12;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonMappingException;
