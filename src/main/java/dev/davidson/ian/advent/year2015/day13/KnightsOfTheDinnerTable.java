@@ -4,9 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.sql.Array;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +16,7 @@ public class KnightsOfTheDinnerTable {
 
     private static final String SAMPLE_PATH = "adventOfCode/2015/day13/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2015/day13/input.txt";
+    private static final String INPUT_PATH2 = "adentOfCode/2015/day13/input2.txt";
 
     public static void main(String[] args) {
         KnightsOfTheDinnerTable knightsOfTheDinnerTable = new KnightsOfTheDinnerTable();
@@ -27,20 +26,61 @@ public class KnightsOfTheDinnerTable {
     public int part1() {
         Map<String, Person> peopleMap = readFile();
 
+        List<Person> all = new ArrayList<>(peopleMap.values());
 
+        List<Person> initialSequence = new ArrayList<>();
+        initialSequence.add(all.getFirst());
+        List<List<Person>> sequences = new ArrayList<>();
 
-        return 0;
+        findSequences(all, initialSequence, sequences);
+
+        int max = Integer.MIN_VALUE;
+        for (List<Person> sequence : sequences) {
+            max = Math.max(max, calculate(sequence, peopleMap));
+        }
+        return max;
     }
 
-    public int calculate(List<Person> sequence, Map<String, Person> map){
+    private void findSequences(final List<Person> all, final List<Person> current, final List<List<Person>> sequences) {
+        if (current.size() == all.size()) {
+            sequences.add(current);
+            return;
+        }
 
+        for (Person person : all) {
+            if (!current.contains(person)) {
+                List<Person> currentCopy = new ArrayList<>(current);
+                currentCopy.add(person);
+                findSequences(all, currentCopy, sequences);
+            }
+        }
+
+    }
+
+
+    private int calculate(List<Person> sequence, Map<String, Person> map) {
+        int count = 0;
+        int n = sequence.size();
+
+        for (int i = 0; i < n; i++) {
+            Person current = sequence.get(i);
+
+            int leftIndex = (i - 1) < 0 ? n + i - 1 : i - 1;
+            Person left = sequence.get(leftIndex);
+            count += map.get(current.name()).neighborMap().get(left.name());
+
+            Person right = sequence.get((i + 1) % n);
+            count += map.get(current.name()).neighborMap().get(right.name());
+        }
+
+        return count;
     }
 
     private Map<String, Person> readFile() {
         List<String> inputLines = new ArrayList<>();
 
         ClassLoader cl = KnightsOfTheDinnerTable.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
@@ -62,18 +102,15 @@ public class KnightsOfTheDinnerTable {
 
             if (people.containsKey(name)) {
                 // add to map
-                people.get(name).neighborPerception().add(new Perception(neighbor, score));
+                people.get(name).neighborMap().put(neighbor, score);
             } else {
-                Person person = new Person(name, new ArrayList<>());
-                person.neighborPerception().add(new Perception(neighbor, score));
+                Person person = new Person(name, new HashMap<>());
+                person.neighborMap().put(neighbor, score);
                 people.put(name, person);
             }
 
         }
 
-        for(Person person : people.values()){
-            Collections.sort(person.neighborPerception());
-        }
         return people;
     }
 }
