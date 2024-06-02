@@ -16,15 +16,16 @@ public class KnightsOfTheDinnerTable {
 
     private static final String SAMPLE_PATH = "adventOfCode/2015/day13/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2015/day13/input.txt";
-    private static final String INPUT_PATH2 = "adentOfCode/2015/day13/input2.txt";
+    private static final String INPUT_PATH2 = "adventOfCode/2015/day13/input2.txt";
 
     public static void main(String[] args) {
         KnightsOfTheDinnerTable knightsOfTheDinnerTable = new KnightsOfTheDinnerTable();
-        log.info("Part1: {}", knightsOfTheDinnerTable.part1());
+        log.info("Part1: {}", knightsOfTheDinnerTable.execute(false));
+        log.info("Part2: {}", knightsOfTheDinnerTable.execute(true));
     }
 
-    public int part1() {
-        Map<String, Person> peopleMap = readFile();
+    public int execute(final Boolean part2) {
+        Map<String, Person> peopleMap = readFile(part2);
 
         List<Person> all = new ArrayList<>(peopleMap.values());
 
@@ -76,11 +77,11 @@ public class KnightsOfTheDinnerTable {
         return count;
     }
 
-    private Map<String, Person> readFile() {
+    private Map<String, Person> readFile(final boolean part2) {
         List<String> inputLines = new ArrayList<>();
 
         ClassLoader cl = KnightsOfTheDinnerTable.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(part2 ? INPUT_PATH2 : INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
