@@ -5,11 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -22,23 +18,26 @@ public class ScienceForHungryPeople {
 
     public static void main(String[] args) {
         ScienceForHungryPeople scienceForHungryPeople = new ScienceForHungryPeople();
-        log.info("part1: {}", scienceForHungryPeople.part1());
+        List<BakingComponent> bakingComponents = scienceForHungryPeople.readFile();
+        log.info("Part1: {}", scienceForHungryPeople.execute(bakingComponents, false));
+        log.info("Part2: {}", scienceForHungryPeople.execute(bakingComponents, true));
     }
 
-    public long part1() {
-        List<BakingComponent> bakingComponents = readFile();
-        Map<BakingComponent, Integer> countMap = new HashMap<>();
-
+    public long execute(final List<BakingComponent> bakingComponents, final boolean part2) {
         long max = 0L;
-        for(int i = 0 ; i < 101; i++){
-            for(int j = 0 ; i + j < 101; j++){
-                for(int k = 0; i + j + k < 101; k++){
-                    for(int l = 0 ; i + j + k + l < 101; l++){
-                        if(i + j + k + l == 100){
+        for (int i = 0; i < 101; i++) {
+            for (int j = 0; i + j < 101; j++) {
+                for (int k = 0; i + j + k < 101; k++) {
+                    for (int l = 0; i + j + k + l < 101; l++) {
+
+                        //only check if composition has 100 items over all
+                        if (i + j + k + l == 100) {
+
                             long prior = max;
-                            max = Math.max(max, findTotalScore(bakingComponents, List.of(i, j,k,l)));
-                            if(prior != max){
-                                log.info("max: {}", max);
+                            max = Math.max(max, findTotalScoreWithCalories(bakingComponents, List.of(i, j, k, l), part2));
+
+                            if (prior != max) {
+                                log.info("new max: {}", max);
                             }
                         }
                     }
@@ -46,37 +45,36 @@ public class ScienceForHungryPeople {
             }
         }
 
-
-//        return recurse(bakingComponents, 0, new LinkedHashMap<>(), new HashMap<>());
-
-
-        // 200000000 too high
         return max;
     }
 
-
-    private long findTotalScore(final List<BakingComponent> bakeComponents, final List<Integer> counts){
+    private long findTotalScoreWithCalories(final List<BakingComponent> bakeComponents, final List<Integer> counts, final boolean part2) {
         int capacity = 0;
         int durability = 0;
         int flavor = 0;
         int texture = 0;
+        int calories = 0;
 
-        for(int i = 0 ; i < bakeComponents.size(); i++){
+        for (int i = 0; i < bakeComponents.size(); i++) {
             capacity += bakeComponents.get(i).capacity() * counts.get(i);
             durability += bakeComponents.get(i).durability() * counts.get(i);
             flavor += bakeComponents.get(i).flavor() * counts.get(i);
             texture += bakeComponents.get(i).texture() * counts.get(i);
+            calories += bakeComponents.get(i).calories() * counts.get(i);
         }
 
-        if(capacity <= 0 || durability <= 0 || flavor <= 0 || texture <= 0){
+        if (part2 && calories != 500) {
+            return 0;
+        }
+
+        if (capacity <= 0 || durability <= 0 || flavor <= 0 || texture <= 0) {
             return 0;
         }
 
         return (long) capacity * durability * flavor * texture;
-
     }
 
-    private List<BakingComponent> readFile() {
+    public List<BakingComponent> readFile() {
         List<BakingComponent> components = new ArrayList<>();
 
         ClassLoader cl = ScienceForHungryPeople.class.getClassLoader();

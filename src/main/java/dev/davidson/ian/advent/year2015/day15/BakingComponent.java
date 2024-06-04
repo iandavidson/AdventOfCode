@@ -3,7 +3,7 @@ package dev.davidson.ian.advent.year2015.day15;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public record BakingComponent(String name, int capacity, int durability, int flavor, int texture, int calories) implements Comparable<BakingComponent> {
+public record BakingComponent(String name, int capacity, int durability, int flavor, int texture, int calories) {
 
     public static BakingComponent newBakingComponent(String line) {
         Pattern pattern = Pattern.compile("^(\\w+).*?(-*\\d+).*?(-*\\d+).*?(-*\\d+).*?(-*\\d+).*?(-*\\d+)");
@@ -16,10 +16,5 @@ public record BakingComponent(String name, int capacity, int durability, int fla
             throw new IllegalStateException("can't interpret");
         }
 
-    }
-
-    @Override
-    public int compareTo(BakingComponent other){
-        return name.compareTo(other.name);
     }
 }
