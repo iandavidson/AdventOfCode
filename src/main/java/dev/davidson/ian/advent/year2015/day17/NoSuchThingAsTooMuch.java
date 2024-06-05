@@ -17,7 +17,7 @@ public class NoSuchThingAsTooMuch {
     public static void main(String[] args) {
         NoSuchThingAsTooMuch noSuchThingAsTooMuch = new NoSuchThingAsTooMuch();
         log.info("Part1: {}", noSuchThingAsTooMuch.part1());
-        log.info("Part1: {}", noSuchThingAsTooMuch.part2());
+        log.info("Part2: {}", noSuchThingAsTooMuch.part2());
     }
 
     public int part1() {

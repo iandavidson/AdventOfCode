@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +21,7 @@ public class MedicineForRudolph {
     public static void main(String[] args) {
         MedicineForRudolph medicineForRudolph = new MedicineForRudolph();
         log.info("Part1: {}", medicineForRudolph.part1());
+        log.info("Part2: {}", medicineForRudolph.part2());
     }
 
     public long part1() {
@@ -40,6 +42,28 @@ public class MedicineForRudolph {
         }
 
         return results.size();
+    }
+
+    public int part2() {
+        List<Rule> rules = new ArrayList<>();
+        String input = readFile(rules);
+        Collections.sort(rules);
+
+        int stepsTaken = 0;
+        while (!input.equals("e")) {
+            for (Rule rule : rules) {
+                if (input.contains(rule.treated())) {
+                    log.info("before: {}", input);
+                    input = input.replace(rule.treated(), rule.pattern());
+                    stepsTaken++;
+                    log.info("After : {} \n", input);
+                    break;
+                }
+
+            }
+        }
+
+        return stepsTaken;
     }
 
     private String left(String original, final int end) {
