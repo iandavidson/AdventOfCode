@@ -14,22 +14,24 @@ import static dev.davidson.ian.advent.year2015.day18.Status.ON;
 @Slf4j
 public class GifForYourYard {
 
-    private static final Integer GRID_LENGTH = 100;
-    private static final Integer STEPS = 100;
     private static final String INPUT_PATH = "adventOfCode/2015/day18/input.txt";
+    private static final String SAMPLE_PATH = "adventOfCode/2015/day18/sample.txt";
+    private static final Integer GRID_LENGTH = 100; //6;
+    private static final Integer STEPS = 100;
     private static final Map<Character, Status> TILE_TO_STATUS = Map.of('#', ON, '.', OFF);
     private static final Map<Status, Character> STATUS_TO_TILE = Map.of(ON, '#', OFF, '.');
 
     public static void main(String[] args) {
         GifForYourYard gifForYourYard = new GifForYourYard();
-        log.info("Part1: {}", gifForYourYard.part1());
+        log.info("Part1: {}", gifForYourYard.execute(false));
+        log.info("Part2: {}", gifForYourYard.execute(true));
     }
 
-    public int part1() {
+    public int execute(final boolean part2) {
         char[][] grid = readFile();
 
         for (int i = 0; i < STEPS; i++) {
-            grid = nextStep(grid);
+            grid = nextStep(grid, part2);
         }
 
         int count = 0;
@@ -41,31 +43,38 @@ public class GifForYourYard {
             }
         }
 
-        // 384 too low
         return count;
     }
 
-    private char[][] nextStep(char[][] grid) {
+    private char[][] nextStep(final char[][] grid, final boolean part2) {
         char[][] nextGrid = new char[GRID_LENGTH][GRID_LENGTH];
 
         for (int i = 0; i < grid.length; i++) {
             for (int j = 0; j < grid[0].length; j++) {
-                nextGrid[i][j] = STATUS_TO_TILE.get(nextLightValue(grid, i, j, TILE_TO_STATUS.get(grid[i][j])));
+                if (part2) {
+                    nextGrid[i][j] = isCorner(i, j) ? STATUS_TO_TILE.get(ON) : STATUS_TO_TILE.get(nextLightValue(grid, i, j, TILE_TO_STATUS.get(grid[i][j])));
+                } else {
+                    nextGrid[i][j] = STATUS_TO_TILE.get(nextLightValue(grid, i, j, TILE_TO_STATUS.get(grid[i][j])));
+                }
             }
         }
 
         return nextGrid;
-
     }
 
     private Status nextLightValue(char[][] grid, int r, int c, Status light) {
         int count = 0;
         for (int i = r - 1; i < r + 2; i++) {
             for (int j = c - 1; j < c + 2; j++) {
+                if (i == r && j == c) {
+                    continue;
+                }
+
                 if (Math.min(i, j) >= 0 && Math.max(i, j) <= GRID_LENGTH - 1) { //in bounds
-                    if (grid[i][j] == STATUS_TO_TILE.get(ON)) {
-                        count++;
-                    }
+                    if (isInBounds(i, j))
+                        if (grid[i][j] == STATUS_TO_TILE.get(ON)) {
+                            count++;
+                        }
                 }
             }
         }
@@ -75,6 +84,16 @@ public class GifForYourYard {
         } else {
             return count == 3 ? ON : OFF;
         }
+    }
+
+    private boolean isCorner(final int i, final int j) {
+        boolean row = i == 0 || i == GRID_LENGTH - 1;
+        boolean col = j == 0 || j == GRID_LENGTH - 1;
+        return row && col;
+    }
+
+    private boolean isInBounds(final int i, final int j) {
+        return Math.min(i, j) >= 0 && Math.max(i, j) <= GRID_LENGTH - 1;
     }
 
     private char[][] readFile() {
