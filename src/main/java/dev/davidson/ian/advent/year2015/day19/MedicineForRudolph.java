@@ -6,8 +6,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -44,17 +46,23 @@ public class MedicineForRudolph {
         return results.size();
     }
 
+    private String replace (String s, String toReplace, String replacement, int pos) {
+        return s.substring(0, pos) + replacement + s.substring(pos + toReplace.length());
+    }
+
     public int part2() {
+        int stepsTaken = 0;
+
         List<Rule> rules = new ArrayList<>();
         String input = readFile(rules);
         Collections.sort(rules);
-
-        int stepsTaken = 0;
+//
         while (!input.equals("e")) {
             for (Rule rule : rules) {
                 if (input.contains(rule.treated())) {
                     log.info("before: {}", input);
-                    input = input.replace(rule.treated(), rule.pattern());
+                    input = replace(input, rule.treated(), rule.pattern(), input.lastIndexOf(rule.treated()));
+//                    input = input.replace(rule.treated(), rule.pattern());
                     stepsTaken++;
                     log.info("After : {} \n", input);
                     break;

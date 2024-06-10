@@ -4,8 +4,7 @@ public record Rule(String pattern, String treated) implements  Comparable<Rule> 
 
     @Override
     public int compareTo(Rule other){
-//        return other.treated.length() - treated.length();
-        return treated.length() - other.treated.length() ;
+        return other.treated.length() - treated.length();
     }
 
 }
