@@ -42,10 +42,6 @@ public class MedicineForRudolph {
         return results.size();
     }
 
-    private String replace(String s, String toReplace, String replacement, int pos) {
-        return s.substring(0, pos) + replacement + s.substring(pos + toReplace.length());
-    }
-
     public int part2() {
         int stepsTaken = 0;
 
@@ -72,6 +68,10 @@ public class MedicineForRudolph {
         }
 
         return stepsTaken;
+    }
+
+    private String replace(String s, String toReplace, String replacement, int pos) {
+        return s.substring(0, pos) + replacement + s.substring(pos + toReplace.length());
     }
 
     private String readFile(final List<Rule> rules) {
