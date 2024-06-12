@@ -6,5 +6,13 @@ public record Rule(String pattern, String treated) implements  Comparable<Rule> 
     public int compareTo(Rule other){
         return other.treated.length() - treated.length();
     }
+/*
 
+
+    α => βγ
+    α => βRnγAr
+    α => βRnγYδAr
+    α => βRnγYδYεAr
+
+ */
 }
