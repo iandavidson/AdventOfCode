@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -20,6 +21,7 @@ public class MedicineForRudolph {
     public static void main(String[] args) {
         MedicineForRudolph medicineForRudolph = new MedicineForRudolph();
         log.info("Part1: {}", medicineForRudolph.part1());
+        log.info("Part2: {}", medicineForRudolph.part2());
     }
 
     public long part1() {
@@ -32,9 +34,7 @@ public class MedicineForRudolph {
             for (int i = 0; i < input.length() - patternLength + 1; i++) {
                 String sub = input.substring(i, i + patternLength);
                 if (sub.equals(rule.pattern())) {
-                    results.add(left(input, i) +
-                            rule.treated() +
-                            right(input, i + patternLength));
+                    results.add(replace(input, rule.pattern(), rule.treated(), i));
                 }
             }
         }
@@ -42,20 +42,36 @@ public class MedicineForRudolph {
         return results.size();
     }
 
-    private String left(String original, final int end) {
-        if (end <= -1) {
-            return "";
-        } else {
-            return original.substring(0, end);
+    public int part2() {
+        int stepsTaken = 0;
+
+        List<Rule> rules = new ArrayList<>();
+        String input = readFile(rules);
+        Collections.shuffle(rules);
+        String copy = input;
+
+        while (!copy.equals("e")) {
+            String last = copy;
+            for (Rule rule : rules) {
+                if (copy.contains(rule.treated())) {
+                    copy = replace(copy, rule.treated(), rule.pattern(), copy.lastIndexOf(rule.treated()));
+                    stepsTaken++;
+                }
+            }
+
+            if (last.equals(copy) && !copy.equals("e")) {
+                Collections.shuffle(rules);
+                log.info("failed with result: {}", copy);
+                copy = input;
+                stepsTaken = 0;
+            }
         }
+
+        return stepsTaken;
     }
 
-    private String right(String original, final int start) {
-        if (start > original.length()) {
-            return "";
-        } else {
-            return original.substring(start);
-        }
+    private String replace(String s, String toReplace, String replacement, int pos) {
+        return s.substring(0, pos) + replacement + s.substring(pos + toReplace.length());
     }
 
     private String readFile(final List<Rule> rules) {
