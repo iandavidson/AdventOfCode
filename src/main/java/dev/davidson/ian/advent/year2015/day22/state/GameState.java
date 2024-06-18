@@ -19,7 +19,7 @@ public class GameState {
     public GameState copy(){
         Set<SpellEffect> newSpellEffects = new HashSet<>();
         for(SpellEffect spellEffect : spellEffects){
-            newSpellEffects.add(new SpellEffect(spellEffect.getSpell(), spellEffect.getDuration()));
+            newSpellEffects.add(spellEffect.copy());
         }
 
         return new GameState(newSpellEffects);
@@ -36,9 +36,13 @@ public class GameState {
         return false;
     }
 
-    public void removeInactiveSpells() {
+    public void endTurn() {
         List<SpellEffect> toBeRemoved = new ArrayList<>();
         for (SpellEffect spellState : spellEffects) {
+
+            //this will decrement the duration remaining on each spell
+            spellState.applyEndOfTurn();
+
             if (spellState.getDuration() < 1) {
                 toBeRemoved.add(spellState);
             }

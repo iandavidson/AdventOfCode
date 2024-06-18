@@ -13,11 +13,15 @@ public class SpellEffect {
     private final Spell spell;
     private Integer duration = 0;
 
-    public SpellEffect newSpellState(final Spell spell){
+    public static SpellEffect toSpellEffect(final Spell spell){
         return new SpellEffect(spell, spell.getDuration());
     }
 
-    public void applyEndOfRound(){
+    public SpellEffect copy(){
+        return new SpellEffect(spell, spell.getDuration());
+    }
+
+    public void applyEndOfTurn(){
         this.duration--;
     }
 

@@ -8,6 +8,7 @@ import dev.davidson.ian.advent.year2015.day22.spell.Shield;
 import dev.davidson.ian.advent.year2015.day22.spell.Spell;
 import dev.davidson.ian.advent.year2015.day22.state.GameState;
 import dev.davidson.ian.advent.year2015.day22.state.SpellEffect;
+import dev.davidson.ian.advent.year2015.day22.state.StatEffects;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.ArrayList;
@@ -19,6 +20,8 @@ public class WizardSimulator {
 
     private static final int ENEMY_HEALTH = 58;
     private static final int ENEMY_DAMAGE = 9;
+    private static final int PLAYER_HIT_POINTS = 50;
+    private static final int PLAYER_MANA_POINTS = 500;
 
     private static final MagicMissle MAGIC_MISSLE = new MagicMissle();
     private static final Drain DRAIN = new Drain();
@@ -33,8 +36,10 @@ public class WizardSimulator {
     }
 
     public int part1() {
-        Player player = new Player(50, 500);
+        Player player = new Player(PLAYER_HIT_POINTS, PLAYER_MANA_POINTS);
         GameState gameState = new GameState();
+
+        //todo: hack
         SPELLS.add(MAGIC_MISSLE);
         SPELLS.add(DRAIN);
         SPELLS.add(POISON);
@@ -50,30 +55,15 @@ public class WizardSimulator {
     }
 
     private int part1Helper(final GameState gameState, int enemyHealth, final Player player, final Spell currentSpell, final int turn) {
-
-        int currentManaRegen = 0;
-        int currentHealthRegen = 0;
-        int currentDamageLinger = 0;
-        int currentArmor = 0;
-        //determine current effects
-        for (SpellEffect spellEffect : gameState.getSpellEffects()) {
-            currentManaRegen += spellEffect.getSpell().getManaRegen();
-            currentHealthRegen += spellEffect.getSpell().getHealthRegen();
-            currentDamageLinger += spellEffect.getSpell().getDamageLinger();
-            currentArmor += spellEffect.getSpell().getArmorBuff();
-
-            //this will decrement the duration remaining on each spell
-            spellEffect.applyEndOfRound();
-        }
+        StatEffects statEffects = StatEffects.newStatEffects(gameState);
 
         //apply current effects on player and enemy
-        player.addMana(currentManaRegen);
-        player.regenHitPoints(currentHealthRegen);
+        player.addMana(statEffects.getManaRegen());
+        player.regenHitPoints(statEffects.getHealthRegen());
+        enemyHealth -= statEffects.getDamageLinger();
 
-        enemyHealth -= currentDamageLinger;
-
-        //this will evict spells that now have 0 duration (after we have applied for turn)
-        gameState.removeInactiveSpells();
+        //this will decrement the duration on spells by 1; if they now have 0 duration we will evict
+        gameState.endTurn();
 
 
         if (enemyHealth <= 0) {
@@ -89,6 +79,7 @@ public class WizardSimulator {
                     player.useMana(drain.getManaDrain());
                     enemyHealth -= drain.getDamage();
                     player.setHitPoints(drain.getHealthRegen());
+
                 }
                 case MagicMissle magicMissle -> {
                     manaConsumed = magicMissle.getManaDrain();
@@ -99,19 +90,20 @@ public class WizardSimulator {
                 case Poison poison -> {
                     manaConsumed = poison.getManaDrain();
                     player.useMana(poison.getManaDrain());
-                    gameState.getSpellEffects().add(new SpellEffect(poison, poison.getDuration()));
+                    gameState.getSpellEffects().add(SpellEffect.toSpellEffect(poison));
 
                 }
                 case Shield shield -> {
                     manaConsumed = shield.getManaDrain();
                     player.useMana(shield.getManaDrain());
-                    gameState.getSpellEffects().add(new SpellEffect(shield, shield.getDuration()));
+                    gameState.getSpellEffects().add(SpellEffect.toSpellEffect(shield));
 
                 }
                 case Recharge recharge -> {
                     manaConsumed = recharge.getManaDrain();
                     player.useMana(recharge.getManaDrain());
-                    gameState.getSpellEffects().add(new SpellEffect(recharge, recharge.getDuration()));
+                    gameState.getSpellEffects().add(SpellEffect.toSpellEffect(recharge));
+
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + currentSpell);
             }
@@ -120,18 +112,20 @@ public class WizardSimulator {
                 return 0;
             }
 
+            //todo: hack
             Collections.shuffle(SPELLS);
 
             int min = Integer.MAX_VALUE;
             for (Spell spell : SPELLS) {
 
                 if (!gameState.isMember(spell) && spell.canCast(player.getMana())) {
-                    if(!(spell instanceof Recharge)){
+                    if (!(spell instanceof Recharge)) {
 //                        if(spell.getManaDrain())
                         int i = 0;
                     }
 
-                    int consumedLater = part1Helper(gameState.copy(), enemyHealth, new Player(player.getHitPoints(), player.getMana()), spell, turn + 1);
+                    int consumedLater = part1Helper(gameState.copy(), enemyHealth,
+                            new Player(player.getHitPoints(), player.getMana()), spell, turn + 1);
 
                     if (consumedLater != Integer.MAX_VALUE) {
                         min = Math.min(min, manaConsumed + consumedLater);
@@ -142,7 +136,7 @@ public class WizardSimulator {
             return min;
         } else {
             //bosses turn
-            player.attacked(ENEMY_DAMAGE, currentArmor);
+            player.attacked(ENEMY_DAMAGE, statEffects.getArmor());
 
             if (player.getHitPoints() <= 0) {
                 return Integer.MAX_VALUE;
