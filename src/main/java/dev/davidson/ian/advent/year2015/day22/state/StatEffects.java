@@ -10,14 +10,14 @@ public class StatEffects {
     private final int damageLinger;
     private final int armor;
 
-    private StatEffects(int manaRegen, int healthRegen, int damageLinger, int armor){
+    private StatEffects(int manaRegen, int healthRegen, int damageLinger, int armor) {
         this.manaRegen = manaRegen;
         this.healthRegen = healthRegen;
         this.damageLinger = damageLinger;
         this.armor = armor;
     }
 
-    public static StatEffects newStatEffects(final GameState gameState){
+    public static StatEffects newStatEffects(final GameState gameState) {
         int currentManaRegen = 0;
         int currentHealthRegen = 0;
         int currentDamageLinger = 0;
@@ -31,5 +31,11 @@ public class StatEffects {
         }
 
         return new StatEffects(currentManaRegen, currentHealthRegen, currentDamageLinger, currentArmor);
+    }
+
+    @Override
+    public String toString() {
+        return "manaRegen: " + manaRegen + " healthRegen: " + healthRegen +
+                " damageLinger: " + damageLinger + " armor: " + armor;
     }
 }

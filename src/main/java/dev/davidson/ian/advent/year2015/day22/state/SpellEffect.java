@@ -11,14 +11,14 @@ import java.util.Objects;
 public class SpellEffect {
 
     private final Spell spell;
-    private Integer duration = 0;
+    private int duration = 0;
 
     public static SpellEffect toSpellEffect(final Spell spell){
         return new SpellEffect(spell, spell.getDuration());
     }
 
     public SpellEffect copy(){
-        return new SpellEffect(spell, spell.getDuration());
+        return new SpellEffect(spell, duration);
     }
 
     public void applyEndOfTurn(){

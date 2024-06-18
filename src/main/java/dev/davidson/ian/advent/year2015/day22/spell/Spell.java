@@ -9,6 +9,7 @@ import java.util.Objects;
 @AllArgsConstructor
 public abstract class Spell {
 
+    private final String name;
     private final int manaDrain;
     private final int damage;
     private final int duration;

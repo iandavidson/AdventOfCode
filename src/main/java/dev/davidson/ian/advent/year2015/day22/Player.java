@@ -29,4 +29,9 @@ public class Player {
         this.hitPoints -= damage;
     }
 
+    @Override
+    public String toString(){
+        return "hitPoints: " + hitPoints + " mana: " + mana;
+    }
+
 }

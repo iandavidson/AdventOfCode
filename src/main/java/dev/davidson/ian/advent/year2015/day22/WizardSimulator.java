@@ -1,7 +1,7 @@
 package dev.davidson.ian.advent.year2015.day22;
 
 import dev.davidson.ian.advent.year2015.day22.spell.Drain;
-import dev.davidson.ian.advent.year2015.day22.spell.MagicMissle;
+import dev.davidson.ian.advent.year2015.day22.spell.MagicMissile;
 import dev.davidson.ian.advent.year2015.day22.spell.Poison;
 import dev.davidson.ian.advent.year2015.day22.spell.Recharge;
 import dev.davidson.ian.advent.year2015.day22.spell.Shield;
@@ -23,7 +23,7 @@ public class WizardSimulator {
     private static final int PLAYER_HIT_POINTS = 50;
     private static final int PLAYER_MANA_POINTS = 500;
 
-    private static final MagicMissle MAGIC_MISSLE = new MagicMissle();
+    private static final MagicMissile MAGIC_MISSILE = new MagicMissile();
     private static final Drain DRAIN = new Drain();
     private static final Poison POISON = new Poison();
     private static final Shield SHIELD = new Shield();
@@ -40,7 +40,7 @@ public class WizardSimulator {
         GameState gameState = new GameState();
 
         //todo: hack
-        SPELLS.add(MAGIC_MISSLE);
+        SPELLS.add(MAGIC_MISSILE);
         SPELLS.add(DRAIN);
         SPELLS.add(POISON);
         SPELLS.add(SHIELD);
@@ -51,6 +51,7 @@ public class WizardSimulator {
             min = Math.min(min, part1Helper(gameState, ENEMY_HEALTH, player, spell, 0));
         }
 
+        //1119 too low
         return min;
     }
 
@@ -71,36 +72,36 @@ public class WizardSimulator {
         }
 
         if (turn % 2 == 0) {
-            int manaConsumed;
+            int manaConsumedNow;
             //players turn
             switch (currentSpell) {
                 case Drain drain -> {
-                    manaConsumed = drain.getManaDrain();
+                    manaConsumedNow = drain.getManaDrain();
                     player.useMana(drain.getManaDrain());
                     enemyHealth -= drain.getDamage();
-                    player.setHitPoints(drain.getHealthRegen());
+                    player.regenHitPoints(drain.getHealthRegen());
 
                 }
-                case MagicMissle magicMissle -> {
-                    manaConsumed = magicMissle.getManaDrain();
-                    player.useMana(magicMissle.getManaDrain());
-                    enemyHealth -= magicMissle.getDamage();
+                case MagicMissile magicMissile -> {
+                    manaConsumedNow = magicMissile.getManaDrain();
+                    player.useMana(magicMissile.getManaDrain());
+                    enemyHealth -= magicMissile.getDamage();
 
                 }
                 case Poison poison -> {
-                    manaConsumed = poison.getManaDrain();
+                    manaConsumedNow = poison.getManaDrain();
                     player.useMana(poison.getManaDrain());
                     gameState.getSpellEffects().add(SpellEffect.toSpellEffect(poison));
 
                 }
                 case Shield shield -> {
-                    manaConsumed = shield.getManaDrain();
+                    manaConsumedNow = shield.getManaDrain();
                     player.useMana(shield.getManaDrain());
                     gameState.getSpellEffects().add(SpellEffect.toSpellEffect(shield));
 
                 }
                 case Recharge recharge -> {
-                    manaConsumed = recharge.getManaDrain();
+                    manaConsumedNow = recharge.getManaDrain();
                     player.useMana(recharge.getManaDrain());
                     gameState.getSpellEffects().add(SpellEffect.toSpellEffect(recharge));
 
@@ -108,8 +109,10 @@ public class WizardSimulator {
                 default -> throw new IllegalStateException("Unexpected value: " + currentSpell);
             }
 
+//            log.info("turn: {}, enemyHealth: {}; {}; {};", turn, enemyHealth, player, currentSpell);
+
             if (enemyHealth <= 0) {
-                return 0;
+                return manaConsumedNow;
             }
 
             //todo: hack
@@ -119,16 +122,16 @@ public class WizardSimulator {
             for (Spell spell : SPELLS) {
 
                 if (!gameState.isMember(spell) && spell.canCast(player.getMana())) {
-                    if (!(spell instanceof Recharge)) {
-//                        if(spell.getManaDrain())
-                        int i = 0;
-                    }
+//                    if (!(spell instanceof Recharge)) {
+////                        if(spell.getManaDrain())
+//                        int i = 0;
+//                    }
 
-                    int consumedLater = part1Helper(gameState.copy(), enemyHealth,
+                    int consumedInFuture = part1Helper(gameState.copy(), enemyHealth,
                             new Player(player.getHitPoints(), player.getMana()), spell, turn + 1);
 
-                    if (consumedLater != Integer.MAX_VALUE) {
-                        min = Math.min(min, manaConsumed + consumedLater);
+                    if (consumedInFuture != Integer.MAX_VALUE) {
+                        min = Math.min(min, manaConsumedNow + consumedInFuture);
                     }
                 }
             }
@@ -145,6 +148,12 @@ public class WizardSimulator {
             return part1Helper(gameState, enemyHealth, player, currentSpell, turn + 1);
         }
     }
+
+//    private void logState(int enemyHealth, Player player, Spell currentSpell, int turn) {
+//        log.info("turn: {}, enemyHealth: {}; {}; {};", turn, enemyHealth, player, currentSpell);
+//    }
+
+
 
     /*
     boss:
