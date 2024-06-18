@@ -9,22 +9,13 @@ import java.util.Objects;
 @AllArgsConstructor
 public abstract class Spell {
 
-
     private final int manaDrain;
     private final int damage;
-    private int duration;
+    private final int duration;
     private final int manaRegen;
     private final int healthRegen;
     private final int damageLinger;
     private final int armorBuff;
-
-    public void applyTurn(){
-        this.duration--;
-    }
-
-    public boolean isActive(){
-        return duration >= 0;
-    }
 
     @Override
     public boolean equals(Object o) {
@@ -37,6 +28,10 @@ public abstract class Spell {
     @Override
     public int hashCode() {
         return Objects.hashCode(manaDrain);
+    }
+
+    public boolean canCast(int remainingMana){
+        return (remainingMana - manaDrain) >= 0;
     }
 
 /*
