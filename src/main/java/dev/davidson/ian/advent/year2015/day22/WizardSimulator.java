@@ -48,14 +48,16 @@ public class WizardSimulator {
 
         int min = Integer.MAX_VALUE;
         for (Spell spell : SPELLS) {
-            min = Math.min(min, part1Helper(gameState, ENEMY_HEALTH, player, spell, 0));
+            min = Math.min(min, battle(gameState, ENEMY_HEALTH, player, spell, 0));
         }
 
         //1119 too low
+        //??? 1255, 1415, 1481
+        //1461 too high
         return min;
     }
 
-    private int part1Helper(final GameState gameState, int enemyHealth, final Player player, final Spell currentSpell, final int turn) {
+    private int battle(final GameState gameState, int enemyHealth, final Player player, final Spell currentSpell, final int turn) {
         StatEffects statEffects = StatEffects.newStatEffects(gameState);
 
         //apply current effects on player and enemy
@@ -72,44 +74,41 @@ public class WizardSimulator {
         }
 
         if (turn % 2 == 0) {
-            int manaConsumedNow;
+            int manaConsumedNow = currentSpell.getManaDrain();
+            player.useMana(currentSpell.getManaDrain());
             //players turn
+
+
             switch (currentSpell) {
                 case Drain drain -> {
-                    manaConsumedNow = drain.getManaDrain();
-                    player.useMana(drain.getManaDrain());
                     enemyHealth -= drain.getDamage();
                     player.regenHitPoints(drain.getHealthRegen());
 
                 }
                 case MagicMissile magicMissile -> {
-                    manaConsumedNow = magicMissile.getManaDrain();
-                    player.useMana(magicMissile.getManaDrain());
                     enemyHealth -= magicMissile.getDamage();
 
                 }
                 case Poison poison -> {
-                    manaConsumedNow = poison.getManaDrain();
-                    player.useMana(poison.getManaDrain());
                     gameState.getSpellEffects().add(SpellEffect.toSpellEffect(poison));
 
                 }
                 case Shield shield -> {
-                    manaConsumedNow = shield.getManaDrain();
-                    player.useMana(shield.getManaDrain());
                     gameState.getSpellEffects().add(SpellEffect.toSpellEffect(shield));
 
                 }
                 case Recharge recharge -> {
-                    manaConsumedNow = recharge.getManaDrain();
-                    player.useMana(recharge.getManaDrain());
                     gameState.getSpellEffects().add(SpellEffect.toSpellEffect(recharge));
 
                 }
                 default -> throw new IllegalStateException("Unexpected value: " + currentSpell);
             }
 
-//            log.info("turn: {}, enemyHealth: {}; {}; {};", turn, enemyHealth, player, currentSpell);
+//            log.info("turn:{}; enemyHealth:{}; {}; {}; casted:{}", turn, enemyHealth, player, statEffects, currentSpell.getName());
+
+            if(player.getMana() < 0 ){
+                return Integer.MAX_VALUE;
+            }
 
             if (enemyHealth <= 0) {
                 return manaConsumedNow;
@@ -119,15 +118,17 @@ public class WizardSimulator {
             Collections.shuffle(SPELLS);
 
             int min = Integer.MAX_VALUE;
+
+            if(player.getMana() < 150){
+                int i = 0;
+            }
+
             for (Spell spell : SPELLS) {
 
-                if (!gameState.isMember(spell) && spell.canCast(player.getMana())) {
-//                    if (!(spell instanceof Recharge)) {
-////                        if(spell.getManaDrain())
-//                        int i = 0;
-//                    }
+                //if (!gameState.isMember(spell) && spell.canCast(player.getMana())) {
+                if (!gameState.isMember(spell)) {
 
-                    int consumedInFuture = part1Helper(gameState.copy(), enemyHealth,
+                    int consumedInFuture = battle(gameState.copy(), enemyHealth,
                             new Player(player.getHitPoints(), player.getMana()), spell, turn + 1);
 
                     if (consumedInFuture != Integer.MAX_VALUE) {
@@ -145,15 +146,9 @@ public class WizardSimulator {
                 return Integer.MAX_VALUE;
             }
 
-            return part1Helper(gameState, enemyHealth, player, currentSpell, turn + 1);
+            return battle(gameState, enemyHealth, player, currentSpell, turn + 1);
         }
     }
-
-//    private void logState(int enemyHealth, Player player, Spell currentSpell, int turn) {
-//        log.info("turn: {}, enemyHealth: {}; {}; {};", turn, enemyHealth, player, currentSpell);
-//    }
-
-
 
     /*
     boss:

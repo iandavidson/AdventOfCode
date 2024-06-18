@@ -35,7 +35,7 @@ public class StatEffects {
 
     @Override
     public String toString() {
-        return "manaRegen: " + manaRegen + " healthRegen: " + healthRegen +
-                " damageLinger: " + damageLinger + " armor: " + armor;
+        return "manaRegen: " + manaRegen + "; healthRegen: " + healthRegen +
+                "; damageLinger: " + damageLinger + "; armor: " + armor;
     }
 }
