@@ -16,9 +16,9 @@ import java.util.Set;
 public class GameState {
     private Set<SpellEffect> spellEffects = new HashSet<>();
 
-    public GameState copy(){
+    public GameState copy() {
         Set<SpellEffect> newSpellEffects = new HashSet<>();
-        for(SpellEffect spellEffect : spellEffects){
+        for (SpellEffect spellEffect : spellEffects) {
             newSpellEffects.add(spellEffect.copy());
         }
 
@@ -26,7 +26,7 @@ public class GameState {
     }
 
 
-    public boolean isMember(Spell spell) {
+    public boolean isActive(Spell spell) {
         for (SpellEffect spellState : spellEffects) {
             if (spellState.getSpell().equals(spell)) {
                 return true;
@@ -50,6 +50,4 @@ public class GameState {
 
         toBeRemoved.forEach(spellEffects::remove);
     }
-
-
 }

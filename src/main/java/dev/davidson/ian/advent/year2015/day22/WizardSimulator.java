@@ -11,8 +11,6 @@ import dev.davidson.ian.advent.year2015.day22.state.SpellEffect;
 import dev.davidson.ian.advent.year2015.day22.state.StatEffects;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 @Slf4j
@@ -28,7 +26,7 @@ public class WizardSimulator {
     private static final Poison POISON = new Poison();
     private static final Shield SHIELD = new Shield();
     private static final Recharge RECHARGE = new Recharge();
-    private final List<Spell> SPELLS = new ArrayList<>();
+    private final List<Spell> SPELLS = List.of(MAGIC_MISSILE, DRAIN, POISON, SHIELD, RECHARGE);
 
     public static void main(String[] args) {
         WizardSimulator wizardSimulator = new WizardSimulator();
@@ -36,48 +34,48 @@ public class WizardSimulator {
     }
 
     public int part1() {
-        Player player = new Player(PLAYER_HIT_POINTS, PLAYER_MANA_POINTS);
-        GameState gameState = new GameState();
-
-        //todo: hack
-        SPELLS.add(MAGIC_MISSILE);
-        SPELLS.add(DRAIN);
-        SPELLS.add(POISON);
-        SPELLS.add(SHIELD);
-        SPELLS.add(RECHARGE);
-
         int min = Integer.MAX_VALUE;
         for (Spell spell : SPELLS) {
-            min = Math.min(min, battle(gameState, ENEMY_HEALTH, player, spell, 0));
+            int temp = battle(
+                            new GameState(),
+                            ENEMY_HEALTH,
+                            new Player(PLAYER_HIT_POINTS, PLAYER_MANA_POINTS),
+                            spell,
+                            0);
+
+            min = Math.min(min, temp);
         }
 
         //1119 too low
-        //??? 1255, 1415, 1481
+        //??? 1255 ? probably not considering had object mutation bug when I produced this.
+        //1362 too high
         //1461 too high
         return min;
     }
 
     private int battle(final GameState gameState, int enemyHealth, final Player player, final Spell currentSpell, final int turn) {
-        StatEffects statEffects = StatEffects.newStatEffects(gameState);
 
-        //apply current effects on player and enemy
+        //apply buffs / debuffs on player and enemy
+        StatEffects statEffects = StatEffects.newStatEffects(gameState);
         player.addMana(statEffects.getManaRegen());
         player.regenHitPoints(statEffects.getHealthRegen());
         enemyHealth -= statEffects.getDamageLinger();
 
-        //this will decrement the duration on spells by 1; if they now have 0 duration we will evict
+
+        //decrement active spell durations by 1;
+        //if spell has no more duration, remove from active spells
         gameState.endTurn();
 
-
+        //enemy was defeated without having to use spell; no mana spent, return 0;
         if (enemyHealth <= 0) {
             return 0;
         }
 
         if (turn % 2 == 0) {
-            int manaConsumedNow = currentSpell.getManaDrain();
-            player.useMana(currentSpell.getManaDrain());
             //players turn
 
+            int manaConsumedNow = currentSpell.getManaDrain();
+            player.useMana(currentSpell.getManaDrain());
 
             switch (currentSpell) {
                 case Drain drain -> {
@@ -106,38 +104,37 @@ public class WizardSimulator {
 
 //            log.info("turn:{}; enemyHealth:{}; {}; {}; casted:{}", turn, enemyHealth, player, statEffects, currentSpell.getName());
 
-            if(player.getMana() < 0 ){
+
+            //if we used more mana than we had on last cast, rec call stack is invalid at this point
+            if (player.getMana() < 0) {
                 return Integer.MAX_VALUE;
             }
 
+            //if we had adequate mana to cast, and we defeated enemy, return cost of that spell cast
             if (enemyHealth <= 0) {
                 return manaConsumedNow;
             }
 
-            //todo: hack
-            Collections.shuffle(SPELLS);
-
-            int min = Integer.MAX_VALUE;
-
-            if(player.getMana() < 150){
-                int i = 0;
-            }
-
+            int minCost = Integer.MAX_VALUE;
             for (Spell spell : SPELLS) {
 
-                //if (!gameState.isMember(spell) && spell.canCast(player.getMana())) {
-                if (!gameState.isMember(spell)) {
+                //only attempt to cast spells that are passively inactive
+                if (!gameState.isActive(spell)) {
 
-                    int consumedInFuture = battle(gameState.copy(), enemyHealth,
-                            new Player(player.getHitPoints(), player.getMana()), spell, turn + 1);
+                    int consumedInFuture = battle(
+                            gameState.copy(),
+                            enemyHealth,
+                            new Player(player.getHitPoints(), player.getMana()),
+                            spell,
+                            turn + 1);
 
                     if (consumedInFuture != Integer.MAX_VALUE) {
-                        min = Math.min(min, manaConsumedNow + consumedInFuture);
+                        minCost = Math.min(minCost, manaConsumedNow + consumedInFuture);
                     }
                 }
             }
 
-            return min;
+            return minCost;
         } else {
             //bosses turn
             player.attacked(ENEMY_DAMAGE, statEffects.getArmor());
