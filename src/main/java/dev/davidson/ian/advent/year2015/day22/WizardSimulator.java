@@ -48,11 +48,6 @@ public class WizardSimulator {
             min = Math.min(min, temp);
         }
 
-        //1119 too low
-        //??? 1255 ? probably not considering had object mutation bug when I produced this.
-        // 1269 -> 1309
-        //1362 too high
-        //1461 too high
         return min;
     }
 
