@@ -30,10 +30,11 @@ public class WizardSimulator {
 
     public static void main(String[] args) {
         WizardSimulator wizardSimulator = new WizardSimulator();
-        log.info("Part1: {}", wizardSimulator.part1());
+        log.info("Part1: {}", wizardSimulator.execute(false));
+        log.info("Part2: {}", wizardSimulator.execute(true));
     }
 
-    public int part1() {
+    public int execute(boolean part2) {
         int min = Integer.MAX_VALUE;
         for (Spell spell : SPELLS) {
             int temp = battle(
@@ -41,19 +42,30 @@ public class WizardSimulator {
                             ENEMY_HEALTH,
                             new Player(PLAYER_HIT_POINTS, PLAYER_MANA_POINTS),
                             spell,
-                            0);
+                            0,
+                            part2);
 
             min = Math.min(min, temp);
         }
 
         //1119 too low
         //??? 1255 ? probably not considering had object mutation bug when I produced this.
+        // 1269 -> 1309
         //1362 too high
         //1461 too high
         return min;
     }
 
-    private int battle(final GameState gameState, int enemyHealth, final Player player, final Spell currentSpell, final int turn) {
+    private int battle(final GameState gameState, int enemyHealth, final Player player, final Spell currentSpell, final int turn, final boolean part2) {
+
+        if(part2){
+            player.attacked(1, 0);
+        }
+
+        if(player.getHitPoints() <= 0){
+            return Integer.MAX_VALUE;
+        }
+
 
         //apply buffs / debuffs on player and enemy
         StatEffects statEffects = StatEffects.newStatEffects(gameState);
@@ -126,7 +138,8 @@ public class WizardSimulator {
                             enemyHealth,
                             new Player(player.getHitPoints(), player.getMana()),
                             spell,
-                            turn + 1);
+                            turn + 1,
+                            part2);
 
                     if (consumedInFuture != Integer.MAX_VALUE) {
                         minCost = Math.min(minCost, manaConsumedNow + consumedInFuture);
@@ -143,7 +156,7 @@ public class WizardSimulator {
                 return Integer.MAX_VALUE;
             }
 
-            return battle(gameState, enemyHealth, player, currentSpell, turn + 1);
+            return battle(gameState, enemyHealth, player, currentSpell, turn + 1, part2);
         }
     }
 

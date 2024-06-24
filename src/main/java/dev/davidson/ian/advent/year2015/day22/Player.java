@@ -24,9 +24,7 @@ public class Player {
     }
 
     public void attacked(int loss, int armor){
-        int damage = Math.max(1, loss - armor);
-
-        this.hitPoints -= damage;
+        this.hitPoints -= Math.max(1, loss - armor);
     }
 
     @Override
