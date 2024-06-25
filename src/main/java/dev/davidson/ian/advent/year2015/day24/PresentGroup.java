@@ -31,7 +31,7 @@ public class PresentGroup implements Cloneable{
     public PresentGroup clone() {
         try {
             //Question to self: super.clone() blindly reassigns this.presents to clone instance
-            //I want presents to be final, but I can't reassign (new) after clone() happenes
+            //I want presents to be final, but I can't reassign (new) after clone() happens
             PresentGroup clone = (PresentGroup) super.clone();
             clone.setPresents(new ArrayList<>(this.presents));
 

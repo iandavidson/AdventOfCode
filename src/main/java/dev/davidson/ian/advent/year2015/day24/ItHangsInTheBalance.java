@@ -23,34 +23,31 @@ public class ItHangsInTheBalance {
 
     private long part1() {
         List<Integer> weights = readFile();
-        weights.sort(Comparator.reverseOrder());
 
-        long tempSum = weights.stream().mapToInt(Integer::intValue).sum();
-        long target = tempSum / 3;
-
+        long target = weights.stream().mapToInt(Integer::intValue).sum() / 3;
         int shortestGroup = Integer.MAX_VALUE;
 
-        List<PresentGroup> result = new ArrayList<>();
+        List<PresentGroup> results = new ArrayList<>();
         List<PresentGroup> list = new ArrayList<>();
         list.add(new PresentGroup());
 
         for (Integer present : weights) {
             List<PresentGroup> tempGroups = new ArrayList<>();
-            for(PresentGroup presentGroup : list){
+            for (PresentGroup presentGroup : list) {
 
                 //attempt to prune executions of giant subset tree being created
-                if(presentGroup.getPresents().size() >= shortestGroup){
+                if (presentGroup.getPresents().size() >= shortestGroup) {
                     continue;
                 }
 
-                if(presentGroup.sumIfPresentAdded(present) <= target){
+                if (presentGroup.sumIfPresentAdded(present) <= target) {
                     PresentGroup clone = presentGroup.clone();
                     clone.addPresent(present);
                     tempGroups.add(clone);
 
-                    if(clone.getSum() == target){
+                    if (clone.getSum() == target) {
                         shortestGroup = Math.min(shortestGroup, clone.getPresents().size());
-                        result.add(clone);
+                        results.add(clone);
                     }
 
                 }
@@ -58,20 +55,20 @@ public class ItHangsInTheBalance {
             list.addAll(tempGroups);
         }
 
-        //find all groupings that add to tempSum/3
-        //then only take the ones with the smallest size
-        //then take the one with the lowest product
-        result.sort((a, b) -> {
-           int aSize = a.getPresents().size();
-           int bSize = b.getPresents().size();
-           if(aSize == bSize){
-               return Long.signum(a.getProduct() - b.getProduct());
-           }
 
-           return aSize - bSize;
+        //prefer smallest size of presents
+        //prefer lowest product value
+        results.sort((a, b) -> {
+            int aSize = a.getPresents().size();
+            int bSize = b.getPresents().size();
+            if (aSize == bSize) {
+                return Long.signum(a.getProduct() - b.getProduct());
+            }
+
+            return aSize - bSize;
         });
 
-        return result.getFirst().getProduct();
+        return results.getFirst().getProduct();
     }
 
     private List<Integer> readFile() {
