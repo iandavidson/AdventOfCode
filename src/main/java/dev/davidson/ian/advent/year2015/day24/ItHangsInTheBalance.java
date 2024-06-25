@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -18,13 +17,14 @@ public class ItHangsInTheBalance {
 
     public static void main(String[] args) {
         ItHangsInTheBalance itHangsInTheBalance = new ItHangsInTheBalance();
-        log.info("Part1: {}", itHangsInTheBalance.part1());
+        log.info("Part1: {}", itHangsInTheBalance.execute(3));
+        log.info("Part2: {}", itHangsInTheBalance.execute(4));
     }
 
-    private long part1() {
+    private Long execute(final Integer groups) {
         List<Integer> weights = readFile();
 
-        long target = weights.stream().mapToInt(Integer::intValue).sum() / 3;
+        long target = weights.stream().mapToInt(Integer::intValue).sum() / groups;
         int shortestGroup = Integer.MAX_VALUE;
 
         List<PresentGroup> results = new ArrayList<>();
@@ -56,8 +56,8 @@ public class ItHangsInTheBalance {
         }
 
 
-        //prefer smallest size of presents
-        //prefer lowest product value
+        //prefer the smallest size of presents
+        //prefer the lowest product value
         results.sort((a, b) -> {
             int aSize = a.getPresents().size();
             int bSize = b.getPresents().size();

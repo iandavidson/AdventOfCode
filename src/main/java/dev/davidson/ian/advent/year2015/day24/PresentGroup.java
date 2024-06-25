@@ -6,22 +6,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
-public class PresentGroup implements Cloneable{
+public class PresentGroup implements Cloneable {
     private List<Integer> presents;
     private long product;
     private long sum;
 
-    public PresentGroup(){
+    public PresentGroup() {
         presents = new ArrayList<>();
         product = 1;
         sum = 0;
     }
 
-    public Long sumIfPresentAdded(Integer present){
+    public Long sumIfPresentAdded(Integer present) {
         return sum + present;
     }
 
-    public void addPresent(Integer present){
+    public void addPresent(Integer present) {
         presents.add(present);
         this.product *= present;
         this.sum += present;
