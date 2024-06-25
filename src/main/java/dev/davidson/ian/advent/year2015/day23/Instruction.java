@@ -13,6 +13,7 @@ public record Instruction(InstructionType instructionType, String register, int 
             case InstructionType.hlf, InstructionType.tpl, InstructionType.inc -> {
                 instruction = new Instruction(instructionType, tokens[1],1);
             }
+
             case InstructionType.jmp -> {
                 int offset = Integer.parseInt(tokens[1].substring(1));
                 if(tokens[1].charAt(0) == '-'){
@@ -21,8 +22,8 @@ public record Instruction(InstructionType instructionType, String register, int 
 
                 instruction = new Instruction(instructionType, null, offset);
             }
+
             case InstructionType.jie, InstructionType.jio -> {
-                //jie a, +4
 
                 int offset = Integer.parseInt(tokens[2].substring(1));
                 if(tokens[2].charAt(0) == '-'){
@@ -32,6 +33,7 @@ public record Instruction(InstructionType instructionType, String register, int 
                 instruction = new Instruction(instructionType, tokens[1].substring(0, 1), offset);
 
             }
+
             default -> throw new IllegalStateException();
         }
 
