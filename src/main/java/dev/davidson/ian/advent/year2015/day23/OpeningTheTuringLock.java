@@ -23,7 +23,7 @@ public class OpeningTheTuringLock {
         log.info("Part2: {}", openingTheTuringLock.execute(true));
     }
 
-    public Long execute(boolean part2) {
+    private Long execute(boolean part2) {
         List<Instruction> instructions = readFile();
 
         Map<String, Long> registers = new HashMap<>();
