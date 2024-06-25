@@ -11,12 +11,9 @@ public record Instruction(InstructionType instructionType, String register, int 
         Instruction instruction;
         switch(instructionType){
             case InstructionType.hlf, InstructionType.tpl, InstructionType.inc -> {
-                //hlf a
                 instruction = new Instruction(instructionType, tokens[1],1);
             }
             case InstructionType.jmp -> {
-                //jmp +3
-                //jmp -3
                 int offset = Integer.parseInt(tokens[1].substring(1));
                 if(tokens[1].charAt(0) == '-'){
                     offset *= -1;
@@ -49,8 +46,7 @@ public record Instruction(InstructionType instructionType, String register, int 
             case tpl -> registers.put(this.register, registers.get(this.register) * 3);
             case inc -> registers.put(this.register, registers.get(this.register) + 1);
             case jie -> tempOffset = registers.get(this.register) % 2 == 0 ? this.instructionOffset : 1;
-            case jio -> tempOffset = registers.get(this.register) % 2 == 1 ? this.instructionOffset : 1;
-            default -> throw new IllegalStateException();
+            case jio -> tempOffset = registers.get(this.register) == 1 ? this.instructionOffset : 1;
         }
 
         return tempOffset;
