@@ -11,25 +11,17 @@ public class Monkey {
     private final String dep2;
     private final OPERATION operation;
 
-    /*
-vnzz: 4
-zrdl: 1
-jbnh: 3
-tgvz: stws * vnqt
-nhjc: 7
-     */
+    public Monkey(final String line) {
+        String[] chunks = line.split("\\s+");
+        this.name = chunks[0].substring(0, chunks[0].length() - 1);
 
-    public Monkey(final String line){
-        String [] chunks = line.split("\\s+");
-        this.name = chunks[0].substring(0, chunks[0].length()-1);
-
-        if(chunks.length == 2){
+        if (chunks.length == 2) {
             //default value
             this.defaultValue = Long.parseLong(chunks[1]);
             this.dep1 = null;
             this.dep2 = null;
             this.operation = null;
-        }else{
+        } else {
             //deps
             this.defaultValue = null;
             this.dep1 = chunks[1];

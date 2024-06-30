@@ -125,12 +125,12 @@ public class MonkeyMath {
 
         assert current != null;
         MonkeyValue next = null;
-        if(monkeyValueMap.containsKey(current.getDep1())){
+        if (monkeyValueMap.containsKey(current.getDep1())) {
             //b exists
             long tempB = monkeyValueMap.get(current.getDep1());
             String nextLabel = current.getDep2();
 
-            switch(current.getOperation()){
+            switch (current.getOperation()) {
                 case ADD -> {
                     //monkeyvalue = b + c;
                     //result: c = monkeyValue - b
@@ -146,20 +146,21 @@ public class MonkeyMath {
                     //result : c = monkeyValue / b
                     next = new MonkeyValue(nextLabel, monkeyValue.value() / tempB);
                 }
-                case DIV -> {//monkeyvalue = b / c
+                case DIV -> {
+                    //monkeyvalue = b / c
                     //result : c = b / monkeyValue}
                     next = new MonkeyValue(nextLabel, tempB / monkeyValue.value());
                 }
             }
-        }else{
+        } else {
             //c exists
             long tempC = monkeyValueMap.get(current.getDep2());
             String nextLabel = current.getDep1();
-            switch(current.getOperation()){
+            switch (current.getOperation()) {
                 case ADD -> {
                     //monkeyvalue = b + c
                     //result : b = monkeyValue - c
-                    next = new MonkeyValue(nextLabel, monkeyValue.value()- tempC);
+                    next = new MonkeyValue(nextLabel, monkeyValue.value() - tempC);
                 }
                 case SUB -> {
                     //monkeyvalue = b - c
