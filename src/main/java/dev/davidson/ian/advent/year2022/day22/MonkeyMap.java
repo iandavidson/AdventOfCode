@@ -34,7 +34,7 @@ public class MonkeyMap {
     private void readFile() {
         List<List<TILE>> initialGrid = new ArrayList<>();
         ClassLoader cl = MonkeyMap.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             String rawRow = scanner.nextLine();
@@ -67,15 +67,15 @@ public class MonkeyMap {
 
     private void setGrid(final List<List<TILE>> initial, final int maxWidth) {
         List<List<TILE>> toBe = new ArrayList<>();
-        for(int i =0 ; i < initial.size(); i++){
+        for (int i = 0; i < initial.size(); i++) {
             List<TILE> tempList = new ArrayList<>();
 
-            for(int j = 0; j < maxWidth; j++){
+            for (int j = 0; j < maxWidth; j++) {
 
-                if(j >= initial.get(i).size()){
+                if (j >= initial.get(i).size()) {
                     tempList.add(TILE.OUT);
                     //add TILE.OUT
-                }else{
+                } else {
                     tempList.add(initial.get(i).get(j));
                 }
             }
