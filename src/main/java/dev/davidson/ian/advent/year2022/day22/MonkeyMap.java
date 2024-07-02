@@ -15,7 +15,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class MonkeyMap {
 
-    private static final Coordinate START = new Coordinate(0, 50);
+//    private static final Coordinate START = new Coordinate(0, 50);
     private static final String INPUT_PATH = "adventOfCode/2022/day22/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2022/day22/sample.txt";
 
@@ -29,7 +29,7 @@ public class MonkeyMap {
         List<String> instructions = new ArrayList<>();
         Grid grid = readFile(instructions);
 
-        State state = new State(START);
+        State state = new State(grid.getStart());
         for (String instruction : instructions) {
             if (Character.isAlphabetic(instruction.charAt(0))) {
                 //change dir
@@ -43,7 +43,9 @@ public class MonkeyMap {
             }
         }
 
-        return (state.getCoordinate().row() * 1000) + (state.getCoordinate().col()) + (state.getDirectionIndex());
+        int row = (state.getCoordinate().row() +1) * 1000;
+        int col =  (state.getCoordinate().col() +1) * 4;
+        return row + col + (state.getDirectionIndex());
     }
 
     private void move(final Grid grid, final State state, final int distance) {
@@ -91,7 +93,6 @@ public class MonkeyMap {
             instructions.add(matcher.group());
         }
     }
-
 
 
 }

@@ -31,6 +31,16 @@ public class Grid {
         this.maxWidth = maxWidth;
     }
 
+    public Coordinate getStart(){
+        for(int i = 0; i < maxWidth; i++){
+            if(grid.getFirst().get(i).equals(TILE.EMPTY)){
+                return new Coordinate(0, i);
+            }
+        }
+
+        throw new IllegalStateException("🥸");
+    }
+
     public Coordinate move(final State state) {
         int nextRow = state.getCoordinate().row() + state.getShift()[0];
         int nextCol = state.getCoordinate().col() + state.getShift()[1];
@@ -51,13 +61,18 @@ public class Grid {
     }
 
     private Coordinate wrapEdge(final State state){
+
+        //accommodate edge case where after we wrap around, first element is a block
+
         switch(state.getDirectionIndex()){
             case 0 ->{
                 //right
                 //find leftmost column at current row
-                for(int i = 0; i < grid.get(state.getCoordinate().row()).size(); i++){
+                for(int i = 0; i < grid.get(state.getCoordinate().row()).size(); i++) {
                     if(grid.get(state.getCoordinate().row()).get(i).equals(TILE.EMPTY)){
                         return new Coordinate(state.getCoordinate().row(), i);
+                    }else if(grid.get(state.getCoordinate().row()).get(i).equals(TILE.BLOCKED)){
+                        return  state.getCoordinate();
                     }
                 }
             }
@@ -67,6 +82,8 @@ public class Grid {
                 for(int i = 0; i < grid.size(); i++){
                     if(grid.get(i).get(state.getCoordinate().col()).equals(TILE.EMPTY)){
                         return new Coordinate(i, state.getCoordinate().col());
+                    } else if (grid.get(i).get(state.getCoordinate().col()).equals(TILE.BLOCKED)) {
+                        return state.getCoordinate();
                     }
                 }
             }
@@ -75,6 +92,8 @@ public class Grid {
                 for(int i = maxWidth-1; i > -1; i--){
                     if(grid.get(state.getCoordinate().row()).get(i).equals(TILE.EMPTY)){
                         return new Coordinate(state.getCoordinate().row(), i);
+                    }else if(grid.get(state.getCoordinate().row()).get(i).equals(TILE.BLOCKED)){
+                        return state.getCoordinate();
                     }
                 }
             }
@@ -83,12 +102,14 @@ public class Grid {
                 for(int i = grid.size()-1; i > -1; i--){
                     if(grid.get(i).get(state.getCoordinate().col()).equals(TILE.EMPTY)){
                         return new Coordinate(i, state.getCoordinate().col());
+                    }else if(grid.get(i).get(state.getCoordinate().col()).equals(TILE.BLOCKED)){
+                        return state.getCoordinate();
                     }
                 }
             }
         }
 
-        throw new IllegalStateException();
+        throw new IllegalStateException("🥸");
     }
 
 }
