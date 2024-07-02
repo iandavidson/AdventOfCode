@@ -18,18 +18,19 @@ public class MonkeyMap {
 //    private static final Coordinate START = new Coordinate(0, 50);
     private static final String INPUT_PATH = "adventOfCode/2022/day22/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2022/day22/sample.txt";
+    private static final int CUBE_LENGTH = 50;
 
     public static void main(String[] args) {
         MonkeyMap monkeyMap = new MonkeyMap();
         log.info("Part1: {}", monkeyMap.part1());
-        //187030 too high
+        log.info("Part2: {}", monkeyMap.part2());
     }
 
     public int part1() {
         List<String> instructions = new ArrayList<>();
         Grid grid = readFile(instructions);
 
-        State state = new State(grid.getStart());
+        MovementState state = new MovementState(grid.getStart());
         for (String instruction : instructions) {
             if (Character.isAlphabetic(instruction.charAt(0))) {
                 //change dir
@@ -48,7 +49,7 @@ public class MonkeyMap {
         return row + col + (state.getDirectionIndex());
     }
 
-    private void move(final Grid grid, final State state, final int distance) {
+    private void move(final Grid grid, final MovementState state, final int distance) {
         for(int i = 0 ; i < distance; i++){
             Coordinate nextCoord = grid.move(state);
 
@@ -58,9 +59,70 @@ public class MonkeyMap {
                 state.setCoordinate(nextCoord);
             }
         }
-
-        //update coordinate in state
     }
+
+    public int part2(){
+        List<String> instructions = new ArrayList<>();
+        Grid grid = readFile(instructions);
+        TILE [][][] cube = buildCube(grid);
+
+
+//        int row = (state.getCoordinate().row() +1) * 1000;
+//        int col =  (state.getCoordinate().col() +1) * 4;
+//        return row + col + (state.getDirectionIndex());
+
+    }
+
+    private TILE[][][] buildCube(final Grid grid){
+        TILE[][][] cube = new TILE[CUBE_LENGTH][CUBE_LENGTH][CUBE_LENGTH];
+        //x,y,z -> row, col, depth
+
+        /*
+     12
+     3
+    45
+    6
+         */
+
+
+        //1 => front (x,y,0); no rotation
+        // -> plane (0, 50) -> (49, 99)
+
+        //2 => rightside (CUBE_LEN,y,z); no rotation
+        // -> plane (0, 100) -> (49, 149)
+
+        //3 => bottom (x,0,z);  no rotation
+        // -> plane (50, 50) -> (99, 99)
+
+        //4 => left (0, y, z); rotate 2 times (doesn't matter which way)
+        // -> plane (100, 0) -> (149, 49)
+
+        //5 => back (x,y,CUBE_LEN); rotate 2 times(doesn't matter)
+        // -> plane (100, 50) -> (149, 99)
+
+        //6 => top (x,CUBE_LEN,z); rotate right once
+        // -> plane (150, 0) -> (199, 49)
+
+    }
+
+    /*
+
+
+     12
+     3
+    45
+    6
+
+    1: R: 2
+    1: D: 3
+    1: U
+
+     ..
+     .
+    ..
+    .
+     */
+
 
     private Grid readFile(final List<String> instructions) {
         List<List<TILE>> initialGrid = new ArrayList<>();

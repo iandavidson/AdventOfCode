@@ -4,10 +4,12 @@ import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class Grid {
     private List<List<TILE>> grid;
+//    private Map<Coordinate, Map<Direction, CornerTransition>> edgeMap;
     private final int maxWidth;
 
     public Grid(final List<List<TILE>> initial, final int maxWidth) {
@@ -41,7 +43,7 @@ public class Grid {
         throw new IllegalStateException("🥸");
     }
 
-    public Coordinate move(final State state) {
+    public Coordinate move(final MovementState state) {
         int nextRow = state.getCoordinate().row() + state.getShift()[0];
         int nextCol = state.getCoordinate().col() + state.getShift()[1];
 
@@ -60,7 +62,7 @@ public class Grid {
         }
     }
 
-    private Coordinate wrapEdge(final State state){
+    private Coordinate wrapEdge(final MovementState state){
 
         //accommodate edge case where after we wrap around, first element is a block
 

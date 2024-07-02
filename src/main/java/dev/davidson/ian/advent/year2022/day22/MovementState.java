@@ -7,7 +7,7 @@ import java.util.List;
 
 @Slf4j
 @Data
-public class State {
+public class MovementState {
     private final List<int []> DIRECTION = List.of(new int[]{0,1}, new int[]{1,0}, new int[]{0,-1}, new int[]{-1,0}); // R, D, L, U
 
     //0,1 -> 1,0 -> 0,-1, -1,0
@@ -18,7 +18,7 @@ public class State {
         return DIRECTION.get(this.directionIndex);
     }
 
-    public State(final Coordinate coordinate){
+    public MovementState(final Coordinate coordinate){
         this.coordinate = coordinate;
     }
 
