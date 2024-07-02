@@ -15,23 +15,52 @@ import java.util.regex.Pattern;
 @Slf4j
 public class MonkeyMap {
 
-    private List<List<TILE>> grid = new ArrayList<>();
-    private List<String> instructions;
+    private static final Coordinate START = new Coordinate(0, 50);
     private static final String INPUT_PATH = "adventOfCode/2022/day22/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2022/day22/sample.txt";
 
     public static void main(String[] args) {
         MonkeyMap monkeyMap = new MonkeyMap();
         log.info("Part1: {}", monkeyMap.part1());
+        //187030 too high
     }
 
     public int part1() {
-        readFile();
+        List<String> instructions = new ArrayList<>();
+        Grid grid = readFile(instructions);
 
-        return 0;
+        State state = new State(START);
+        for (String instruction : instructions) {
+            if (Character.isAlphabetic(instruction.charAt(0))) {
+                //change dir
+                state.changeDirection(instruction);
+            } else if (Character.isDigit(instruction.charAt(0))) {
+                //move dist
+                move(grid, state, Integer.parseInt(instruction));
+            } else {
+                log.info("we got a problem");
+
+            }
+        }
+
+        return (state.getCoordinate().row() * 1000) + (state.getCoordinate().col()) + (state.getDirectionIndex());
     }
 
-    private void readFile() {
+    private void move(final Grid grid, final State state, final int distance) {
+        for(int i = 0 ; i < distance; i++){
+            Coordinate nextCoord = grid.move(state);
+
+            if(state.getCoordinate().equals(nextCoord)){
+                break;
+            }else{
+                state.setCoordinate(nextCoord);
+            }
+        }
+
+        //update coordinate in state
+    }
+
+    private Grid readFile(final List<String> instructions) {
         List<List<TILE>> initialGrid = new ArrayList<>();
         ClassLoader cl = MonkeyMap.class.getClassLoader();
         File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
@@ -46,42 +75,23 @@ public class MonkeyMap {
                 rawRow = scanner.nextLine();
             }
 
-            setGrid(initialGrid, maxWidth);
-            setInstructions(scanner.nextLine());
+
+            setInstructions(scanner.nextLine(), instructions);
+            return new Grid(initialGrid, maxWidth);
 
         } catch (FileNotFoundException e) {
             throw new IllegalStateException(e.getCause());
         }
     }
 
-    private void setInstructions(final String line) {
+    private void setInstructions(final String line, final List<String> instructions) {
         Pattern pattern = Pattern.compile("\\d+|L|R");
         Matcher matcher = pattern.matcher(line);
-        List<String> instructions = new ArrayList<>();
         while (matcher.find()) {
             instructions.add(matcher.group());
         }
-
-        this.instructions = instructions;
     }
 
-    private void setGrid(final List<List<TILE>> initial, final int maxWidth) {
-        List<List<TILE>> toBe = new ArrayList<>();
-        for (int i = 0; i < initial.size(); i++) {
-            List<TILE> tempList = new ArrayList<>();
 
-            for (int j = 0; j < maxWidth; j++) {
 
-                if (j >= initial.get(i).size()) {
-                    tempList.add(TILE.OUT);
-                    //add TILE.OUT
-                } else {
-                    tempList.add(initial.get(i).get(j));
-                }
-            }
-            toBe.add(tempList);
-        }
-
-        this.grid = toBe;
-    }
 }
