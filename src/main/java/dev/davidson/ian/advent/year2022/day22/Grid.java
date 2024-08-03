@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 @Data
-public class Grid {
+public class Grid implements ForestMap {
     private List<List<TILE>> grid;
 //    private Map<Coordinate, Map<Direction, CornerTransition>> edgeMap;
     private final int maxWidth;
@@ -33,6 +33,7 @@ public class Grid {
         this.maxWidth = maxWidth;
     }
 
+    @Override
     public Coordinate getStart(){
         for(int i = 0; i < maxWidth; i++){
             if(grid.getFirst().get(i).equals(TILE.EMPTY)){
@@ -43,6 +44,7 @@ public class Grid {
         throw new IllegalStateException("🥸");
     }
 
+    @Override
     public Coordinate move(final MovementState state) {
         int nextRow = state.getCoordinate().row() + state.getShift()[0];
         int nextCol = state.getCoordinate().col() + state.getShift()[1];
