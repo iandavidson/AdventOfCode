@@ -5,12 +5,10 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -74,6 +72,7 @@ public class UnstableDiffusion {
     public static void main(String[] args) {
         UnstableDiffusion unstableDiffusion = new UnstableDiffusion();
         log.info("Part1: {}", unstableDiffusion.part1());
+        log.info("Part2: {}", unstableDiffusion.part2());
     }
 
     /*
@@ -92,33 +91,54 @@ If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes movi
         Map<Integer, Elf> elfMap = readfile();
         Map<Integer, Map<Integer, List<Elf>>> coordinateMap = elfMapToCoordinateMap(elfMap);
 
-
         for (int i = 0; i < ROUNDS; i++) {
-            //compute next moves (make new map)
-//            Map<Coordinate, List<Elf>> nextRound
             Map<Integer, Map<Integer, List<Elf>>> nextMap = nextMoves(coordinateMap, elfMap.values(), i);
             elfMap = applyMoves(nextMap);
             coordinateMap = elfMapToCoordinateMap(elfMap);
-
-
-
-            //iterate through nextMap, if sole member in List, replace elf instance with new coords, same ordinal
-            //if it is not
         }
-
 
         int minRow = Integer.MAX_VALUE;
         int maxRow = Integer.MIN_VALUE;
         int minCol = Integer.MAX_VALUE;
         int maxCol = Integer.MIN_VALUE;
-        for(Elf elf : elfMap.values()){
+        for (Elf elf : elfMap.values()) {
             minRow = Math.min(minRow, elf.row());
             maxRow = Math.max(maxRow, elf.row());
             minCol = Math.min(minCol, elf.col());
             maxCol = Math.max(maxCol, elf.col());
         }
 
-        return (long) (maxRow - minRow) * (maxCol - minCol);
+        return (long) (maxRow - minRow + 1) * (maxCol - minCol + 1) - elfMap.values().size();
+    }
+
+    public long part2() {
+        Map<Integer, Elf> elfMap = readfile();
+        Map<Integer, Map<Integer, List<Elf>>> coordinateMap = elfMapToCoordinateMap(elfMap);
+
+        boolean movementsInLastTurn = true;
+        int i = 0;
+        while (movementsInLastTurn) {
+            Map<Integer, Map<Integer, List<Elf>>> nextMap = nextMoves(coordinateMap, elfMap.values(), i);
+            Map<Integer, Elf> nextElfMap = applyMoves(nextMap);
+            //compare elfMap to nextElfMap
+            movementsInLastTurn = differenceExists(elfMap, nextElfMap);
+            elfMap = nextElfMap;
+
+            coordinateMap = elfMapToCoordinateMap(elfMap);
+            i++;
+        }
+
+        return i;
+    }
+
+    private boolean differenceExists(final Map<Integer, Elf> currentLocation, final Map<Integer, Elf> nextLocation) {
+        for (int elfId : currentLocation.keySet()) {
+            if (!currentLocation.get(elfId).getCoordinate().equals(nextLocation.get(elfId).getCoordinate())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private Map<Integer, Map<Integer, List<Elf>>> nextMoves(final Map<Integer, Map<Integer, List<Elf>>> currentMap
@@ -179,6 +199,18 @@ If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes movi
                 }
             }
 
+            //all sides were blocked, I assume we just stay in the same place, that will be the "proposed" move
+            if (collision) {
+                if (!next.containsKey(elf.row())) {
+                    next.put(elf.row(), new HashMap<>());
+                }
+
+                if (!next.get(elf.row()).containsKey(elf.col())) {
+                    next.get(elf.row()).put(elf.col(), new ArrayList<>());
+                }
+
+                next.get(elf.row()).get(elf.col()).add(elf);
+            }
         }
         return next;
     }
@@ -200,7 +232,7 @@ If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes movi
                 } else {
                     //if more than one elf landed at that new location, explicitly reassign from elfOrderMap to
                     // nextRoundMap
-                    for(Elf elf : elvesAtCoord){
+                    for (Elf elf : elvesAtCoord) {
                         elfMap.put(elf.getOrdinal(), elf);
                     }
                 }
@@ -212,7 +244,7 @@ If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes movi
         return elfMap;
     }
 
-    private Map<Integer, Map<Integer, List<Elf>>> elfMapToCoordinateMap(final Map<Integer, Elf> elfMap){
+    private Map<Integer, Map<Integer, List<Elf>>> elfMapToCoordinateMap(final Map<Integer, Elf> elfMap) {
         Map<Integer, Map<Integer, List<Elf>>> coordinateMap = new HashMap<>();
         for (Elf elf : elfMap.values()) {
             if (!coordinateMap.containsKey(elf.row())) {
@@ -234,7 +266,7 @@ If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes movi
         List<String> input = new ArrayList<>();
 
         ClassLoader cl = UnstableDiffusion.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(MINI_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
@@ -245,14 +277,12 @@ If there is no Elf in the E, NE, or SE adjacent positions, the Elf proposes movi
         }
 
         Map<Integer, Elf> elfMap = new HashMap<>();
-        Set<Elf> elfList = new HashSet<>();
         int order = 0;
         for (int i = 0; i < input.size(); i++) {
             for (int j = 0; j < input.get(i).length(); j++) {
                 if (input.get(i).charAt(j) == ELF) {
                     elfMap.put(order, Elf.builder().ordinal(order++).coordinate(new Coordinate(i, j)).build());
                     order++;
-//                    elfList.add(Elf.builder().ordinal(order++).coordinate(new Coordinate(i, j)).build());
                 }
             }
         }
