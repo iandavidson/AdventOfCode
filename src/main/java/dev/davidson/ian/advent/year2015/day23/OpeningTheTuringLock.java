@@ -25,7 +25,6 @@ public class OpeningTheTuringLock {
 
     public Long execute(boolean part2) {
         List<Instruction> instructions = readFile();
-
         Map<String, Long> registers = new HashMap<>();
 
         registers.put("a", part2 ? 1L : 0L);
