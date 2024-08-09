@@ -24,40 +24,20 @@ public class NoTimeForTaxiCab {
 
     public static void main(String[] args) {
         NoTimeForTaxiCab noTimeForTaxiCab = new NoTimeForTaxiCab();
-        log.info("Part1: {}", noTimeForTaxiCab.part1());
-        log.info("Part2: {}", noTimeForTaxiCab.part2());
+        noTimeForTaxiCab.execute();
     }
 
-    public long part1() {
+    public void execute() {
         int currentDirection = 0; //north
         int currentRow = 0;
         int currentCol = 0;
 
         List<Instruction> instructions = readfile();
-
-        for (Instruction instruction : instructions) {
-
-            currentDirection = (currentDirection + instruction.turn()) % 4;
-            if (currentDirection < 0) {
-                currentDirection += 4;
-            }
-            currentRow += (DIRECTION_MOVES.get(currentDirection)[0] * instruction.magnitude());
-            currentCol += (DIRECTION_MOVES.get(currentDirection)[1] * instruction.magnitude());
-
-        }
-
-        return Math.abs(currentRow) + Math.abs(currentCol);
-    }
-
-    public long part2() {
-        int currentDirection = 0; //north
-        int currentRow = 0;
-        int currentCol = 0;
 
         Set<String> visited = new HashSet<>();
         visited.add(currentRow + ":" + currentCol);
-
-        List<Instruction> instructions = readfile();
+        boolean lookingForPart2 = true;
+        Integer part2Answer = 0;
 
         for (Instruction instruction : instructions) {
 
@@ -72,15 +52,17 @@ public class NoTimeForTaxiCab {
 
                 String current = currentRow + ":" + currentCol;
 
-                if (visited.contains(current)) {
-                    return Math.abs(currentRow) + Math.abs(currentCol);
+                if (visited.contains(current) && lookingForPart2) {
+                    part2Answer = Math.abs(currentRow) + Math.abs(currentCol);
+                    lookingForPart2 = false;
                 } else {
                     visited.add(current);
                 }
             }
         }
 
-        return -500L;
+        log.info("Part1: {}", Math.abs(currentRow) + Math.abs(currentCol));
+        log.info("Part2: {}", part2Answer);
     }
 
     private List<Instruction> readfile() {
