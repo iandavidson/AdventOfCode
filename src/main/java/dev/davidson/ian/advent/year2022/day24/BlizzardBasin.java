@@ -15,7 +15,21 @@ public class BlizzardBasin {
     private static final String INPUT_PATH = "adventOfCode/2022/day24/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2022/day24/sample.txt";
     private static final String MINI_PATH = "adventOfCode/2022/day24/mini.txt";
-    
+
+    /*
+    intuition:
+    - Blizzards will always be in the same place after ((|rows| -2) * (|cols| -2)) turns
+      - when tracking "visited", we can prune less than desirable paths
+        - eg: 12 rows by 12 cols; 100 turn blizzard cycle
+        - if we land at 3,3 on turn 5, then we also land on 3,3 at turn 105, we can throw away the 105 execution path,
+        - additionally, if 3,3 was landed on at 105 before, and have another path that lands there on 5, we should
+        replace the entry ^105^5^, as 5 turns was optimal.
+      - -> Visited State rough idea:
+            - Coordinate
+            - Turn Landed on coordinate
+            - landed on % blizzardCycle
+     */
+
 
     public static void main(String[] args) {
         BlizzardBasin blizzardBasin = new BlizzardBasin();
@@ -26,10 +40,14 @@ public class BlizzardBasin {
         Basin basin = readFile();
 
         Set<String> map = basin.buildOccupiedTileSet();
-        for (int i = 0; i < 10; i++) {
-            basin.updateBlizzards();
-            map = basin.buildOccupiedTileSet();
-        }
+        //simulate blizzards with code below
+//        for (int i = 0; i < 10; i++) {
+//            basin.updateBlizzards();
+//            map = basin.buildOccupiedTileSet();
+//        }
+
+
+
 
         return 0L;
     }
