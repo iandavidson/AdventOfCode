@@ -51,4 +51,21 @@ public record RoomName(String encryptedName, Integer sectorId, String checkSum) 
 
         return checkSum.equals(calculated);
     }
+
+    public String findShift(){
+        StringBuilder stringBuilder = new StringBuilder();
+        for(char ch : encryptedName.toCharArray()){
+            if(ch != HYPHEN){
+                stringBuilder.append(shiftChar(ch));
+            }else{
+                stringBuilder.append(HYPHEN);
+            }
+        }
+        return stringBuilder.toString();
+    }
+
+    private char shiftChar(final Character ch){
+        int nextIndex = ((ch - 'a') + sectorId) % 26;
+        return (char) ('a' + nextIndex);
+    }
 }

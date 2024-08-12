@@ -13,17 +13,31 @@ public class SecurityThroughObscurity {
 
     private static final String INPUT_PATH = "adventOfCode/2016/day04/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2016/day04/sample.txt";
-
+    private static final String PART_2_MATCH = "northpole-object-storage-";
     public static void main(String[] args) {
         SecurityThroughObscurity securityThroughObscurity = new SecurityThroughObscurity();
         log.info("Part1: {}", securityThroughObscurity.part1());
+        log.info("Part2: {}", securityThroughObscurity.part2());
     }
 
     public Long part1() {
         List<RoomName> roomNames = readFile();
-        return roomNames.stream().filter(RoomName::isValid).map(RoomName::sectorId).mapToLong(Long::valueOf).sum();
-        //337 too low
+        return roomNames.stream().filter(RoomName::isValid).mapToLong(RoomName::sectorId).sum();
     }
+
+    public Integer part2(){
+        List<RoomName> roomNames = readFile();
+
+        for(RoomName roomName : roomNames){
+
+            if(roomName.findShift().equals(PART_2_MATCH)){
+                return roomName.sectorId();
+            }
+        }
+
+        return -1;
+    }
+
 
     private List<RoomName> readFile() {
         List<RoomName> roomNames = new ArrayList<>();
