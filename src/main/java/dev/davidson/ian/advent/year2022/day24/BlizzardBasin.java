@@ -19,12 +19,12 @@ public class BlizzardBasin {
     private static final String SAMPLE_PATH = "adventOfCode/2022/day24/sample.txt";
     private static final String MINI_PATH = "adventOfCode/2022/day24/mini.txt";
 
-    private static final List<int []> SHIFTS = List.of(
-            new int[]{0,0},
-            new int[]{-1,0},
-            new int[]{1,0},
-            new int[]{0,1},
-            new int[]{0,-1}
+    private static final List<int[]> SHIFTS = List.of(
+            new int[]{0, 0},
+            new int[]{-1, 0},
+            new int[]{1, 0},
+            new int[]{0, 1},
+            new int[]{0, -1}
     );
 
     /*
@@ -60,7 +60,7 @@ public class BlizzardBasin {
 //        }
 
 
-        int round  = 0;
+        int round = 0;
         WalkState initial = WalkState.builder()
                 .coordinate(basin.getStart())
                 .round(round)
@@ -74,24 +74,24 @@ public class BlizzardBasin {
 
         long minDistance = Integer.MAX_VALUE;
 
-        while(!queue.isEmpty()){
+        while (!queue.isEmpty()) {
 
             int n = queue.size();
             basin.updateBlizzards();
             occupiedTileSet = basin.buildOccupiedTileSet();
             round += 1;
 
-            for(int i = 0; i < n; i++){
+            for (int i = 0; i < n; i++) {
                 WalkState current = queue.remove();
                 log.info("processing: {}", current);
 
-                if(current.getCoordinate().equals(basin.getFinish())){
-                    minDistance = Math.min(minDistance, round-1);
+                if (current.getCoordinate().equals(basin.getFinish())) {
+                    minDistance = Math.min(minDistance, round - 1);
                 }
 
                 List<WalkState> validNeighbors = findValidNeighbors(occupiedTileSet, current, basin);
-                for(WalkState neighbor : validNeighbors){
-                    if(!visited.contains(neighbor)){
+                for (WalkState neighbor : validNeighbors) {
+                    if (!visited.contains(neighbor)) {
                         queue.add(neighbor);
                         visited.add(neighbor);
                     }
@@ -104,31 +104,32 @@ public class BlizzardBasin {
 
     private List<WalkState> findValidNeighbors(final Set<String> occupiedTileSet,
                                                final WalkState current,
-                                               final Basin basin){
+                                               final Basin basin) {
 
         List<WalkState> neighbors = new ArrayList<>();
 
-        for(int [] shift : SHIFTS){
-            if(!isInBounds(basin.getRows(), basin.getCols(), current.getCoordinate().row(),
-                    current.getCoordinate().col())){
+        for (int[] shift : SHIFTS) {
+            if (!isInBounds(basin.getRows(), basin.getCols(), current.getCoordinate().row() + shift[0],
+                    current.getCoordinate().col() + shift[1])) {
                 continue;
-            }else if(occupiedTileSet.contains(coordAndShiftToId(current.getCoordinate(), shift))){
+            } else if (occupiedTileSet.contains(coordAndShiftToId(current.getCoordinate(), shift))) {
                 continue;
             }
 
             neighbors.add(WalkState.builder()
-                            .coordinate(new Coordinate(current.getCoordinate().row() + shift[0],
-                                    current.getCoordinate().col() + shift[1]))
-                            .round(current.getRound()+1)
-                            .cycleRemainder((current.getRound()+1) % basin.getBlizzardPeriod())
+                    .coordinate(new Coordinate(current.getCoordinate().row() + shift[0],
+                            current.getCoordinate().col() + shift[1]))
+                    .round(current.getRound() + 1)
+                    .cycleRemainder((current.getRound() + 1) % basin.getBlizzardPeriod())
                     .build());
         }
 
         return neighbors;
     }
 
-    private boolean isInBounds(int rowMax, int colMax, int row, int col){
-        if(row == 0 || col == 0 || row + 2 == rowMax || col + 2 == colMax) {
+    private boolean isInBounds(int rowMax, int colMax, int row, int col) {
+        //we are filtering out the final space as it is == rowMax-1
+        if (row <= 0 || col <= 0 || row + 2 >= rowMax || col + 2 >= colMax) {
             return false;
         }
 
@@ -136,7 +137,7 @@ public class BlizzardBasin {
     }
 
     private String coordAndShiftToId(final Coordinate coordinate,
-                                     final int [] shift){
+                                     final int[] shift) {
         return (coordinate.row() + shift[0]) + ":" + (coordinate.col() + shift[1]);
     }
 
