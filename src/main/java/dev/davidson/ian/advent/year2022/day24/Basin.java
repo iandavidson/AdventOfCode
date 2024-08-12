@@ -16,6 +16,7 @@ public class Basin {
     private final Coordinate finish;
     private final Integer rows;
     private final Integer cols;
+    private final Integer blizzardPeriod;
     private List<Blizzard> blizzards;
 
     public Set<String> buildOccupiedTileSet() {
