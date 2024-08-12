@@ -14,6 +14,7 @@ public class SecurityThroughObscurity {
     private static final String INPUT_PATH = "adventOfCode/2016/day04/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2016/day04/sample.txt";
     private static final String PART_2_MATCH = "northpole-object-storage-";
+
     public static void main(String[] args) {
         SecurityThroughObscurity securityThroughObscurity = new SecurityThroughObscurity();
         log.info("Part1: {}", securityThroughObscurity.part1());
@@ -25,12 +26,10 @@ public class SecurityThroughObscurity {
         return roomNames.stream().filter(RoomName::isValid).mapToLong(RoomName::sectorId).sum();
     }
 
-    public Integer part2(){
+    public Integer part2() {
         List<RoomName> roomNames = readFile();
-
-        for(RoomName roomName : roomNames){
-
-            if(roomName.findShift().equals(PART_2_MATCH)){
+        for (RoomName roomName : roomNames) {
+            if (roomName.findShift().equals(PART_2_MATCH)) {
                 return roomName.sectorId();
             }
         }
