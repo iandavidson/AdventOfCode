@@ -72,10 +72,10 @@ public class BathroomSecurity {
         StringBuilder result = new StringBuilder();
         for(List<Instruction> sequence  :instructions){
             for(Instruction instruction : sequence){
-                int proposedRow = currentRow + SHIFTS.get(instruction)[0];
-                int proposedCol = currentCol + SHIFTS.get(instruction)[1];
+                int proposedRow = Math.max(Math.min(4, currentRow + SHIFTS.get(instruction)[0]), 0);
+                int proposedCol = Math.max(Math.min(4, currentCol + SHIFTS.get(instruction)[1]), 0);
 
-                if(proposedRow >= 0 && proposedRow <= 4 && proposedCol >= 0 && proposedCol <= 4 && PHONE_PAD_2[proposedRow][proposedCol] != '#'){
+                if(PHONE_PAD_2[proposedRow][proposedCol] != '#'){
                     currentRow = proposedRow;
                     currentCol = proposedCol;
                 }
