@@ -39,6 +39,10 @@ public class BlizzardBasin {
             - Coordinate
             - Turn Landed on coordinate
             - landed on % blizzardCycle
+
+    - Dimensions of real input(25 * 121), excluding border
+        - total tracking as stated above 3025 tiles, cycle length 3025: 9150625
+        -> if we had a
      */
 
 
@@ -56,7 +60,7 @@ public class BlizzardBasin {
         //simulate blizzards with code below
 //        for (int i = 0; i < 10; i++) {
 //            basin.updateBlizzards();
-//            map = basin.buildOccupiedTileSet();
+//            occupiedTileSet = basin.buildOccupiedTileSet();
 //        }
 
 
@@ -109,6 +113,7 @@ public class BlizzardBasin {
         List<WalkState> neighbors = new ArrayList<>();
 
         for (int[] shift : SHIFTS) {
+            //add case here allowing start and finish coordinates
             if (!isInBounds(basin.getRows(), basin.getCols(), current.getCoordinate().row() + shift[0],
                     current.getCoordinate().col() + shift[1])) {
                 continue;
