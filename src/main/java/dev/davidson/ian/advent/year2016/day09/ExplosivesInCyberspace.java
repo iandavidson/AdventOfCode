@@ -16,6 +16,7 @@ public class ExplosivesInCyberspace {
     public static void main(String[] args) {
         ExplosivesInCyberspace explosivesInCyberspace = new ExplosivesInCyberspace();
         log.info("Part1: {}", explosivesInCyberspace.part1());
+        log.info("Part2: {}", explosivesInCyberspace.part2());
     }
 
     public long part1() {
@@ -58,11 +59,14 @@ public class ExplosivesInCyberspace {
 
     public long part2(){
         String line = readFile();
+        return decompressExpression(line);
+    }
 
+    private long decompressExpression(final String line){
+        //(3890x4): "(476x3)(469x6)(2x11)JA(178x6)(21x4)(15x7)VLGRVVFKAFABGTK"
+        //(25x3): "(3x3)ABC(2x3)XY(5x2)PQRST
         long count = 0;
-        //find first that we know is just text and no compression
         int i = 0;
-
         while (i < line.length()) {
             while (i < line.length() && line.charAt(i) != '(') {
                 count++;
@@ -85,10 +89,11 @@ public class ExplosivesInCyberspace {
             int preLength = Integer.parseInt(ruleParts[0]);
             int repeats = Integer.parseInt(ruleParts[1]);
 
-            count += (long) preLength * repeats;
+            i++;//move past ')'
+
+            count += (decompressExpression(line.substring(i, i + preLength)) * repeats);
 
             i += preLength;
-            i++;
         }
 
         return count;
