@@ -5,6 +5,4 @@ public record Rule(
         int lowId,
         Receiver highReceiver,
         int highId) {
-
-
 }
