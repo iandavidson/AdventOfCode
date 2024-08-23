@@ -17,6 +17,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RadioisotopeThermoelectricGenerators {
 
     private static final String INPUT_PATH = "adventOfCode/2016/day11/input.txt";
+    private static final String INPUT_PART_2_PATH = "adventOfCode/2016/day11/input-part2.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2016/day11/sample.txt";
 
     public static void main(String[] args) {
@@ -46,7 +47,12 @@ public class RadioisotopeThermoelectricGenerators {
                 }
 
                 List<Factory> validMoves = findValidMoves(current);
-                queue.addAll(validMoves);
+                for(Factory validMove : validMoves){
+                    if(!visited.contains(validMove)){
+                        queue.add(validMove);
+                    }
+                }
+
 
                 visited.add(current);
             }
@@ -71,40 +77,33 @@ public class RadioisotopeThermoelectricGenerators {
         List<Factory> factories = new ArrayList<>();
 
         List<String> chipCandidates = current.availableChips();
-        for (String chipCandidate : chipCandidates) {
-            //no generators exist at proposedFloor
-            //1 or more exist at proposedFloor and one matches name of chipCandidate
-            if (current.getGenMap().get(proposedFloor).isEmpty() || current.getGenMap().get(proposedFloor).contains(chipCandidate)) {
-                factories.add(current.makeMove(proposedFloor, List.of(chipCandidate), Collections.emptyList()));
-            }
-        }
-
         List<String> genCandidates = current.availableGenerators();
+        for (String chipCandidate : chipCandidates) {
+            factories.add(current.makeMove(proposedFloor, List.of(chipCandidate)));
+        }
+
         for (String genCandidate : genCandidates) {
-            if(current.getChipMap().get(proposedFloor).isEmpty() || current.getChipMap().get(proposedFloor).contains(genCandidate)) {
-                factories.add(current.makeMove(proposedFloor, Collections.emptyList(), List.of(genCandidate)));
+            factories.add(current.makeMove(proposedFloor, List.of(genCandidate)));
+        }
+
+        int n = current.getCurrentFloorItems().size();
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                factories.add(
+                        current.makeMove(
+                                proposedFloor,
+                                List.of(current.getCurrentFloorItems().get(i), current.getCurrentFloorItems().get(j))));
             }
         }
 
-        //all combinations of 2
-
-        /*
-        List<String> chip: a, b
-        List<String> generators : c, d
-
-        combos [a,b],[a,c],[a,d],[b,c],[b,d],[c,d]
-
-         */
-
-
-
+        return factories.stream().filter(Factory::isValid).toList();
     }
 
     private Factory readFile() {
         List<String> inputLines = new ArrayList<>();
 
         ClassLoader cl = RadioisotopeThermoelectricGenerators.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(SAMPLE_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PART_2_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
