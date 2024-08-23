@@ -27,19 +27,49 @@ public class Factory {
     private final Map<Integer, List<String>> floorMap;
     private final Integer totalItems;
 
-    public boolean isValid(){
-        for(int i = 1 ; i < 5; i++){
+    public static Factory newFactory(List<String> inputLines) {
+        Map<Integer, List<String>> floorMap = new HashMap<>();
+        Integer totalItems = 0;
+
+        for (int i = 0; i < inputLines.size(); i++) {
+            int floor = i + 1;
+
+            floorMap.put(floor, new ArrayList<>());
+
+            Matcher chipMatcher = CHIP_PATTERN.matcher(inputLines.get(i));
+            while (chipMatcher.find()) {
+                String chip = chipMatcher.group().split("-")[0];
+                floorMap.get(floor).add(chip + CHIP_SUFFIX);
+                totalItems++;
+            }
+
+            Matcher genMatcher = GENERATOR_PATTERN.matcher(inputLines.get(i));
+            while (genMatcher.find()) {
+                String generator = genMatcher.group().split("\\s+")[0];
+                floorMap.get(floor).add(generator + GENERATOR_SUFFIX);
+                totalItems++;
+            }
+        }
+
+        return Factory.builder()
+                .floorMap(floorMap)
+                .totalItems(totalItems)
+                .build();
+    }
+
+    public boolean isValid() {
+        for (int i = 1; i < 5; i++) {
             List<String> chips = chipsAtFloor(i);
             List<String> gens = generatorsAtFloor(i);
 
-            if(gens.isEmpty()){
+            if (gens.isEmpty()) {
                 continue;
             }
 
             //we know the there are at least 1 generator on floor
-            for(String chip : chips){
+            for (String chip : chips) {
                 String chipId = chip.substring(0, chip.indexOf('-'));
-                if(gens.stream().noneMatch(gen -> gen.startsWith(chipId))){
+                if (gens.stream().noneMatch(gen -> gen.startsWith(chipId))) {
                     return false;
                 }
             }
@@ -52,7 +82,7 @@ public class Factory {
         return floorMap.get(4).size() == totalItems;
     }
 
-    public List<String> getCurrentFloorItems(){
+    public List<String> getCurrentFloorItems() {
         return floorMap.get(currentFloor);
     }
 
@@ -70,6 +100,43 @@ public class Factory {
 
     public List<String> generatorsAtFloor(final int floor) {
         return floorMap.get(floor).stream().filter(name -> name.endsWith(GENERATOR_SUFFIX)).toList();
+    }
+
+    public List<Factory> findValidMoves(final Factory current) {
+        List<Factory> validMoves = new ArrayList<>();
+        validMoves.addAll(findValidMovesAtFloor(current, current.getCurrentFloor() + 1));
+        validMoves.addAll(findValidMovesAtFloor(current, current.getCurrentFloor() - 1));
+        return validMoves;
+    }
+
+    private List<Factory> findValidMovesAtFloor(final Factory current, final int proposedFloor) {
+        if (proposedFloor == 0 || proposedFloor == 5) {
+            return Collections.emptyList();
+        }
+
+        List<Factory> factories = new ArrayList<>();
+
+        List<String> chipCandidates = current.availableChips();
+        List<String> genCandidates = current.availableGenerators();
+        for (String chipCandidate : chipCandidates) {
+            factories.add(current.makeMove(proposedFloor, List.of(chipCandidate)));
+        }
+
+        for (String genCandidate : genCandidates) {
+            factories.add(current.makeMove(proposedFloor, List.of(genCandidate)));
+        }
+
+        int n = current.getCurrentFloorItems().size();
+        for (int i = 0; i < n - 1; i++) {
+            for (int j = i + 1; j < n; j++) {
+                factories.add(
+                        current.makeMove(
+                                proposedFloor,
+                                List.of(current.getCurrentFloorItems().get(i), current.getCurrentFloorItems().get(j))));
+            }
+        }
+
+        return factories.stream().filter(Factory::isValid).toList();
     }
 
     public Factory makeMove(final int nextFloor, final List<String> movedItems) {
@@ -104,36 +171,6 @@ public class Factory {
                 .currentFloor(nextFloor)
                 .build();
 
-    }
-
-    public static Factory newFactory(List<String> inputLines) {
-        Map<Integer, List<String>> floorMap = new HashMap<>();
-        Integer totalItems = 0;
-
-        for (int i = 0; i < inputLines.size(); i++) {
-            int floor = i + 1;
-
-            floorMap.put(floor, new ArrayList<>());
-
-            Matcher chipMatcher = CHIP_PATTERN.matcher(inputLines.get(i));
-            while (chipMatcher.find()) {
-                String chip = chipMatcher.group().split("-")[0];
-                floorMap.get(floor).add(chip + CHIP_SUFFIX);
-                totalItems++;
-            }
-
-            Matcher genMatcher = GENERATOR_PATTERN.matcher(inputLines.get(i));
-            while (genMatcher.find()) {
-                String generator = genMatcher.group().split("\\s+")[0];
-                floorMap.get(floor).add(generator + GENERATOR_SUFFIX);
-                totalItems++;
-            }
-        }
-
-        return Factory.builder()
-                .floorMap(floorMap)
-                .totalItems(totalItems)
-                .build();
     }
 
     @Override
