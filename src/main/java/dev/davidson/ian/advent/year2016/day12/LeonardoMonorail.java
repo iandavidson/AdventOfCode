@@ -18,16 +18,17 @@ public class LeonardoMonorail {
 
     public static void main(String[] args) {
         LeonardoMonorail leonardoMonorail = new LeonardoMonorail();
-        log.info("Part1: {}", leonardoMonorail.part1());
+        log.info("Part1: {}", leonardoMonorail.execute(true));
+        log.info("Part2: {}", leonardoMonorail.execute(false));
     }
 
-    public int part1() {
+    public int execute(final boolean part1) {
         List<Instruction> instructions = readFile();
         Map<String, Integer> registerMap = new HashMap<>();
 
         registerMap.put("a", 0);
         registerMap.put("b", 0);
-        registerMap.put("c", 0);
+        registerMap.put("c", part1 ? 0 : 1);
         registerMap.put("d", 0);
 
         int current = 0;
