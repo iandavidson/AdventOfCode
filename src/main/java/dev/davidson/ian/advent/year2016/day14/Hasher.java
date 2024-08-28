@@ -6,28 +6,32 @@ import java.security.NoSuchAlgorithmException;
 
 public class Hasher {
 
-    private static final MessageDigest MD;
+    private static MessageDigest MD;
 
-    static {
-        try {
-            MD = MessageDigest.getInstance("MD5");
-        } catch (NoSuchAlgorithmException e) {
-            throw new RuntimeException(e);
+    public MessageDigest getMessageDigest() {
+        if (MD == null) {
+            try {
+                MD = MessageDigest.getInstance("MD5");
+            } catch (NoSuchAlgorithmException e) {
+                throw new RuntimeException(e);
+            }
         }
+
+        return MD;
     }
 
-    public String encodeToHex(final String raw, final Integer times){
+    public String encodeToHex(final String raw, final Integer times) {
         String input = raw;
-        for(int i =0 ;i  < times; i++){
+        for (int i = 0; i < times; i++) {
             input = encodeToHex(input);
         }
 
         return input;
     }
 
-    private String encodeToHex(final String raw){
-        byte[] digest = MD.digest(raw.getBytes(StandardCharsets.UTF_8));
-
+    private String encodeToHex(final String raw) {
+        MessageDigest md = getMessageDigest();
+        byte[] digest = md.digest(raw.getBytes(StandardCharsets.UTF_8));
         StringBuilder hexString = new StringBuilder();
 
         for (int j = 0; j < digest.length; j++) {
