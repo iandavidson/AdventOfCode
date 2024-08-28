@@ -27,44 +27,10 @@ public class Basin {
         List<Blizzard> nextBlizzards = new ArrayList<>();
 
         for (Blizzard blizzard : blizzards) {
-            nextBlizzards.add(updateBlizzard(blizzard));
+            nextBlizzards.add(blizzard.updateBlizzard(rows, cols));
         }
 
-        this.setBlizzards(nextBlizzards);
+        this.blizzards = nextBlizzards;
     }
 
-    private Blizzard updateBlizzard(final Blizzard blizzard) {
-
-        int[] shift = Direction.DIRECTION_MAP.get(blizzard.getDirection());
-        int newRow = blizzard.getCurrentLocation().row() + shift[0];
-        int newCol = blizzard.getCurrentLocation().col() + shift[1];
-
-        switch (blizzard.getDirection()) {
-            case UP -> {
-                if (newRow == 0) {
-                    newRow = rows - 2;
-                }
-            }
-            case DOWN -> {
-                if (newRow == rows - 1) {
-                    newRow = 1;
-                }
-            }
-            case RIGHT -> {
-                if (newCol == cols - 1) {
-                    newCol = 1;
-                }
-            }
-            case LEFT -> {
-                if (newCol == 0) {
-                    newCol = cols - 2;
-                }
-            }
-        }
-
-        return Blizzard.builder()
-                .currentLocation(new Coordinate(newRow, newCol))
-                .direction(blizzard.getDirection())
-                .build();
-    }
 }

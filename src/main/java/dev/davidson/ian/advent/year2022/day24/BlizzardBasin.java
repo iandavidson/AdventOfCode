@@ -51,7 +51,7 @@ public class BlizzardBasin {
         log.info("Part1: {}", blizzardBasin.part1());
     }
 
-    public Long part1() {
+    public Integer part1() {
         Basin basin = readFile();
 
         int blizzardPeriod = (basin.getCols() - 2) * (basin.getRows() - 2);
@@ -76,8 +76,6 @@ public class BlizzardBasin {
         Set<WalkState> visited = new HashSet<>();
         visited.add(initial);
 
-        long minDistance = Integer.MAX_VALUE;
-
         while (!queue.isEmpty()) {
 
             int n = queue.size();
@@ -87,10 +85,10 @@ public class BlizzardBasin {
 
             for (int i = 0; i < n; i++) {
                 WalkState current = queue.remove();
-                log.info("processing: {}", current);
+//                log.info("processing: {}", current);
 
                 if (current.getCoordinate().equals(basin.getFinish())) {
-                    minDistance = Math.min(minDistance, round - 1);
+                    return round -1;
                 }
 
                 List<WalkState> validNeighbors = findValidNeighbors(occupiedTileSet, current, basin);
@@ -103,7 +101,7 @@ public class BlizzardBasin {
             }
         }
 
-        return minDistance;
+        return -1;
     }
 
     private List<WalkState> findValidNeighbors(final Set<String> occupiedTileSet,
@@ -111,46 +109,57 @@ public class BlizzardBasin {
                                                final Basin basin) {
 
         List<WalkState> neighbors = new ArrayList<>();
-
         for (int[] shift : SHIFTS) {
-            //add case here allowing start and finish coordinates
-            if (!isInBounds(basin.getRows(), basin.getCols(), current.getCoordinate().row() + shift[0],
-                    current.getCoordinate().col() + shift[1])) {
-                continue;
-            } else if (occupiedTileSet.contains(coordAndShiftToId(current.getCoordinate(), shift))) {
-                continue;
-            }
+            Coordinate proposedCoord = new Coordinate(current.getCoordinate().row() + shift[0],
+                    current.getCoordinate().col() + shift[1]);
 
-            neighbors.add(WalkState.builder()
-                    .coordinate(new Coordinate(current.getCoordinate().row() + shift[0],
-                            current.getCoordinate().col() + shift[1]))
-                    .round(current.getRound() + 1)
-                    .cycleRemainder((current.getRound() + 1) % basin.getBlizzardPeriod())
-                    .build());
+            if(isValidMove(occupiedTileSet, basin, proposedCoord)){
+                neighbors.add(WalkState.builder()
+                        .coordinate(new Coordinate(current.getCoordinate().row() + shift[0],
+                                current.getCoordinate().col() + shift[1]))
+                        .round(current.getRound() + 1)
+                        .cycleRemainder((current.getRound() + 1) % basin.getBlizzardPeriod())
+                        .build());
+            }
         }
 
         return neighbors;
     }
 
-    private boolean isInBounds(int rowMax, int colMax, int row, int col) {
-        //we are filtering out the final space as it is == rowMax-1
-        if (row <= 0 || col <= 0 || row + 2 >= rowMax || col + 2 >= colMax) {
-            return false;
-        }
+    private boolean isValidMove(final Set<String> occupiedTileSet,
+                                final Basin basin,
+                                final Coordinate proposedCoord){
 
-        return true;
+        if(!isInBounds(basin.getRows(), basin.getCols(), proposedCoord.row(), proposedCoord.col())){
+            //check if valid tile on map
+            return false;
+        }else if(occupiedTileSet.contains(proposedCoord.toId())){
+            //ensure blizzard is not on top of proposed location
+            return false;
+        }else{
+            return true;
+        }
     }
 
-    private String coordAndShiftToId(final Coordinate coordinate,
-                                     final int[] shift) {
-        return (coordinate.row() + shift[0]) + ":" + (coordinate.col() + shift[1]);
+    private boolean isInBounds(int rowMax, int colMax, int row, int col) {
+
+        if(row == 0 && col == 1 || row == rowMax - 1 && col == colMax - 2) {
+            //check start and finish locations explicitly
+            return true;
+        }else if(row > 0 && row < rowMax - 1 && col > 0 && col < colMax - 1){
+            //check if within borders
+            return true;
+        }else{
+            //whomp whomp
+            return false;
+        }
     }
 
     private Basin readFile() {
         List<String> inputLines = new ArrayList<>();
 
         ClassLoader classLoader = BlizzardBasin.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(classLoader.getResource(MINI_PATH)).getFile());
+        File file = new File(Objects.requireNonNull(classLoader.getResource(INPUT_PATH)).getFile());
         try {
             Scanner scanner = new Scanner(file);
             while (scanner.hasNextLine()) {
