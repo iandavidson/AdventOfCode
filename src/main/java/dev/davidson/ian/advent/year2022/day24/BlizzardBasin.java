@@ -51,13 +51,29 @@ public class BlizzardBasin {
         log.info("Part1: {}", blizzardBasin.part1());
     }
 
+    public Integer part2(){
+        Basin basin = readFile();
+        Coordinate start   = new Coordinate(0, 1);
+        Coordinate finish = new Coordinate(basin.getRows() - 1, basin.getCols() - 2);
+        Integer count = execute(basin, start, finish);
+        count += execute(basin, finish, start);
+        count+= execute(basin, start, finish);
+        return count;
+    }
+
     public Integer part1() {
         Basin basin = readFile();
+        Coordinate start   = new Coordinate(0, 1);
+        Coordinate finish = new Coordinate(basin.getRows() - 1, basin.getCols() - 2);
+        return execute(basin, start, finish);
+    }
+
+    private Integer execute(final Basin basin, final Coordinate start, final Coordinate finish){
         Set<String> occupiedTileSet;
 
         int round = 0;
         WalkState initial = WalkState.builder()
-                .coordinate(basin.getStart())
+                .coordinate(start)
                 .round(round)
                 .cycleRemainder(round)
                 .build();
@@ -76,9 +92,8 @@ public class BlizzardBasin {
 
             for (int i = 0; i < n; i++) {
                 WalkState current = queue.remove();
-//                log.info("processing: {}", current);
 
-                if (current.getCoordinate().equals(basin.getFinish())) {
+                if (current.getCoordinate().equals(finish)) {
                     return round -1;
                 }
 
@@ -100,14 +115,15 @@ public class BlizzardBasin {
                                                final Basin basin) {
 
         List<WalkState> neighbors = new ArrayList<>();
+
         for (int[] shift : SHIFTS) {
-            Coordinate proposedCoord = new Coordinate(current.getCoordinate().row() + shift[0],
+
+            Coordinate proposedCoordinate = new Coordinate(current.getCoordinate().row() + shift[0],
                     current.getCoordinate().col() + shift[1]);
 
-            if(isValidMove(occupiedTileSet, basin, proposedCoord)){
+            if(isValidMove(occupiedTileSet, basin, proposedCoordinate)){
                 neighbors.add(WalkState.builder()
-                        .coordinate(new Coordinate(current.getCoordinate().row() + shift[0],
-                                current.getCoordinate().col() + shift[1]))
+                        .coordinate(proposedCoordinate)
                         .round(current.getRound() + 1)
                         .cycleRemainder((current.getRound() + 1) % basin.getBlizzardPeriod())
                         .build());
@@ -119,18 +135,22 @@ public class BlizzardBasin {
 
     private boolean isValidMove(final Set<String> occupiedTileSet,
                                 final Basin basin,
-                                final Coordinate proposedCoord){
+                                final Coordinate proposedCoordinate){
 
-        if(!isInBounds(basin.getRows(), basin.getCols(), proposedCoord.row(), proposedCoord.col())) {
+        if(!isInBounds(basin, proposedCoordinate)) {
             //check if valid tile on map
             return false;
         }
 
-        //ensure blizzard is not on top of proposed location
-        return !occupiedTileSet.contains(proposedCoord.toId());
+        //ensure blizzard is not at proposed location
+        return !occupiedTileSet.contains(proposedCoordinate.toId());
     }
 
-    private boolean isInBounds(int rowMax, int colMax, int row, int col) {
+    private boolean isInBounds(final Basin basin, final Coordinate proposedCoordinate) {
+        int row = proposedCoordinate.row();
+        int col = proposedCoordinate.col();
+        int rowMax = basin.getRows();
+        int colMax = basin.getCols();
 
         if(row == 0 && col == 1 || row == rowMax - 1 && col == colMax - 2) {
             //check start and finish locations explicitly
@@ -157,8 +177,6 @@ public class BlizzardBasin {
 
         int rows = inputLines.size();
         int cols = inputLines.getFirst().length();
-        Coordinate start = new Coordinate(0, 1);
-        Coordinate finish = new Coordinate(rows - 1, cols - 2);
         List<Blizzard> blizzards = new ArrayList<>();
 
         for (int i = 0; i < rows; i++) {
@@ -177,8 +195,6 @@ public class BlizzardBasin {
         return Basin.builder()
                 .rows(rows)
                 .cols(cols)
-                .start(start)
-                .finish(finish)
                 .blizzardPeriod((cols - 2) * (rows - 2))
                 .blizzards(blizzards)
                 .build();

@@ -12,8 +12,8 @@ import lombok.Data;
 @Builder
 @AllArgsConstructor
 public class Basin {
-    private final Coordinate start;
-    private final Coordinate finish;
+//    private Coordinate start;
+//    private Coordinate finish;
     private final Integer rows;
     private final Integer cols;
     private final Integer blizzardPeriod;
