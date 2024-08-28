@@ -53,16 +53,7 @@ public class BlizzardBasin {
 
     public Integer part1() {
         Basin basin = readFile();
-
-        int blizzardPeriod = (basin.getCols() - 2) * (basin.getRows() - 2);
-
-        Set<String> occupiedTileSet = basin.buildOccupiedTileSet();
-        //simulate blizzards with code below
-//        for (int i = 0; i < 10; i++) {
-//            basin.updateBlizzards();
-//            occupiedTileSet = basin.buildOccupiedTileSet();
-//        }
-
+        Set<String> occupiedTileSet;
 
         int round = 0;
         WalkState initial = WalkState.builder()
@@ -130,15 +121,13 @@ public class BlizzardBasin {
                                 final Basin basin,
                                 final Coordinate proposedCoord){
 
-        if(!isInBounds(basin.getRows(), basin.getCols(), proposedCoord.row(), proposedCoord.col())){
+        if(!isInBounds(basin.getRows(), basin.getCols(), proposedCoord.row(), proposedCoord.col())) {
             //check if valid tile on map
             return false;
-        }else if(occupiedTileSet.contains(proposedCoord.toId())){
-            //ensure blizzard is not on top of proposed location
-            return false;
-        }else{
-            return true;
         }
+
+        //ensure blizzard is not on top of proposed location
+        return !occupiedTileSet.contains(proposedCoord.toId());
     }
 
     private boolean isInBounds(int rowMax, int colMax, int row, int col) {
@@ -146,13 +135,10 @@ public class BlizzardBasin {
         if(row == 0 && col == 1 || row == rowMax - 1 && col == colMax - 2) {
             //check start and finish locations explicitly
             return true;
-        }else if(row > 0 && row < rowMax - 1 && col > 0 && col < colMax - 1){
-            //check if within borders
-            return true;
-        }else{
-            //whomp whomp
-            return false;
         }
+
+        //check if within borders
+        return row > 0 && row < rowMax - 1 && col > 0 && col < colMax - 1;
     }
 
     private Basin readFile() {
