@@ -20,7 +20,7 @@ public class Basin {
     private List<Blizzard> blizzards;
 
     public Set<String> buildOccupiedTileSet() {
-        return blizzards.stream().map(blizz -> blizz.getCurrentLocation().toId()).collect(Collectors.toSet());
+        return blizzards.stream().map(blizz -> blizz.currentLocation().toId()).collect(Collectors.toSet());
     }
 
     public void updateBlizzards() {

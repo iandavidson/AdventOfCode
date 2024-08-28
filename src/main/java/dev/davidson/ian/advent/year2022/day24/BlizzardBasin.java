@@ -95,7 +95,7 @@ public class BlizzardBasin {
             for (int i = 0; i < n; i++) {
                 WalkState current = queue.remove();
 
-                if (current.getCoordinate().equals(finish)) {
+                if (current.coordinate().equals(finish)) {
                     return round - 1;
                 }
 
@@ -120,14 +120,14 @@ public class BlizzardBasin {
 
         for (int[] shift : SHIFTS) {
 
-            Coordinate proposedCoordinate = new Coordinate(current.getCoordinate().row() + shift[0],
-                    current.getCoordinate().col() + shift[1]);
+            Coordinate proposedCoordinate = new Coordinate(current.coordinate().row() + shift[0],
+                    current.coordinate().col() + shift[1]);
 
             if (isValidMove(occupiedTileSet, basin, proposedCoordinate)) {
                 neighbors.add(WalkState.builder()
                         .coordinate(proposedCoordinate)
-                        .round(current.getRound() + 1)
-                        .cycleRemainder((current.getRound() + 1) % basin.getBlizzardPeriod())
+                        .round(current.round() + 1)
+                        .cycleRemainder((current.round() + 1) % basin.getBlizzardPeriod())
                         .build());
             }
         }

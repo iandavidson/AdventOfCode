@@ -1,17 +1,9 @@
 package dev.davidson.ian.advent.year2022.day24;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 
-@Data
 @Builder
-@AllArgsConstructor
-public class Blizzard {
-    private final Coordinate currentLocation;
-    private final Direction direction;
-
-
+public record Blizzard(Coordinate currentLocation, Direction direction) {
     public Blizzard updateBlizzard(final int totalRows, final int totalCols) {
 
         int[] shift = Direction.DIRECTION_MAP.get(direction);
