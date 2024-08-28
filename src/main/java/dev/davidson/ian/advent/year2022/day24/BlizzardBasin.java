@@ -42,33 +42,35 @@ public class BlizzardBasin {
 
     - Dimensions of real input(25 * 121), excluding border
         - total tracking as stated above 3025 tiles, cycle length 3025: 9150625
-        -> if we had a
+        -> if we had a completely opened grid with no blizzards.
      */
 
 
     public static void main(String[] args) {
         BlizzardBasin blizzardBasin = new BlizzardBasin();
         log.info("Part1: {}", blizzardBasin.part1());
+        log.info("Part2: {}", blizzardBasin.part2());
     }
 
-    public Integer part2(){
-        Basin basin = readFile();
-        Coordinate start   = new Coordinate(0, 1);
-        Coordinate finish = new Coordinate(basin.getRows() - 1, basin.getCols() - 2);
-        Integer count = execute(basin, start, finish);
-        count += execute(basin, finish, start);
-        count+= execute(basin, start, finish);
-        return count;
-    }
 
     public Integer part1() {
         Basin basin = readFile();
-        Coordinate start   = new Coordinate(0, 1);
+        Coordinate start = new Coordinate(0, 1);
         Coordinate finish = new Coordinate(basin.getRows() - 1, basin.getCols() - 2);
         return execute(basin, start, finish);
     }
 
-    private Integer execute(final Basin basin, final Coordinate start, final Coordinate finish){
+    public Integer part2() {
+        Basin basin = readFile();
+        Coordinate start = new Coordinate(0, 1);
+        Coordinate finish = new Coordinate(basin.getRows() - 1, basin.getCols() - 2);
+        Integer count = execute(basin, start, finish);
+        count += execute(basin, finish, start) + 1;
+        count += execute(basin, start, finish) + 1;
+        return count;
+    }
+
+    private Integer execute(final Basin basin, final Coordinate start, final Coordinate finish) {
         Set<String> occupiedTileSet;
 
         int round = 0;
@@ -94,7 +96,7 @@ public class BlizzardBasin {
                 WalkState current = queue.remove();
 
                 if (current.getCoordinate().equals(finish)) {
-                    return round -1;
+                    return round - 1;
                 }
 
                 List<WalkState> validNeighbors = findValidNeighbors(occupiedTileSet, current, basin);
@@ -121,7 +123,7 @@ public class BlizzardBasin {
             Coordinate proposedCoordinate = new Coordinate(current.getCoordinate().row() + shift[0],
                     current.getCoordinate().col() + shift[1]);
 
-            if(isValidMove(occupiedTileSet, basin, proposedCoordinate)){
+            if (isValidMove(occupiedTileSet, basin, proposedCoordinate)) {
                 neighbors.add(WalkState.builder()
                         .coordinate(proposedCoordinate)
                         .round(current.getRound() + 1)
@@ -135,9 +137,9 @@ public class BlizzardBasin {
 
     private boolean isValidMove(final Set<String> occupiedTileSet,
                                 final Basin basin,
-                                final Coordinate proposedCoordinate){
+                                final Coordinate proposedCoordinate) {
 
-        if(!isInBounds(basin, proposedCoordinate)) {
+        if (!isInBounds(basin, proposedCoordinate)) {
             //check if valid tile on map
             return false;
         }
@@ -152,7 +154,7 @@ public class BlizzardBasin {
         int rowMax = basin.getRows();
         int colMax = basin.getCols();
 
-        if(row == 0 && col == 1 || row == rowMax - 1 && col == colMax - 2) {
+        if (row == 0 && col == 1 || row == rowMax - 1 && col == colMax - 2) {
             //check start and finish locations explicitly
             return true;
         }
