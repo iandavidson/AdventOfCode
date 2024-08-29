@@ -17,12 +17,12 @@ public class FullOfHotAir {
     private static final String MINI_PATH = "adventOfCode/2022/day25/mini.txt";
 
     private static final Map<Character, Long> SNAFU_TO_VALUE = Map.of(
-       '2', 2L,
-       '1', 1L,
-       '0', 0L,
-       '-', -1L,
-       '=', -2L
-    ) ;
+            '2', 2L,
+            '1', 1L,
+            '0', 0L,
+            '-', -1L,
+            '=', -2L
+    );
 
     private static final Map<Integer, Character> VALUE_TO_SNAFU = Map.of(
             2, '2',
@@ -32,32 +32,27 @@ public class FullOfHotAir {
             -2, '='
     );
 
-    public static void main(String [] args){
+    public static void main(String[] args) {
         FullOfHotAir fullOfHotAir = new FullOfHotAir();
         log.info("Part1: {}", fullOfHotAir.part1());
     }
 
-    public String part1(){
+    public String part1() {
         List<String> numbers = readFile();
         Long sum = 0L;
 
-        for(String number : numbers){
+        for (String number : numbers) {
             sum += SNAFUtoLong(number);
         }
 
         return convertToSNAFU(sum);
-        //not right: 1---0-2=-==-12=2
-//        return sum.toString();
-
-        //22942462042 decimal
-        //snafu: 1---0-2=-==-12=2
     }
 
-    private String convertToSNAFU(Long value){
+    private String convertToSNAFU(Long value) {
         //convert to base 5
         log.info("decimal: {}", value);
         StringBuilder base5 = new StringBuilder();
-        while(value > 0){
+        while (value > 0) {
             base5.append(value % 5);
             value /= 5;
         }
@@ -67,58 +62,58 @@ public class FullOfHotAir {
         //convert base5 -> SNAFU
         StringBuilder snafu = new StringBuilder();
         boolean carry = false;
-        for(int i = 0 ; i < base.length(); i++){
+        for (int i = 0; i < base.length(); i++) {
             int current = Character.getNumericValue(base.charAt(i));
-            if(carry){
+            if (carry) {
                 current += 1;
                 carry = false;
             }
 
-            if(current > -1 && current < 3){
+            if (current > -1 && current < 3) {
                 snafu.append(current);
-            }else if(current == 3) {
+            } else if (current == 3) {
                 snafu.append('=');
                 carry = true;
-            }else if(current == 4) {
+            } else if (current == 4) {
                 snafu.append('-');
                 carry = true;
-            }else{
+            } else {
                 snafu.append('0');
                 carry = true;
             }
         }
 
-        if(carry){
+        if (carry) {
             snafu.append('1');
         }
 
         return snafu.reverse().toString();
     }
 
-    private Long SNAFUtoLong(final String value){
+    private Long SNAFUtoLong(final String value) {
         long tempValue = 0L;
-        char [] num = new StringBuilder(value).reverse().toString().toCharArray();
+        char[] num = new StringBuilder(value).reverse().toString().toCharArray();
         int n = num.length;
         long coefficient = 1L;
-        for(int i = 0; i < n; i++){
-            tempValue += (long) SNAFU_TO_VALUE.get(num[i]) * coefficient;
+        for (int i = 0; i < n; i++) {
+            tempValue += SNAFU_TO_VALUE.get(num[i]) * coefficient;
             coefficient *= 5L;
         }
 
         return tempValue;
     }
 
-    private List<String> readFile(){
+    private List<String> readFile() {
         List<String> numbers = new ArrayList<>();
 
         ClassLoader cl = FullOfHotAir.class.getClassLoader();
         File file = new File(Objects.requireNonNull(cl.getResource(INPUT_PATH)).getFile());
-        try{
+        try {
             Scanner scanner = new Scanner(file);
-            while(scanner.hasNextLine()){
+            while (scanner.hasNextLine()) {
                 numbers.add(scanner.nextLine());
             }
-        }catch(FileNotFoundException e) {
+        } catch (FileNotFoundException e) {
             throw new IllegalStateException("Couldn't read file at provided path");
         }
         return numbers;
