@@ -70,19 +70,19 @@ public class MonkeyMap {
 //        int row = (state.getCoordinate().row() +1) * 1000;
 //        int col =  (state.getCoordinate().col() +1) * 4;
 //        return row + col + (state.getDirectionIndex());
-
+        return 0;
     }
 
     private TILE[][][] buildCube(final Grid grid){
-        TILE[][][] cube = new TILE[CUBE_LENGTH][CUBE_LENGTH][CUBE_LENGTH];
+        TILE[][][] cube = new TILE[6][CUBE_LENGTH][CUBE_LENGTH];
         //x,y,z -> row, col, depth
 
         /*
-     12
-     3
-    45
-    6
-         */
+        X12
+        X3X
+        45X
+        6XX
+             */
 
 
         //1 => front (x,y,0); no rotation
@@ -102,7 +102,7 @@ public class MonkeyMap {
 
         //6 => top (x,CUBE_LEN,z); rotate right once
         // -> plane (150, 0) -> (199, 49)
-
+        return null;
     }
 
     /*
