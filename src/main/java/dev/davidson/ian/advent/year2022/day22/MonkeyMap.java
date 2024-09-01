@@ -75,18 +75,60 @@ public class MonkeyMap {
 
     private TILE[][][] buildCube(final Grid grid){
         TILE[][][] cube = new TILE[6][CUBE_LENGTH][CUBE_LENGTH];
-        //x,y,z -> row, col, depth
+
+        //0
+        for(int row = 0; row < 50; row++){
+            for(int col = 50; col < 100; col++){
+                cube[0][row][col-50] = grid.getGrid().get(row).get(col);
+            }
+        }
+
+        //1
+        for(int row = 0; row < 50; row++){
+            for(int col = 100; col < 150; col++){
+                cube[1][row][col-100] = grid.getGrid().get(row).get(col);
+            }
+        }
+
+        //2
+        for(int row = 50; row < 100; row++){
+            for(int col = 50; col < 100; col++){
+                cube[2][row-50][col-50] = grid.getGrid().get(row).get(col);
+            }
+        }
+
+        //3
+        for(int row = 100; row < 150; row++){
+            for(int col = 0; col < 50; col++){
+                cube[3][row-100][col] = grid.getGrid().get(row).get(col);
+            }
+        }
+
+
+        //4
+        for(int row = 100; row < 150; row++){
+            for(int col = 50; col < 100; col++){
+                cube[4][row-100][col-50] = grid.getGrid().get(row).get(col);
+            }
+        }
+
+        //5
+        for(int row = 150; row < 200; row++){
+            for(int col =0; col < 50; col++){
+                cube[5][row-150][col] = grid.getGrid().get(row).get(col);
+            }
+        }
 
         /*
-        X12
-        X3X
-        45X
-        6XX
+        X01
+        X2X
+        34X
+        5XX
              */
 
 
         //1 => front (x,y,0); no rotation
-        // -> plane (0, 50) -> (49, 99)
+        // -> plane (0, 49) -> (49, 99)
 
         //2 => rightside (CUBE_LEN,y,z); no rotation
         // -> plane (0, 100) -> (49, 149)
@@ -102,7 +144,7 @@ public class MonkeyMap {
 
         //6 => top (x,CUBE_LEN,z); rotate right once
         // -> plane (150, 0) -> (199, 49)
-        return null;
+        return cube;
     }
 
     /*
