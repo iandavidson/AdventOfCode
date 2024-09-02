@@ -2,9 +2,7 @@ package dev.davidson.ian.advent.year2016.day19;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.Set;
@@ -22,6 +20,7 @@ public class AnElephantNamedJoseph {
         log.info("Part2: {}", anElephantNamedJoseph.part2());
     }
 
+    //Josephus problem
     public int part1() {
         int circleSize = readFile();
         Set<Integer> elvesLeft = new HashSet<>();
@@ -49,23 +48,19 @@ public class AnElephantNamedJoseph {
         return elvesLeft.stream().toList().getFirst() + 1;
     }
 
+
     public long part2() {
         int circleSize = readFile();
-        List<Integer> elvesLeft = new ArrayList<>();
-        for (int i = 0; i < circleSize; i++) {
-            elvesLeft.add(i);
+
+        int result = 1;
+        for (int i = 1; i < circleSize; i++) {
+            result = result % i + 1;
+            if (result > (i + 1) / 2) {
+                result++;
+            }
         }
 
-        int i = 0;
-        while (elvesLeft.size() > 1) {
-            i = i % elvesLeft.size();
-            int j = (i + elvesLeft.size()/2) % elvesLeft.size();
-
-            elvesLeft.remove(j);
-            i++;
-        }
-
-        return elvesLeft.getFirst() + 1;
+        return result;
     }
 
     private Integer readFile() {
