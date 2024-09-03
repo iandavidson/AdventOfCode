@@ -9,6 +9,7 @@ import dev.davidson.ian.advent.year2016.day21.Instruction.SwapPositionInstructio
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Scanner;
@@ -22,10 +23,12 @@ public class ScrambledLettersAndHash {
 
     public static void main(String [] args){
         String sampleInput = "abcde";
-        String realInput = "abcdefgh";
+        String realInputPart1 = "abcdefgh";
+        String realInputPart2 = "fbgdceah";
         ScrambledLettersAndHash scrambledLettersAndHash = new ScrambledLettersAndHash();
-        List<Applyable> instructions = readFile(SAMPLE_PATH);
-        log.info("Part1: {}", scrambledLettersAndHash.part1(instructions, sampleInput));
+        List<Applyable> instructions = readFile(INPUT_PATH);
+        log.info("Part1: {}", scrambledLettersAndHash.part1(instructions, realInputPart1));
+        log.info("Part2: {}", scrambledLettersAndHash.part2(instructions, realInputPart2));
     }
 
     public String part1(final List<Applyable> instructions, final String sequence){
@@ -37,7 +40,15 @@ public class ScrambledLettersAndHash {
         return result;
     }
 
+    public String part2(final List<Applyable> instructions, final String sequence){
+        String result = sequence;
+        Collections.reverse(instructions);
+        for(Applyable applyable: instructions) {
+            result = applyable.apply(result);
+        }
 
+        return result;
+    }
 
     private static List<Applyable> readFile(final String filePath){
         List<Applyable> input = new ArrayList<>();
