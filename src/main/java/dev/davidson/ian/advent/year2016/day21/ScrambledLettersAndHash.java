@@ -1,5 +1,11 @@
 package dev.davidson.ian.advent.year2016.day21;
 
+import dev.davidson.ian.advent.year2016.day21.Instruction.MovePositionInstruction;
+import dev.davidson.ian.advent.year2016.day21.Instruction.ReversePositionsInstruction;
+import dev.davidson.ian.advent.year2016.day21.Instruction.RotateInstruction;
+import dev.davidson.ian.advent.year2016.day21.Instruction.RotatePositionInstruction;
+import dev.davidson.ian.advent.year2016.day21.Instruction.SwapLetterInstruction;
+import dev.davidson.ian.advent.year2016.day21.Instruction.SwapPositionInstruction;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -51,6 +57,22 @@ public class ScrambledLettersAndHash {
     }
 
     private static Applyable parseInstruction(final String line){
+        String [] words = line.split("\\s+");
 
+        if(line.startsWith("swap position")){
+            return new SwapPositionInstruction(Integer.parseInt(words[2]), Integer.parseInt(words[5]));
+        }else if(line.startsWith("swap letter")){
+            return new SwapLetterInstruction(words[2].charAt(0), words[5].charAt(0));
+        }else if(line.startsWith("reverse")){
+            return new ReversePositionsInstruction(Integer.parseInt(words[2]), Integer.parseInt(words[4]));
+        }else if(line.startsWith("rotate based")){
+            return new RotatePositionInstruction(words[6].charAt(0));
+        }else if(line.startsWith("rotate")){
+            return new RotateInstruction(Integer.parseInt(words[2]), words[1].equals("left") ? RotationDirection.Left : RotationDirection.Right);
+        }else if(line.startsWith("move")){
+            return new MovePositionInstruction(Integer.parseInt(words[2]), Integer.parseInt(words[5]));
+        }else{
+            throw new IllegalStateException();
+        }
     }
 }
