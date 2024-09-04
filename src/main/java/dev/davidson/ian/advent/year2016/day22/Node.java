@@ -23,21 +23,17 @@ public record Node(String filename, Coordinate coordinate, Integer size, Integer
         );
     }
 
-    public Integer x(){
+    public Integer x() {
         return coordinate.x();
     }
 
-    public Integer y(){
+    public Integer y() {
         return coordinate.y();
     }
 
     public boolean canFit(final Node other) {
-        if(used == 0 || this.equals(other)){
+        if (used == 0 || this.equals(other)) {
             return false;
-        } else if(used <= other.available()){
-            return true;
-        } else{
-            return false;
-        }
+        } else return used <= other.available();
     }
 }
