@@ -51,17 +51,9 @@ public class LeonardoMonorail {
                 }
                 case cpy -> {
                     String label = instruction.operands().get(1).label();
-                    if (instruction.operands().getFirst().label() == null) {
-                        //copy 1 a
-                        registerMap.put(
-                                label,
-                                toValue(registerMap, instruction.operands().getFirst()));
-                    } else {
-                        //copy c b
-                        registerMap.put(
-                                label,
-                                toValue(registerMap, instruction.operands().getFirst()));
-                    }
+                    registerMap.put(
+                            label,
+                            toValue(registerMap, instruction.operands().getFirst()));
                     current++;
 
                 }
