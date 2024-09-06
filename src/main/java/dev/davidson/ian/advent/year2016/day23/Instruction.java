@@ -43,4 +43,11 @@ public record Instruction(
 
         return new Instruction(nextInstructionType, operands, nextValid);
     }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(instructionType.toString());
+        operands.forEach(sb::append);
+        return sb.toString();
+    }
 }

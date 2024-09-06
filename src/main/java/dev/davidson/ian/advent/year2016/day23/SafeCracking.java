@@ -18,11 +18,11 @@ public class SafeCracking {
 
     public static void main(String[] args) {
         SafeCracking safeCracking = new SafeCracking();
-        List<Instruction> instructions = readFile(INPUT_PATH);
-        log.info("Part1: {}", safeCracking.part1(instructions));
+        log.info("Part1: {}", safeCracking.execute(true));
+        log.info("Part2: {}", safeCracking.execute(false));
     }
 
-    private static List<Instruction> readFile(final String filePath) {
+    private List<Instruction> readFile(final String filePath) {
         List<Instruction> instructions = new ArrayList<>();
 
         ClassLoader cl = SafeCracking.class.getClassLoader();
@@ -39,19 +39,26 @@ public class SafeCracking {
         return instructions;
     }
 
-    public Integer part1(final List<Instruction> instructions) {
-        Map<Character, Integer> registers = new HashMap<>();
+    public Long execute(final boolean part1) {
+        List<Instruction> instructions = readFile(INPUT_PATH);
+        Map<Character, Long> registers = new HashMap<>();
         int n = instructions.size();
-        registers.put('a', 7);
-        registers.put('b', 0);
-        registers.put('c', 0);
-        registers.put('d', 0);
+        registers.put('a', part1 ? 7L : 12L);
+        registers.put('b', 0L);
+        registers.put('c', 0L);
+        registers.put('d', 0L);
         int currentIndex = 0;
         while (currentIndex < n) {
-            log.info("currentIndex: {}", currentIndex);
+
             Instruction current = instructions.get(currentIndex);
+
             if (!current.valid()) {
                 currentIndex++;
+                continue;
+            } else if (currentIndex + 4 < n && canMultiply(instructions, currentIndex)) {
+                registers.put('a', registers.get('b') * registers.get('d'));
+                registers.put('d', 0L);
+                currentIndex += 5;
                 continue;
             }
 
@@ -78,35 +85,52 @@ public class SafeCracking {
                     currentIndex++;
                 }
                 case jnz -> {
-                    Integer condValue = toValue(registers, current.operands().getFirst());
+                    Long condValue = toValue(registers, current.operands().getFirst());
                     currentIndex += condValue != 0
                             ? toValue(registers, current.operands().get(1))
                             : 1;
                 }
                 case tgl -> {
-                    int toBeToggledIndex = currentIndex + toValue(registers, current.operands().getFirst());
+                    long toBeToggledIndex = currentIndex + toValue(registers, current.operands().getFirst());
                     if (toBeToggledIndex > -1 && toBeToggledIndex < n) {
-                        Instruction temp = instructions.get(toBeToggledIndex);
+                        Instruction temp = instructions.get((int) toBeToggledIndex);
                         Instruction next = temp.toggle();
-                        instructions.set(toBeToggledIndex, next);
+                        instructions.set((int) toBeToggledIndex, next);
                     }
                     currentIndex++;
                 }
                 case null, default -> throw new IllegalStateException("Shouldn't be here");
             }
-
         }
 
         return registers.get('a');
     }
 
-    private Integer toValue(final Map<Character, Integer> map, final Operand operand) {
+
+    /**
+     * Determine if we have this; starting at currentIndex
+     * inc a
+     * dec c
+     * jnz c -2
+     * dec d
+     * jnz d -5
+     *
+     * Skip by doing:
+     * a = b * d
+     */
+    private boolean canMultiply(List<Instruction> instructions, int currentIndex) {
+        return instructions.get(currentIndex).toString().startsWith("inc a")
+                && instructions.get(currentIndex + 1).toString().startsWith("dec c")
+                && instructions.get(currentIndex + 2).toString().startsWith("jnz d -5")
+                && instructions.get(currentIndex + 3).toString().startsWith("dec d")
+                && instructions.get(currentIndex + 4).toString().startsWith("jnz d -5");
+    }
+
+    private Long toValue(final Map<Character, Long> map, final Operand operand) {
         if (operand.numOp() != null) {
             return operand.numOp();
         } else {
             return map.get(operand.charOp());
         }
     }
-
-
 }
