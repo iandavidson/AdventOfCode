@@ -3,9 +3,13 @@ package dev.davidson.ian.advent.year2016.day24;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
@@ -15,6 +19,13 @@ public class AirDuctSpelunking {
     private static final Character WALL = '#';
     private static final Character SPACE = '.';
 
+    private static final List<int[]> SHIFTS = List.of(
+            new int[]{1, 0},
+            new int[]{-1, 0},
+            new int[]{0, 1},
+            new int[]{0, -1}
+    );
+
     public static void main(String[] args) {
         AirDuctSpelunking airDuctSpelunking = new AirDuctSpelunking();
         log.info("Part1: {}", airDuctSpelunking.part1());
@@ -22,20 +33,56 @@ public class AirDuctSpelunking {
 
 
     public Integer part1() {
+        int[][] points = new int[8][2]; //r,c
         List<List<Character>> grid = readFile();
         int rows = grid.size();
         int cols = grid.getFirst().size();
 
-        int r = 1;
-        int c = 1;
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                char ch = grid.get(i).get(j);
+                if (Character.isDigit(ch)) {
+                    points[ch - '0'][0] = i;
+                    points[ch - '0'][1] = j;
+                }
+            }
+        }
 
-        /*
-        start at 1,1;
-
-         */
-
+        int[][] distances = new int[8][8];
+        for (int i = 0; i < points.length - 1; i++) {
+            for (int j = i + 1; j < points.length; j++) {
+                int distance = shortestPath(points[i], points[j], grid);
+                distances[i][j] = distance;
+                distances[j][i] = distance;
+            }
+        }
 
         return 0;
+    }
+
+    private Integer shortestPath(final int[] start, final int[] finish, final List<List<Character>> grid) {
+        Set<String> visited = new HashSet<>();
+        visited.add(toKey(start));
+
+        Queue<int[]> queue = new LinkedList<>();
+        queue.add(start);
+
+        int distanceTraveled = 0;
+        while (queue.isEmpty()) {
+            int n = queue.size();
+            for (int i = 0; i < n; i++) {
+                int[] current = queue.remove();
+
+                List<int[]> neighbors = findNeighbors(current, grid);
+            }
+        }
+
+        return -1;
+    }
+
+
+    private String toKey(final int[] rc) {
+        return rc[0] + ":" + rc[1];
     }
 
     /*
