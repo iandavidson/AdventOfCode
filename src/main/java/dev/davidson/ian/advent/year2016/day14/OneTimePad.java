@@ -25,13 +25,12 @@ public class OneTimePad {
 
     public Integer part1() {
         String key = readFile();
-        Hasher hasher = new Hasher();
 
         int keyCount = 0;
         int indexAtMostRecent = -1;
         for (int i = 0; i < Integer.MAX_VALUE; i++) {
             String tempKey = key + i;
-            String hex = hasher.encodeToHex(tempKey, 1);
+            String hex = Hasher.encodeToHex(tempKey, 1);
 
             Matcher matcher = THREE_IN_A_ROW.matcher(hex);
             if (matcher.find()) {
@@ -39,7 +38,7 @@ public class OneTimePad {
                 String fiveMatch = repeated + repeated.substring(1);
 
                 for (int j = i + 1; j < i + 1001; j++) {
-                    String complement = hasher.encodeToHex(key + j, 1);
+                    String complement = Hasher.encodeToHex(key + j, 1);
                     if (complement.contains(fiveMatch)) {
                         indexAtMostRecent = i;
                         keyCount++;
@@ -59,7 +58,6 @@ public class OneTimePad {
     public Integer part2() {
         //SHOULD BE HASHING 1 time then 2016 more times, update to 2017
         String key = readFile();
-        Hasher hasher = new Hasher();
 
         Map<Integer, String> cache = new HashMap<>();
 
@@ -72,7 +70,7 @@ public class OneTimePad {
             if (cache.containsKey(i)) {
                 hex = cache.get(i);
             } else {
-                hex = hasher.encodeToHex(tempKey, 2017);
+                hex = Hasher.encodeToHex(tempKey, 2017);
                 cache.put(i, hex);
             }
 
@@ -86,7 +84,7 @@ public class OneTimePad {
                     if (cache.containsKey(j)) {
                         complement = cache.get(j);
                     } else {
-                        complement = hasher.encodeToHex(key + j, 2017);
+                        complement = Hasher.encodeToHex(key + j, 2017);
                         cache.put(j, complement);
                     }
 

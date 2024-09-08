@@ -1,4 +1,4 @@
-package dev.davidson.ian.advent.year2016.day14;
+package dev.davidson.ian.advent.year2016.day17;
 
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
@@ -20,16 +20,7 @@ public class Hasher {
         return MD;
     }
 
-    public static String encodeToHex(final String raw, final Integer times) {
-        String input = raw;
-        for (int i = 0; i < times; i++) {
-            input = encodeToHex(input);
-        }
-
-        return input;
-    }
-
-    private static String encodeToHex(final String raw) {
+    public static String encodeToHex(final String raw) {
         MessageDigest md = getMessageDigest();
         byte[] digest = md.digest(raw.getBytes(StandardCharsets.UTF_8));
         StringBuilder hexString = new StringBuilder();
