@@ -1,5 +1,6 @@
 package dev.davidson.ian.advent.year2016.day25;
 
+import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -14,7 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 public class ClockSignal {
 
     private static final String INPUT_PATH = "adventOfCode/2016/day25/input.txt";
-
+    private static final String MATCH = "01010101010101";
     public static void main(String[] args) {
         ClockSignal clockSignal = new ClockSignal();
         log.info("Part1: {}", clockSignal.part1());
@@ -23,21 +24,32 @@ public class ClockSignal {
     public Long part1() {
         List<Instruction> instructions = readFile();
 
-        int currentIndex = 0;
-
         Map<Character, Long> registers = new HashMap<>();
         registers.put('a', 1L);
         registers.put('b', 0L);
         registers.put('c', 0L);
         registers.put('d', 0L);
 
+        boolean found = false;
+        Long aStart = 1L;
+        while(!found) {
+            registers.put('a', aStart);
+            if(findSignal(registers, instructions)){
+                return aStart;
+            }
 
+            aStart++;
+        }
+        return -1L;
+    }
+
+    private boolean findSignal(final Map<Character, Long> registers, final List<Instruction> instructions){
+        StringBuilder outBuild = new StringBuilder();
+        int currentIndex = 0;
         while (currentIndex > -1 && currentIndex < instructions.size()) {
             Instruction current = instructions.get(currentIndex);
 
-//            if() can do multiplication optimization
-
-            switch(current.instructionType()){
+            switch (current.instructionType()) {
                 case inc -> {
                     Character label = current.operands().getFirst().charOp();
                     registers.put(label,
@@ -66,32 +78,16 @@ public class ClockSignal {
                             : 1;
                 }
                 case out -> {
-                    log.info("out: {}", toValue(registers, current.operands().getFirst()));
+                    outBuild.append(toValue(registers, current.operands().getFirst()));
+                    if(outBuild.length() == MATCH.length()){
+                        return outBuild.toString().equals(MATCH);
+                    }
+                    currentIndex++;
                 }
             }
-
         }
-        return -1L;
-    }
 
-
-    /**
-     * Determine if we have this; starting at currentIndex
-     * inc a
-     * dec c
-     * jnz c -2
-     * dec d
-     * jnz d -5
-     *
-     * Skip by doing:
-     * a = b * d
-     */
-    private boolean canMultiply(List<dev.davidson.ian.advent.year2016.day23.Instruction> instructions, int currentIndex) {
-        return instructions.get(currentIndex).toString().startsWith("inc a")
-                && instructions.get(currentIndex + 1).toString().startsWith("dec c")
-                && instructions.get(currentIndex + 2).toString().startsWith("jnz d -5")
-                && instructions.get(currentIndex + 3).toString().startsWith("dec d")
-                && instructions.get(currentIndex + 4).toString().startsWith("jnz d -5");
+        return false;
     }
 
     private Long toValue(final Map<Character, Long> map, final Operand operand) {
