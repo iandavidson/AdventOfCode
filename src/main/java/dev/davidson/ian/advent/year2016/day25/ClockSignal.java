@@ -1,6 +1,5 @@
 package dev.davidson.ian.advent.year2016.day25;
 
-import com.fasterxml.jackson.databind.deser.DataFormatReaders;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -16,6 +15,7 @@ public class ClockSignal {
 
     private static final String INPUT_PATH = "adventOfCode/2016/day25/input.txt";
     private static final String MATCH = "01010101010101";
+
     public static void main(String[] args) {
         ClockSignal clockSignal = new ClockSignal();
         log.info("Part1: {}", clockSignal.part1());
@@ -32,9 +32,9 @@ public class ClockSignal {
 
         boolean found = false;
         Long aStart = 1L;
-        while(!found) {
+        while (!found) {
             registers.put('a', aStart);
-            if(findSignal(registers, instructions)){
+            if (findSignal(registers, instructions)) {
                 return aStart;
             }
 
@@ -43,7 +43,7 @@ public class ClockSignal {
         return -1L;
     }
 
-    private boolean findSignal(final Map<Character, Long> registers, final List<Instruction> instructions){
+    private boolean findSignal(final Map<Character, Long> registers, final List<Instruction> instructions) {
         StringBuilder outBuild = new StringBuilder();
         int currentIndex = 0;
         while (currentIndex > -1 && currentIndex < instructions.size()) {
@@ -79,7 +79,7 @@ public class ClockSignal {
                 }
                 case out -> {
                     outBuild.append(toValue(registers, current.operands().getFirst()));
-                    if(outBuild.length() == MATCH.length()){
+                    if (outBuild.length() == MATCH.length()) {
                         return outBuild.toString().equals(MATCH);
                     }
                     currentIndex++;
