@@ -66,8 +66,8 @@ public class MonkeyMap {
         List<String> instructions = new ArrayList<>();
         Grid grid = readFile(instructions);
         TILE[][][] cube = buildCube(grid);
-        Map<Integer, Map<Direction, Integer>> wrapMap = wrapMap(cube);
-        Map<Integer, Map<Direction, Direction>> deltaMap = transformMap(cube);
+//        Map<Integer, Map<Direction, Integer>> wrapMap = wrapMap(cube);
+//        Map<Integer, Map<Direction, Direction>> deltaMap = transformMap(cube);
         CubeMovementState current = new CubeMovementState(
                 0,
                 new Coordinate(0, 0),
@@ -80,15 +80,20 @@ public class MonkeyMap {
                 current = current.changeDirection(instruction);
             } else {
                 //move dist
-                move(grid, state, Integer.parseInt(instruction));
+                current = current.moveDistance(Integer.parseInt(instruction, cube));
             }
         }
+
+
 
 
 //        int row = (state.getCoordinate().row() +1) * 1000;
 //        int col =  (state.getCoordinate().col() +1) * 4;
 //        return row + col + (state.getDirectionIndex());
-        return 0;
+
+        Coordinate finish = cubeToFlatCoordinate(current);
+
+        return ((finish.row()+1) * 1000) + ((finish.col()+1) * 4) + current.getDirection().ordinal();
     }
 
     private TILE[][][] buildCube(final Grid grid) {
@@ -140,120 +145,37 @@ public class MonkeyMap {
         return cube;
     }
 
-    private Map<Integer, Map<Direction, Integer>> wrapMap(final TILE[][][] cube) {
-        Map<Integer, Map<Direction, Integer>> map = new HashMap<>();
 
-        //0
-        map.put(0, new HashMap<>());
-        map.get(0).put(Direction.L, 3);
-        map.get(0).put(Direction.R, 1);
-        map.get(0).put(Direction.U, 5);
-        map.get(0).put(Direction.D, 2);
+    private Coordinate cubeToFlatCoordinate(final CubeMovementState cubeMovementState){
+        int rowAdd = 0;
+        int colAdd = 0;
+        switch(cubeMovementState.getCubeFace()){
+            case 0 -> {
+                colAdd = 50;
+            }
+            case 1 -> {
+                colAdd = 100;
+            }
+            case 2 -> {
+                colAdd = 50;
+                rowAdd = 50;
+            }
+            case 3 -> {
+                rowAdd = 100;
+            }
+            case 4 -> {
+                colAdd = 50;
+                rowAdd = 100;
+            }
+            case 5 -> {
+                rowAdd = 150;
+            }
+        }
 
-        //1
-        map.put(1, new HashMap<>());
-        map.get(1).put(Direction.L, 0);
-        map.get(1).put(Direction.R, 4);
-        map.get(1).put(Direction.U, 5);
-        map.get(1).put(Direction.D, 2);
-
-        //2
-        map.put(2, new HashMap<>());
-        map.get(2).put(Direction.L, 3);
-        map.get(2).put(Direction.R, 1);
-        map.get(2).put(Direction.U, 0);
-        map.get(2).put(Direction.D, 4);
-
-        //3
-        map.put(3, new HashMap<>());
-        map.get(3).put(Direction.L, 0);
-        map.get(3).put(Direction.R, 4);
-        map.get(3).put(Direction.U, 2);
-        map.get(3).put(Direction.D, 5);
-
-        //4
-        map.put(4, new HashMap<>());
-        map.get(4).put(Direction.L, 3);
-        map.get(4).put(Direction.R, 1);
-        map.get(4).put(Direction.U, 2);
-        map.get(4).put(Direction.D, 5);
-
-        //5
-        map.put(5, new HashMap<>());
-        map.get(5).put(Direction.L, 0);
-        map.get(5).put(Direction.R, 4);
-        map.get(5).put(Direction.U, 3);
-        map.get(5).put(Direction.D, 1);
-
-        return map;
+        return new Coordinate(
+                cubeMovementState.getCoordinate().row() + rowAdd,
+                cubeMovementState.getCoordinate().col() + colAdd);
     }
-
-    private Map<Integer, Map<Direction, Direction>> transformMap(final TILE[][][] cube) {
-        Map<Integer, Map<Direction, Direction>> map = new HashMap<>();
-
-        //0
-        map.put(0, new HashMap<>());
-        map.get(0).put(Direction.L, Direction.R);
-        map.get(0).put(Direction.R, Direction.R);
-        map.get(0).put(Direction.U, Direction.R);
-        map.get(0).put(Direction.D, Direction.D);
-
-        //1
-        map.put(1, new HashMap<>());
-        map.get(1).put(Direction.L, Direction.L);
-        map.get(1).put(Direction.R, Direction.L);
-        map.get(1).put(Direction.U, Direction.U);
-        map.get(1).put(Direction.D, Direction.L);
-
-        //2
-        map.put(2, new HashMap<>());
-        map.get(2).put(Direction.L, Direction.D);
-        map.get(2).put(Direction.R, Direction.U);
-        map.get(2).put(Direction.U, Direction.U);
-        map.get(2).put(Direction.D, Direction.D);
-
-        //3
-        map.put(3, new HashMap<>());
-        map.get(3).put(Direction.L, Direction.R);
-        map.get(3).put(Direction.R, Direction.R);
-        map.get(3).put(Direction.U, Direction.R);
-        map.get(3).put(Direction.D, Direction.D);
-
-        //4
-        map.put(4, new HashMap<>());
-        map.get(4).put(Direction.L, Direction.L);
-        map.get(4).put(Direction.R, Direction.L);
-        map.get(4).put(Direction.U, Direction.U);
-        map.get(4).put(Direction.D, Direction.L);
-
-        //5
-        map.put(5, new HashMap<>());
-        map.get(5).put(Direction.L, Direction.D);
-        map.get(5).put(Direction.R, Direction.U);
-        map.get(5).put(Direction.U, Direction.U);
-        map.get(5).put(Direction.D, Direction.D);
-
-        return map;
-    }
-
-    /*
-
-
-     12
-     3
-    45
-    6
-
-    1: R: 2
-    1: D: 3
-    1: U
-
-     ..
-     .
-    ..
-    .
-     */
-
 
     private Grid readFile(final List<String> instructions) {
         List<List<TILE>> initialGrid = new ArrayList<>();
