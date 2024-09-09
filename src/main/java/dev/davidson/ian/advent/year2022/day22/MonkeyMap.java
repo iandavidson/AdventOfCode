@@ -80,19 +80,16 @@ public class MonkeyMap {
                 current = current.changeDirection(instruction);
             } else {
                 //move dist
-                current = current.moveDistance(Integer.parseInt(instruction, cube));
+                current = current.moveDistance(Integer.parseInt(instruction), cube);
             }
         }
-
-
-
 
 //        int row = (state.getCoordinate().row() +1) * 1000;
 //        int col =  (state.getCoordinate().col() +1) * 4;
 //        return row + col + (state.getDirectionIndex());
 
         Coordinate finish = cubeToFlatCoordinate(current);
-
+        //too low : 107193
         return ((finish.row()+1) * 1000) + ((finish.col()+1) * 4) + current.getDirection().ordinal();
     }
 
