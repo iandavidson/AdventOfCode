@@ -4,9 +4,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import java.util.regex.Matcher;
@@ -66,8 +64,6 @@ public class MonkeyMap {
         List<String> instructions = new ArrayList<>();
         Grid grid = readFile(instructions);
         TILE[][][] cube = buildCube(grid);
-//        Map<Integer, Map<Direction, Integer>> wrapMap = wrapMap(cube);
-//        Map<Integer, Map<Direction, Direction>> deltaMap = transformMap(cube);
         CubeMovementState current = new CubeMovementState(
                 0,
                 new Coordinate(0, 0),
@@ -80,17 +76,12 @@ public class MonkeyMap {
                 current = current.changeDirection(instruction);
             } else {
                 //move dist
-                current = current.moveDistance(Integer.parseInt(instruction), cube);
+                current = CubeMovementState.moveDistance(current, Integer.parseInt(instruction), cube);
             }
         }
 
-//        int row = (state.getCoordinate().row() +1) * 1000;
-//        int col =  (state.getCoordinate().col() +1) * 4;
-//        return row + col + (state.getDirectionIndex());
-
         Coordinate finish = cubeToFlatCoordinate(current);
-        //too low : 107193
-        return ((finish.row()+1) * 1000) + ((finish.col()+1) * 4) + current.getDirection().ordinal();
+        return ((finish.row() + 1) * 1000) + ((finish.col() + 1) * 4) + current.getDirection().ordinal();
     }
 
     private TILE[][][] buildCube(final Grid grid) {
@@ -143,10 +134,10 @@ public class MonkeyMap {
     }
 
 
-    private Coordinate cubeToFlatCoordinate(final CubeMovementState cubeMovementState){
+    private Coordinate cubeToFlatCoordinate(final CubeMovementState cubeMovementState) {
         int rowAdd = 0;
         int colAdd = 0;
-        switch(cubeMovementState.getCubeFace()){
+        switch (cubeMovementState.getCubeFace()) {
             case 0 -> {
                 colAdd = 50;
             }
@@ -205,6 +196,4 @@ public class MonkeyMap {
             instructions.add(matcher.group());
         }
     }
-
-
 }

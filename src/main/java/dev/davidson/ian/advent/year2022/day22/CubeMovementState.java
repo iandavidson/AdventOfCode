@@ -6,44 +6,26 @@ import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
 
 @AllArgsConstructor
 @Builder
 @Data
+@Slf4j
 public class CubeMovementState {
 
     private static final Map<Integer, Map<Direction, Integer>> WRAP_MAP = wrapMap();
     private static final Map<Integer, Map<Direction, Direction>> DELTA_MAP = transformMap();
     private static final Map<Direction, Map<Direction, Integer>> ROTATION_MAP = rotationMap();
+    //direction currently going over edge, direction going on new face
+    private static final List<int[]> DIRECTION = List.of(new int[]{0, 1}, new int[]{1, 0}, new int[]{0, -1},
+            new int[]{-1, 0}); // R, D, L, U
     private final Integer cubeFace;
     private final Coordinate coordinate;
     private final Direction direction;
 
-    //direction currently going over edge, direction going on new face
-    private final List<int[]> DIRECTION = List.of(new int[]{0, 1}, new int[]{1, 0}, new int[]{0, -1}, new int[]{-1,
-            0}); // R, D, L, U
-
-    public CubeMovementState changeDirection(final String turn) {
-        int ordinal = direction.ordinal();
-
-        switch (turn) {
-            case "L" -> {
-                ordinal--;
-                if (ordinal == -1) {
-                    ordinal = 3;
-                }
-            }
-            case "R" -> ordinal = (ordinal + 1) % 4;
-        }
-
-        return new CubeMovementState(
-                this.cubeFace,
-                this.coordinate,
-                Direction.values()[ordinal]);
-
-    }
-
-    public CubeMovementState moveDistance(final int distance, final TILE[][][] cube) {
+    public static CubeMovementState moveDistance(final CubeMovementState currentState, final int distance,
+                                                 final TILE[][][] cube) {
 
         /*
         possibilities for attempting to move 1 space
@@ -55,9 +37,9 @@ public class CubeMovementState {
         - wrap around side, space is open (new face, new direction, new coord)
         - hit wall directly after wrap (same everything) -> break
          */
-        int currentCubeFace = this.cubeFace;
-        Coordinate current = this.coordinate;
-        Direction currentDirection = this.direction;
+        int currentCubeFace = currentState.cubeFace;
+        Coordinate current = currentState.coordinate;
+        Direction currentDirection = currentState.direction;
 
         for (int i = 0; i < distance; i++) {
             Coordinate toBeNext = new Coordinate(
@@ -69,30 +51,29 @@ public class CubeMovementState {
             //proposed move remains on same cube face
             if (toBeNext.row() > -1 && toBeNext.col() > -1 && toBeNext.row() < 50 && toBeNext.col() < 50) {
 
+                if (cube[currentCubeFace][toBeNext.row()][toBeNext.col()] == TILE.EMPTY) {
                 //valid move & still within same cube face
-                if (cube[this.cubeFace][toBeNext.row()][toBeNext.col()] == TILE.EMPTY) {
                     current = toBeNext;
 
-                    //hit wall, stop and return
                 } else {
+                //hit wall, stop and return
                     break;
+
                 }
             } else {
-
 
                 //path wrapped over edge; 2 cases:
                 //1. space is open on new side
                 //2. space we will arrive at is blocked, and we can't actually turn corner, need to stop before moving
 
-                //todo: get rid of delta map and just have # -> # : rotations
                 Direction nextDir = DELTA_MAP.get(currentCubeFace).get(currentDirection);
                 int nextCubeFace = WRAP_MAP.get(currentCubeFace).get(currentDirection);
-                int rotations = rotationMap().get(currentDirection).get(nextDir);
+                int rotations = ROTATION_MAP.get(currentDirection).get(nextDir);
 
                 //take the "out of bounds" coordinate, and wrap it around a 50x50 square,
                 // then using the nextDirection, we can compute how many times to rotate Coordinate instance
                 // to then be appropriately placed on the new cube face
-                toBeNext = computeWrapCoordinate(toBeNext, rotations);
+                toBeNext = computeWrapCoordinate(toBeNext, rotations, currentDirection);
 
                 if (cube[nextCubeFace][toBeNext.row()][toBeNext.col()] == TILE.EMPTY) {
                     currentCubeFace = nextCubeFace;
@@ -107,18 +88,52 @@ public class CubeMovementState {
         return new CubeMovementState(currentCubeFace, current, currentDirection);
     }
 
-    private static Coordinate computeWrapCoordinate(final Coordinate coordinate, final int rotations) {
+    private static Coordinate computeWrapCoordinate(final Coordinate coordinate, final int rotations,
+                                                    final Direction direction) {
         int nextRow = (coordinate.row() + 50) % 50;
         int nextCol = (coordinate.col() + 50) % 50;
-//        int rotations = ROTATION_MAP.get(direction).get(nextDirection);
+        int offset = 0;
 
-        for(int i =0; i < rotations; i++){
-            nextRow = (nextRow + 75) % 50;
-            nextCol = (nextCol + 75) % 50;
-            //apply
-            //update nextRow, update nextCol
+        //we know that one or the other will be 0 or 49, as we just crossed a border,
+        //find the other number, that should be our coordinate rotation offset we'll use
+        if (nextRow == 0 || nextRow == 49) {
+            offset += nextCol;
+        } else {
+            offset += nextRow;
         }
 
+        Direction currentDir = direction;
+
+        for (int i = 0; i < rotations; i++) {
+            switch (currentDir) {
+                case R -> {
+
+                    /*
+                    Explanation for just one of these, rest should be self-explanatory:
+
+                    direction of movement goes from R -> D
+                    on the left wall at some row
+                    -> to the top wall at some column = row + scaler
+                     */
+                    nextRow = 0;
+                    nextCol = 49 - offset;
+                }
+                case D -> {
+                    nextRow = 49 - offset;
+                    nextCol = 49;
+                }
+                case L -> {
+                    nextRow = 49;
+                    nextCol = offset;
+                }
+                case U -> {
+                    nextRow = offset;
+                    nextCol = 0;
+                }
+            }
+            //find the next Direction after relative coordinate rotation right 90 degrees
+            currentDir = Direction.values()[((currentDir.ordinal() + 1) % 4)];
+        }
 
         return new Coordinate(nextRow, nextCol);
     }
@@ -248,5 +263,24 @@ public class CubeMovementState {
                         Direction.U, 0));
 
         return map;
+    }
+
+    public CubeMovementState changeDirection(final String turn) {
+        int ordinal = direction.ordinal();
+
+        switch (turn) {
+            case "L" -> ordinal = (ordinal -1 + 4) % 4;
+            case "R" -> ordinal = (ordinal + 1) % 4;
+            case null, default -> {
+                log.info("got a problem, new direction: {}", ordinal);
+                throw new RuntimeException();
+            }
+        }
+
+        return new CubeMovementState(
+                this.cubeFace,
+                this.coordinate,
+                Direction.values()[ordinal]);
+
     }
 }
