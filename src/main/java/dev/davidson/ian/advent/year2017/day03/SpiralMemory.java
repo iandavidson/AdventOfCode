@@ -31,6 +31,17 @@ public class SpiralMemory {
         spiralMemory.execute(input);
     }
 
+    private static Integer readFile(final String filePath) {
+        ClassLoader cl = SpiralMemory.class.getClassLoader();
+        File file = new File(Objects.requireNonNull(cl.getResource(filePath)).getFile());
+        try {
+            Scanner scanner = new Scanner(file);
+            return Integer.parseInt(scanner.nextLine());
+        } catch (FileNotFoundException e) {
+            throw new IllegalStateException("Couldn't read file at provided path");
+        }
+    }
+
     public void execute(final Integer input) {
         int endRow = 0;
         int endCol = 0;
@@ -88,17 +99,6 @@ public class SpiralMemory {
         }
 
         return sum;
-    }
-
-    private static Integer readFile(final String filePath) {
-        ClassLoader cl = SpiralMemory.class.getClassLoader();
-        File file = new File(Objects.requireNonNull(cl.getResource(filePath)).getFile());
-        try {
-            Scanner scanner = new Scanner(file);
-            return Integer.parseInt(scanner.nextLine());
-        } catch (FileNotFoundException e) {
-            throw new IllegalStateException("Couldn't read file at provided path");
-        }
     }
 
 }
