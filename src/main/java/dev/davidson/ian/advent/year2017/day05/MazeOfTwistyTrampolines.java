@@ -17,8 +17,8 @@ public class MazeOfTwistyTrampolines {
     public static void main(String[] args) {
         MazeOfTwistyTrampolines maze = new MazeOfTwistyTrampolines();
         List<Integer> inputs = readFile(INPUT_PATH);
-        log.info("Part1: {}", maze.part1(new ArrayList<>(inputs)));
-        log.info("Part2: {}", maze.part2(new ArrayList<>(inputs)));
+        log.info("Part1: {}", maze.execute(new ArrayList<>(inputs), true));
+        log.info("Part2: {}", maze.execute(new ArrayList<>(inputs), false));
     }
 
     private static List<Integer> readFile(final String filePath) {
@@ -38,31 +38,18 @@ public class MazeOfTwistyTrampolines {
         return inputs;
     }
 
-    private Long part1(final List<Integer> inputs) {
+    private Long execute(final List<Integer> inputs, final boolean part1) {
         int index = 0;
         int n = inputs.size();
         Long stepsTaken = 0L;
         while (index < n && index > -1) {
             int offset = inputs.get(index);
-            inputs.set(index, offset + 1);
-            index += offset;
-            stepsTaken++;
-        }
-
-        return stepsTaken;
-    }
-
-    private Long part2(final List<Integer> inputs){
-        int index = 0;
-        int n = inputs.size();
-        Long stepsTaken = 0L;
-        while (index < n && index > -1) {
-            int offset = inputs.get(index);
-            if(offset >= 3){
+            if (!part1 && offset >= 3) {
                 inputs.set(index, offset - 1);
-            }else{
+            } else {
                 inputs.set(index, offset + 1);
             }
+
             index += offset;
             stepsTaken++;
         }
