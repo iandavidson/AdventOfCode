@@ -2,7 +2,6 @@ package dev.davidson.ian.advent.year2017.day07;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,9 +18,10 @@ public class RecursiveCircus {
     public static void main(String[] args) {
         RecursiveCircus recursiveCircus = new RecursiveCircus();
         Map<String, Disk> disks = readFile(INPUT_PATH);
-        String rootLabel = recursiveCircus.part1(disks);
+        Map<String, String> reverseMap = new HashMap<>();
+        String rootLabel = recursiveCircus.part1(disks, reverseMap);
         log.info("Part1: {}", rootLabel);
-        log.info("Part2: {}", recursiveCircus.part2(disks, rootLabel));
+        log.info("Part2: {}", recursiveCircus.part2(disks, reverseMap, rootLabel));
     }
 
     private static Map<String, Disk> readFile(final String filePath) {
@@ -42,54 +42,51 @@ public class RecursiveCircus {
         return disks;
     }
 
-    public String part1(final Map<String, Disk> disks) {
-        Map<String, List<String>> reverseMap = new HashMap<>();
+    public String part1(final Map<String, Disk> disks, final Map<String, String> reverseMap) {
         for (Disk disk : disks.values()) {
 
             if (!reverseMap.containsKey(disk.label())) {
-                reverseMap.put(disk.label(), new ArrayList<>());
+                reverseMap.put(disk.label(), "");
             }
 
             for (String heldDisk : disk.heldDisks()) {
-                if (!reverseMap.containsKey(heldDisk)) {
-                    reverseMap.put(heldDisk, new ArrayList<>());
-                }
-
-                reverseMap.get(heldDisk).add(disk.label());
+                reverseMap.put(heldDisk, disk.label());
             }
         }
 
         List<String> start =
-                reverseMap.keySet().stream().filter(key -> reverseMap.get(key).isEmpty()).toList();
+                reverseMap.keySet().stream().filter(key -> reverseMap.get(key).equals("")).toList();
 
         assert start.size() == 1;
         return start.getFirst();
     }
 
-    public String part2(final Map<String, Disk> disks, final String rootLabel){
+    public Long part2(final Map<String, Disk> disks, final Map<String, String> reverseMap,
+                        final String rootLabel) {
         //compute rollup scores
         Map<String, Long> rollUpMap = new HashMap<>();
         DFS(disks, rollUpMap, rootLabel);
 
+        //recursively find uneven child
+        String uneven = findLeafUnevenLeaf(disks, rollUpMap, rootLabel);
+//        log.info("uneven: {}", uneven);
 
-        List<String> firstLayer = disks.get(rootLabel).heldDisks();
-        log.info("{}; weight:{} rollup:{}", rootLabel, disks.get(rootLabel).weight(), rollUpMap.get(rootLabel));
-        for(String child: firstLayer){
-            log.info("{}: weight:{} rollup:{}", child, disks.get(child).weight(), rollUpMap.get(child));
-        }
+        long unevenRollup = rollUpMap.get(uneven);
+        String unevenParent = reverseMap.get(uneven);
 
-        //recursively find child
+        //find all siblings of uneven disk, narrow down to roll up weight that is not the uneven one
+        List<Long> otherValues =
+                disks.get(unevenParent).heldDisks().stream().mapToLong(rollUpMap::get).distinct().filter(weight -> weight != unevenRollup).boxed().toList();
+        assert otherValues.size() == 1;
 
-
-
-        return "";
-
+        //find difference in uneven roll up to siblings, find adjustment on uneven
+        return disks.get(uneven).weight() + (otherValues.getFirst() - unevenRollup);
     }
 
-    private Long DFS(final Map<String, Disk> disks, final Map<String, Long> rollUpMap, final String currentLabel){
+    private Long DFS(final Map<String, Disk> disks, final Map<String, Long> rollUpMap, final String currentLabel) {
         long runningSum = disks.get(currentLabel).weight();
 
-        for(String child : disks.get(currentLabel).heldDisks()){
+        for (String child : disks.get(currentLabel).heldDisks()) {
             runningSum += DFS(disks, rollUpMap, child);
         }
 
@@ -98,30 +95,43 @@ public class RecursiveCircus {
     }
 
     private String findLeafUnevenLeaf(final Map<String, Disk> disks, final Map<String, Long> rollUpMap,
-                                      final String currentLabel){
-        if(disks.get(currentLabel).heldDisks().isEmpty()){
+                                      final String currentLabel) {
+        if (disks.get(currentLabel).heldDisks().isEmpty()) {
             return currentLabel;
         }
 
         List<String> children = disks.get(currentLabel).heldDisks();
 
+
+//        log.info("{} weight: {}", currentLabel, disks.get(currentLabel).weight());
+
         int count = 1;
         long weight = rollUpMap.get(children.getFirst());
-        for(int i = 1; i < children.size(); i++){
+//        log.info("{} roll up weight: {}", children.getFirst(), weight);
+
+        for (int i = 1; i < children.size(); i++) {
             long tempWeight = rollUpMap.get(children.get(i));
 
-            if(tempWeight != weight){
-                if(count == 0){
+//            log.info("{} roll up weight: {}", children.get(i), tempWeight);
+
+            if (tempWeight != weight) {
+                if (count == 0) {
                     count = 1;
                     weight = tempWeight;
-                }else{
+                } else {
                     count--;
                 }
-            }else{
+            } else {
                 count++;
             }
         }
 
+        for (String child : children) {
+            if (rollUpMap.get(child) != weight) {
+                return findLeafUnevenLeaf(disks, rollUpMap, child);
+            }
+        }
 
+        return currentLabel;
     }
 }
