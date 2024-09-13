@@ -55,7 +55,7 @@ public class RecursiveCircus {
         }
 
         List<String> start =
-                reverseMap.keySet().stream().filter(key -> reverseMap.get(key).equals("")).toList();
+                reverseMap.keySet().stream().filter(key -> reverseMap.get(key).isEmpty()).toList();;
 
         assert start.size() == 1;
         return start.getFirst();
