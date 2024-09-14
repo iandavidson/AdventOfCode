@@ -3,9 +3,9 @@ package dev.davidson.ian.advent.year2017.day09;
 
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.util.LinkedList;
+import java.util.ArrayDeque;
+import java.util.Deque;
 import java.util.Objects;
-import java.util.Queue;
 import java.util.Scanner;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,24 +18,8 @@ public class StreamProcessing {
     public static void main(String[] args) {
         StreamProcessing streamProcessing = new StreamProcessing();
         String input = readFile(INPUT_PATH);
-
-//        log.info("{} should == 1", streamProcessing.part1("{}"));
-//        log.info("{} should == 6", streamProcessing.part1("{{{}}}"));
-//        log.info("{} should == 5", streamProcessing.part1("{{},{}}"));
-        log.info("{} should == 16", streamProcessing.part1("{{{},{},{{}}}}"));
-        // {{{},{},{{}}}} -> 1 at depth 1
-        // {{},{},{{}}} -> 1 at depth 2
-        // {} | {} | {{}} -> 3 at depth 3
-        // {} -> 1 at depth 4
-
-
-        // **
-//        log.info("{} should == 1", streamProcessing.part1("{<a>,<a>,<a>,<a>}"));
-//        log.info("{} should == 9", streamProcessing.part1("{{<ab>},{<ab>},{<ab>},{<ab>}}"));
-//        log.info("{} should == 9", streamProcessing.part1("{{<!!>},{<!!>},{<!!>},{<!!>}}"));
-//        log.info("{} should == 3", streamProcessing.part1("{{<a!>},{<a!>},{<a!>},{<ab>}}"));
-
-//        log.info("Part1: {}", streamProcessing.part1(input));
+        log.info("Part1: {}", streamProcessing.execute(input, true));
+        log.info("Part2: {}", streamProcessing.execute(input, false));
 
     }
 
@@ -50,25 +34,37 @@ public class StreamProcessing {
         }
     }
 
-    public Long part1(final String input) {
-        Group group = Group.newGroup(input, 1);
+    public Integer execute(final String input, final boolean part1) {
+        Deque<Integer> stack = new ArrayDeque<>();
+        int index = 0;
+        boolean garbage = false;
+        int score = 0;
+        int garbageCount = 0;
+        int currentDepth = 0;
 
-        Queue<Group> queue = new LinkedList<>();
-        queue.add(group);
-
-        long totalScore = 0L;
-        while (!queue.isEmpty()) {
-            int n = queue.size();
-            for (int i = 0; i < n; i++) {
-                Group current = queue.remove();
-                totalScore += current.getDepth();
-                queue.addAll(current.getInside());
+        while (index < input.length()) {
+            char ch = input.charAt(index);
+            if (ch == '!') {
+                index++;
+            } else if (garbage) {
+                if (ch == '>') {
+                    garbage = false;
+                } else {
+                    garbageCount++;
+                }
+            } else if (ch == '<') {
+                garbage = true;
+            } else if (ch == '{') {
+                currentDepth++;
+                stack.push(currentDepth);
+            } else if (ch == '}') {
+                currentDepth--;
+                score += stack.pop();
             }
 
+            index++;
         }
 
-        //too high: 18144
-
-        return totalScore;
+        return part1 ? score : garbageCount;
     }
 }
