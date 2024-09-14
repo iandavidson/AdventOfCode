@@ -54,13 +54,18 @@ public class Group {
                     right++;
                 }
                 case '}' -> {
+                    if(garbage){
+                        right++;
+                        continue;
+                    }
+
                     String inner = rawGroup.substring(left, right + 1);
-                    log.info("found inner: {}", inner);
+//                    log.info("found inner: {}", inner);
                     inside.add(Group.newGroup(inner, depth + 1));
                     right++;
                 }
                 default -> {
-                    log.info("found some stuff I don't need: {}", ch);
+//                    log.info("found some stuff I don't need: {}", ch);
                     right++;
                 }
             }

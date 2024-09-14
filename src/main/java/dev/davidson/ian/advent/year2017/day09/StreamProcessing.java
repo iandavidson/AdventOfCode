@@ -17,8 +17,26 @@ public class StreamProcessing {
 
     public static void main(String[] args) {
         StreamProcessing streamProcessing = new StreamProcessing();
-        String input = readFile(SAMPLE_PATH);
-        log.info("Part1: {}", streamProcessing.part1(input));
+        String input = readFile(INPUT_PATH);
+
+//        log.info("{} should == 1", streamProcessing.part1("{}"));
+//        log.info("{} should == 6", streamProcessing.part1("{{{}}}"));
+//        log.info("{} should == 5", streamProcessing.part1("{{},{}}"));
+        log.info("{} should == 16", streamProcessing.part1("{{{},{},{{}}}}"));
+        // {{{},{},{{}}}} -> 1 at depth 1
+        // {{},{},{{}}} -> 1 at depth 2
+        // {} | {} | {{}} -> 3 at depth 3
+        // {} -> 1 at depth 4
+
+
+        // **
+//        log.info("{} should == 1", streamProcessing.part1("{<a>,<a>,<a>,<a>}"));
+//        log.info("{} should == 9", streamProcessing.part1("{{<ab>},{<ab>},{<ab>},{<ab>}}"));
+//        log.info("{} should == 9", streamProcessing.part1("{{<!!>},{<!!>},{<!!>},{<!!>}}"));
+//        log.info("{} should == 3", streamProcessing.part1("{{<a!>},{<a!>},{<a!>},{<ab>}}"));
+
+//        log.info("Part1: {}", streamProcessing.part1(input));
+
     }
 
     private static String readFile(final String filePath) {
@@ -49,7 +67,8 @@ public class StreamProcessing {
 
         }
 
-        return totalScore;
+        //too high: 18144
 
+        return totalScore;
     }
 }
