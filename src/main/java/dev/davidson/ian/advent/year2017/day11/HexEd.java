@@ -24,10 +24,10 @@ public class HexEd {
                         sw +--+ se
                           / s  \
 
-                     SE, SW is the same as S
-                     NE, NW is the same as N
-                     which means N and S should shift vertically 2 coordinate spaces
-                     while diagonal movements should only shift vert and horz by 1
+             SE, SW is the same as S
+             NE, NW is the same as N
+             which means N and S should shift vertically 2 coordinate spaces
+             while diagonal movements should only shift vert and horz by 1
                              */
 
     private static final Map<String, int[]> SHIFTS = Map.of(
