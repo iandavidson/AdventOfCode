@@ -19,6 +19,7 @@ public class PacketScanners {
         PacketScanners packetScanners = new PacketScanners();
         Map<Integer, Integer> layers = readFile(INPUT_PATH);
         log.info("Part1: {}", packetScanners.part1(layers));
+        log.info("Part2: {}", packetScanners.part2(layers));
     }
 
     private static Map<Integer, Integer> readFile(final String filePath) {
@@ -39,7 +40,7 @@ public class PacketScanners {
         return layers;
     }
 
-    private Long part1(Map<Integer, Integer> layers) {
+    private Long part1(final Map<Integer, Integer> layers) {
         Long result = 0L;
         int end =
                 layers.keySet().stream().max(Comparator.naturalOrder()).orElseThrow(() -> new IllegalStateException(
@@ -48,19 +49,40 @@ public class PacketScanners {
         for (int i = 0; i < end + 1; i++) {
             if (layers.containsKey(i)) {
                 int cycleLength = 2 * (layers.get(i) - 1);
-                if (i % cycleLength == 0){
+                if (i % cycleLength == 0) {
                     result += (long) i * layers.get(i);
                 }
             }
         }
 
-
-//        int foo = 6;
-//        for(int i = 0; i < 13; i++){
-//            log.info("raw: {}", 2 * (foo-1));
-//            log.info("i:{} mod:{}", i,  i % (2 * (foo-1)));
-//            System.out.println();
-//        }
         return result;
+    }
+
+    private Integer part2(final Map<Integer, Integer> layers) {
+
+        int startTime = 0;
+        int endIndex =
+                layers.keySet().stream().max(Comparator.naturalOrder()).orElseThrow(() -> new IllegalStateException(
+                        "Couldn't find key value, issue reading input"));
+        long result;
+        while (true) {
+            result = 0L;
+
+            for (int i = 0; i < endIndex + 1; i++) {
+                if (layers.containsKey(i)) {
+                    int cycleLength = 2 * (layers.get(i) - 1);
+                    if ((startTime + i) % cycleLength == 0) {
+                        result += (long) i * layers.get(i);
+                    }
+                }
+            }
+
+            if (result == 0L) {
+                break;
+            }
+            startTime++;
+        }
+
+        return startTime;
     }
 }
