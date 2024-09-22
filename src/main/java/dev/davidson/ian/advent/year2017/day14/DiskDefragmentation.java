@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.math.BigInteger;
 import java.util.HexFormat;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
 import lombok.extern.slf4j.Slf4j;
@@ -26,29 +25,31 @@ public class DiskDefragmentation {
     private static String readFile(final String filePath) {
         ClassLoader cl = DiskDefragmentation.class.getClassLoader();
         File file = new File(Objects.requireNonNull(cl.getResource(filePath)).getFile());
-        try{
+        try {
             Scanner scanner = new Scanner(file);
             return scanner.nextLine();
-        }catch(FileNotFoundException e){
+        } catch (FileNotFoundException e) {
             throw new IllegalStateException("Couldn't read file at provided path");
         }
     }
 
-    private Integer part1(final String key){
+    private Integer part1(final String key) {
         int count = 0;
-        for(int i = 0 ; i < 128; i ++){
-            String rowKey = key + "-" + i;
+        for (int i = 0; i < 128; i++) {
+            String updatedKey = key + "-" + i;
+            KnotHash knotHash = new KnotHash(updatedKey);
+            String rowKey = knotHash.apply();
+
             log.info("row: {}", rowKey);
             String hexString = HexFormat.of().formatHex(rowKey.getBytes());
             //TODO: looks like the hex string I generate isn't 32 chars, this throws off answer for sample input
             log.info("row as hex: {}", hexString);
             String binary = new BigInteger(hexString, 16).toString(2);
-            log.info("row as binary: {}", binary);
-            for(char ch : binary.toCharArray()){
-                if(ch == '1'){
-                    count++;
-                }
-            }
+            Integer bitCount = new BigInteger(hexString, 16).bitCount();
+            log.info("Binary: {}", binary);
+            log.info("Bit count: {}", bitCount);
+            count+= bitCount;
+
         }
 
         return count;
