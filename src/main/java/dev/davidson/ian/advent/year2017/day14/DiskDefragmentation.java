@@ -18,15 +18,17 @@ public class DiskDefragmentation {
 
     private static final String INPUT_PATH = "adventOfCode/2017/day14/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2017/day14/sample.txt";
+    private static final List<int []> SHIFTS = List.of(new int[]{0, 1}, new int[]{0, -1}, new int[]{1, 0},
+            new int[]{-1, 0});
     private static final Character EMPTY = '0';
     private static final Character FILLED = '1';
+    private static final Integer WIDTH = 128;
 
     public static void main(String[] args) {
         DiskDefragmentation diskDefragmentation = new DiskDefragmentation();
         String input = readFile(SAMPLE_PATH);
         log.info("Part1: {}", diskDefragmentation.part1(input));
         log.info("Part2: {}", diskDefragmentation.part2(input));
-
     }
 
     private static String readFile(final String filePath) {
@@ -42,7 +44,7 @@ public class DiskDefragmentation {
 
     private Integer part1(final String key) {
         int count = 0;
-        for (int i = 0; i < 128; i++) {
+        for (int i = 0; i < WIDTH; i++) {
             String updatedKey = key + "-" + i;
             KnotHash knotHash = new KnotHash(updatedKey);
             String rowKey = knotHash.apply();
@@ -51,21 +53,25 @@ public class DiskDefragmentation {
 
         return count;
     }
-
     private Integer part2(final String key) {
         List<List<Character>> grid = new ArrayList<>();
         Set<Coordinate> filledLocations = new HashSet<>();
-        for (int i = 0; i < 128; i++) {
+        for (int i = 0; i < WIDTH; i++) {
             String updatedKey = key + "-" + i;
             KnotHash knotHash = new KnotHash(updatedKey);
             String rowKey = knotHash.apply();
-            String binaryString = new BigInteger(rowKey, 16).toString(2);
+            StringBuilder binaryStringBuilder = new StringBuilder( new BigInteger(rowKey, 16).toString(2));
+            while (binaryStringBuilder.length() < WIDTH){
+                binaryStringBuilder.insert(0, "0");
+            }
+            String binaryString = binaryStringBuilder.toString();
+
             List<Character> tempList = new ArrayList<>();
-            for (int j = 0; j < 128; j++) {
+            for (int j = 0; j < WIDTH; j++) {
                 if(j < binaryString.length()){
                     char ch = binaryString.charAt(j);
                     tempList.add(ch);
-                    if (ch == '1') {
+                    if (ch == FILLED) {
                         filledLocations.add(new Coordinate(i, j));
                     }
                 }else{
@@ -102,8 +108,8 @@ public class DiskDefragmentation {
                     Coordinate potentialNeighbor =
                             new Coordinate(current.r() + shift[0], current.c() + shift[1]);
 
-                    if (potentialNeighbor.c() >= 0 && potentialNeighbor.c() <= 127
-                            && potentialNeighbor.r() >= 0 && potentialNeighbor.r() <= 127
+                    if (potentialNeighbor.c() >= 0 && potentialNeighbor.c() < WIDTH
+                            && potentialNeighbor.r() >= 0 && potentialNeighbor.r() < WIDTH
                             && grid.get(potentialNeighbor.r()).get(potentialNeighbor.c()) == FILLED
                             && !visited.contains(potentialNeighbor)
                     ) {
@@ -114,5 +120,4 @@ public class DiskDefragmentation {
             }
         }
     }
-
 }
