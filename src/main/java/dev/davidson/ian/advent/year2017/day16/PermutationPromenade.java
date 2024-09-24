@@ -76,6 +76,19 @@ public class PermutationPromenade {
         return danceList;
     }
 
+    public String part1(final List<Dancer> danceSteps) {
+        List<Character> programs = new ArrayList<>();
+        for (int i = 0; i < PROGRAMS; i++) {
+            programs.add((char) ('a' + i));
+        }
+
+        for (Dancer danceStep : danceSteps) {
+            programs = danceStep.applyMove(programs);
+        }
+
+        return printSequence(programs);
+    }
+
     public String part2(final List<Dancer> danceSteps) {
 
         List<Character> programs = new ArrayList<>();
@@ -116,19 +129,6 @@ public class PermutationPromenade {
         return printSequence(programs);
     }
 
-    public String part1(final List<Dancer> danceSteps) {
-        List<Character> programs = new ArrayList<>();
-        for (int i = 0; i < PROGRAMS; i++) {
-            programs.add((char) ('a' + i));
-        }
-
-        for (Dancer danceStep : danceSteps) {
-            programs = danceStep.applyMove(programs);
-        }
-
-        return printSequence(programs);
-    }
-
     private String printSequence(final List<Character> sequence) {
         StringBuilder sb = new StringBuilder();
         for (Character ch : sequence) {
@@ -137,5 +137,4 @@ public class PermutationPromenade {
 
         return sb.toString();
     }
-
 }
