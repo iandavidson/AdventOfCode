@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -16,12 +15,12 @@ public class Duet {
 
     private static final String INPUT_PATH = "adventOfCode/2017/day18/input.txt";
     private static final String SAMPLE_PATH = "adventOfCode/2017/day18/sample.txt";
-    private static final String MINI_PATH = "adventOfCode/2017/day18/mini.txt";
+    private static final String PART2_SAMPLE_PATH = "adventOfCode/2017/day18/part2sample.txt";
 
     public static void main(String[] args) {
         Duet duet = new Duet();
-        List<Instruction> miniInstructions = readFile(MINI_PATH);
-        log.info("Using mini input");
+        List<Instruction> miniInstructions = readFile(PART2_SAMPLE_PATH);
+        log.info("Using part2 sample input");
         log.info("Part1: {}", duet.part1(miniInstructions));
         log.info("Part2: {}", duet.part2(miniInstructions));
 
@@ -54,12 +53,10 @@ public class Duet {
     }
 
     public Long part1(final List<Instruction> instructions) {
-
         Map<Character, Long> registerMap = new HashMap<>();
         Long mostRecentlyPlayedSong = 0L;
         int index = 0;
         while (index < instructions.size()) {
-//            log.info("index:  {}", index);
             Instruction instruction = instructions.get(index);
             switch (instruction.instructionType()) {
                 case snd -> {
@@ -115,157 +112,88 @@ public class Duet {
     }
 
 
-    public Long part2(final List<Instruction> instructions) {
-        ProgramState programState0 = new ProgramState(
-                new HashMap<>(),
-                0,
-                new LinkedList<>());
-        programState0.getRegisterMap().put('p', 0L);
+    public Integer part2(final List<Instruction> instructions) {
+        ProgramState state0 = new ProgramState(0L);
+        ProgramState state1 = new ProgramState(1L);
 
-        ProgramState programState1 = new ProgramState(
-                new HashMap<>(),
-                0,
-                new LinkedList<>()
-        );
-        programState1.getRegisterMap().put('p', 1L);
+        while (state0.getIndex() < instructions.size() &&
+                state1.getIndex() < instructions.size()) {
 
-        Map<Integer, ProgramState> programStates = Map.of(
-                0, programState0,
-                1, programState1);
+            Instruction instruction0 = instructions.get(state0.getIndex());
+            Instruction instruction1 = instructions.get(state1.getIndex());
 
-        long program1SentCount = 0L;
-        while (programState0.getIndex() < instructions.size() &&
-                programState1.getIndex() < instructions.size()) {
-
-            Instruction program0Instruction = instructions.get(programState0.getIndex());
-            Instruction program1Instruction = instructions.get(programState1.getIndex());
-
-            if (program0Instruction.instructionType() == InstructionType.rcv &&
-                    programState0.getQueue().isEmpty() &&
-                    program1Instruction.instructionType() == InstructionType.rcv &&
-                    programState1.getQueue().isEmpty()) {
-                return program1SentCount;
+            //check for exit condition
+            if (instruction0.instructionType() == InstructionType.rcv &&
+                    state0.getQueue().isEmpty() &&
+                    instruction1.instructionType() == InstructionType.rcv &&
+                    state1.getQueue().isEmpty()) {
+                return state1.getSendCount();
             }
 
-            switch (program0Instruction.instructionType()) {
-                case snd -> {
-                    programState1.addToQueue(toValue(programState0.getRegisterMap(),
-                            program0Instruction.operands().getFirst()));
-                    programState0.bumpIndex();
-                }
-                case set -> {
-                    Character label = program0Instruction.operands().getFirst().charOp();
-                    programState0.getRegisterMap().putIfAbsent(label, 0L);
-                    programState0.getRegisterMap().put(label, toValue(
-                            programState0.getRegisterMap(), program0Instruction.operands().get(1)
-                    ));
-                    programState0.bumpIndex();
-                }
-                case add -> {
-                    Character label = program0Instruction.operands().getFirst().charOp();
-                    programState0.getRegisterMap().putIfAbsent(label, 0L);
-                    programState0.getRegisterMap().put(label,
-                            programState0.getRegisterMap().get(label) +
-                                    toValue(programState0.getRegisterMap(), program0Instruction.operands().get(1)));
-                    programState0.bumpIndex();
-                }
-                case mul -> {
-                    Character label = program0Instruction.operands().getFirst().charOp();
-                    programState0.getRegisterMap().putIfAbsent(label, 0L);
-                    programState0.getRegisterMap().put(label,
-                            programState0.getRegisterMap().get(label) *
-                                    toValue(programState0.getRegisterMap(), program0Instruction.operands().get(1)));
-                    programState0.bumpIndex();
-                }
-                case mod -> {
-                    Character label = program0Instruction.operands().getFirst().charOp();
-                    programState0.getRegisterMap().putIfAbsent(label, 0L);
-                    programState0.getRegisterMap().put(label,
-                            programState0.getRegisterMap().get(label) %
-                                    toValue(programState0.getRegisterMap(), program0Instruction.operands().get(1)));
-                    programState0.bumpIndex();
-                }
-                case rcv -> {
-                    if (!programState0.getQueue().isEmpty()) {
-                        Character label = program0Instruction.operands().getFirst().charOp();
-                        programState0.getRegisterMap().put(label, programState0.getQueue().remove());
-                        programState0.bumpIndex();
-                    }
-                }
-                case jgz -> {
-                    if (toValue(programState0.getRegisterMap(), program0Instruction.operands().getFirst()) > 0) {
-                        programState0.setIndex((int) (programState0.getIndex() +
-                                toValue(programState0.getRegisterMap(), program0Instruction.operands().get(1))));
-                    } else {
-                        programState0.bumpIndex();
-                    }
-                }
-            }
-
-            switch (program1Instruction.instructionType()) {
-                case snd -> {
-                    programState0.addToQueue(
-                            toValue(programState1.getRegisterMap(), program1Instruction.operands().getFirst()));
-                    programState1.bumpIndex();
-                    program1SentCount++;
-                }
-                case set -> {
-                    Character label = program1Instruction.operands().getFirst().charOp();
-                    programState1.getRegisterMap().putIfAbsent(label, 0L);
-                    programState1.getRegisterMap().put(label, toValue(
-                            programState1.getRegisterMap(), program1Instruction.operands().get(1)
-                    ));
-                    programState1.bumpIndex();
-                }
-                case add -> {
-                    Character label = program1Instruction.operands().getFirst().charOp();
-                    programState1.getRegisterMap().putIfAbsent(label, 0L);
-                    programState1.getRegisterMap().put(label,
-                            programState1.getRegisterMap().get(label) +
-                                    toValue(programState1.getRegisterMap(), program1Instruction.operands().get(1)));
-                    programState1.bumpIndex();
-                }
-                case mul -> {
-                    Character label = program1Instruction.operands().getFirst().charOp();
-                    programState1.getRegisterMap().putIfAbsent(label, 0L);
-                    programState1.getRegisterMap().put(label,
-                            programState1.getRegisterMap().get(label) *
-                                    toValue(programState1.getRegisterMap(), program1Instruction.operands().get(1)));
-                    programState1.bumpIndex();
-                }
-                case mod -> {
-                    Character label = program1Instruction.operands().getFirst().charOp();
-                    programState1.getRegisterMap().putIfAbsent(label, 0L);
-                    programState1.getRegisterMap().put(label,
-                            programState1.getRegisterMap().get(label) %
-                                    toValue(programState1.getRegisterMap(), program1Instruction.operands().get(1)));
-                    programState1.bumpIndex();
-                }
-                case rcv -> {
-                    if (!programState1.getQueue().isEmpty()) {
-                        Character label = program1Instruction.operands().getFirst().charOp();
-                        programState1.getRegisterMap().put(label, programState1.getQueue().remove());
-                        programState1.bumpIndex();
-                    }
-
-                }
-                case jgz -> {
-                    if (toValue(programState1.getRegisterMap(), program1Instruction.operands().getFirst()) > 0) {
-                        /*
-                         programState0.setIndex((int) (programState0.getIndex() +
-                                toValue(programState0.getRegisterMap(), program0Instruction.operands().get(1))));
-                         */
-                        programState1.setIndex((int) (programState1.getIndex() +
-                                toValue(programState1.getRegisterMap(), program1Instruction.operands().get(1))));
-                    } else {
-                        programState1.bumpIndex();
-                    }
-                }
-            }
-
+            executeInstruction(state0, state1, instruction0);
+            executeInstruction(state1, state0, instruction1);
         }
 
-        throw new IllegalStateException("Shouldn't have exited instruction");
+        throw new IllegalStateException("Shouldn't have exited instruction list");
+    }
+
+    private void executeInstruction(final ProgramState current, final ProgramState other,
+                                    final Instruction instruction) {
+        switch (instruction.instructionType()) {
+            case snd -> {
+                other.addToQueue(toValue(current.getMap(),
+                        instruction.operands().getFirst()));
+                current.bumpIndex();
+                current.bumpSendCount();
+            }
+            case set -> {
+                Character label = instruction.operands().getFirst().charOp();
+                current.getMap().putIfAbsent(label, 0L);
+                current.getMap().put(label, toValue(
+                        current.getMap(), instruction.operands().get(1)
+                ));
+                current.bumpIndex();
+            }
+            case add -> {
+                Character label = instruction.operands().getFirst().charOp();
+                current.getMap().putIfAbsent(label, 0L);
+                current.getMap().put(label,
+                        current.getMap().get(label) +
+                                toValue(current.getMap(), instruction.operands().get(1)));
+                current.bumpIndex();
+            }
+            case mul -> {
+                Character label = instruction.operands().getFirst().charOp();
+                current.getMap().putIfAbsent(label, 0L);
+                current.getMap().put(label,
+                        current.getMap().get(label) *
+                                toValue(current.getMap(), instruction.operands().get(1)));
+                current.bumpIndex();
+            }
+            case mod -> {
+                Character label = instruction.operands().getFirst().charOp();
+                current.getMap().putIfAbsent(label, 0L);
+                current.getMap().put(label,
+                        current.getMap().get(label) %
+                                toValue(current.getMap(), instruction.operands().get(1)));
+                current.bumpIndex();
+            }
+            case rcv -> {
+                if (!current.getQueue().isEmpty()) {
+                    Character label = instruction.operands().getFirst().charOp();
+                    current.getMap().put(label, current.getQueue().remove());
+                    current.bumpIndex();
+                }
+            }
+            case jgz -> {
+                if (toValue(current.getMap(), instruction.operands().getFirst()) > 0) {
+                    current.setIndex((int) (current.getIndex() +
+                            toValue(current.getMap(), instruction.operands().get(1))));
+                } else {
+                    current.bumpIndex();
+                }
+            }
+        }
     }
 
     private Long toValue(final Map<Character, Long> map, final Operand operand) {

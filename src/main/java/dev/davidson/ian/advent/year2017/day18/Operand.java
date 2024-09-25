@@ -19,7 +19,7 @@ public record Operand(Character charOp, Long numOp) {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder(" ");
+        StringBuilder sb = new StringBuilder();
         if (isLabel()) {
             return sb.append(charOp).toString();
         } else {
