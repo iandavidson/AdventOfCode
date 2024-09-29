@@ -16,7 +16,7 @@ public record Rule(Pattern pattern, List<String> replacement) {
 
 
     //4 orientations of pattern can be matched against
-    public boolean isMatch(List<String> compare){
+    public boolean isMatch(List<String> compare) {
         return pattern.isMatch(compare);
     }
 
