@@ -47,13 +47,52 @@ public record Pattern(List<String> pattern, List<List<String>> patternRotations)
         rotations.add(turned180.stream().map(str -> new StringBuilder(str).reverse().toString()).toList());
 
         //270 degrees
+        /*
 
 
+        123
+        456
+        789
 
-        return new Pattern(rows, rotations);
+        369
+        258
+        147
+         */
+        List<String> turned270 = new ArrayList<>();
+        for(int c = input.getFirst().length()-1; c > -1; c--){
+            StringBuilder row = new StringBuilder();
+            for(int r = 0; r < input.size(); r++){
+                row.append(input.get(r).charAt(c));
+            }
+
+            turned270.add(row.toString());
+        }
+
+        return new Pattern(input, rotations);
     }
 
-    public boolean isMatch(final String compare){
+    public boolean isMatch(final List<String> compare){
+        //protection so we can blindly check any matrix against another
+        if(compare.size() != pattern.size()){
+            return false;
+        }
 
+        return isMatchHelper(compare, patternRotations.get(0)) ||
+                isMatchHelper(compare,patternRotations.get(1)) ||
+                isMatchHelper(compare,patternRotations.get(2)) ||
+                isMatchHelper(compare,patternRotations.get(3));
+    }
+
+    private boolean isMatchHelper(final List<String> compare, final List<String> rotation){
+
+        for(int i =0 ; i < compare.size(); i++){
+            for(int j= 0;j < compare.get(i).length(); j++){
+                if(compare.get(i).charAt(j) != rotation.get(i).charAt(j)){
+                    return false;
+                }
+            }
+        }
+
+        return true;
     }
 }
