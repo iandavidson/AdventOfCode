@@ -109,7 +109,7 @@ public class CoprocessorConflagration {
 
     private boolean isPrime(final long number) {
 
-        for (int i = 2; i <= (long) Math.floor(Math.sqrt(number)); i++) {
+        for (int i = 2; i <= (long) Math.sqrt(number); i++) {
             if (number % i == 0) {
                 return false;
             }
