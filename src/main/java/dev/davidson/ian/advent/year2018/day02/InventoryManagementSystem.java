@@ -71,7 +71,7 @@ public class InventoryManagementSystem {
 
 
         if (box1.isEmpty()) {
-            throw new IllegalStateException("FUCK!!!!!! 🖕🏻");
+            throw new IllegalStateException("Should have found");
         }
 
 
