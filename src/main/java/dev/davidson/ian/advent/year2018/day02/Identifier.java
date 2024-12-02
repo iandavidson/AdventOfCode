@@ -20,6 +20,34 @@ public class Identifier {
         return new Identifier(rawId, charCount);
     }
 
+    public static boolean has1Diff(final Identifier a, final Identifier b) {
+        int diffs = 0;
+
+        if (a.rawId.length() != b.rawId.length()) {
+            return false;
+        }
+
+        for (int i = 0; i < a.rawId.length(); i++) {
+            if (a.rawId.charAt(i) != b.rawId.charAt(i)) {
+                diffs++;
+            }
+        }
+
+        return diffs == 1;
+    }
+
+    public static String findOverlap(final Identifier a, final Identifier b) {
+        StringBuilder sb = new StringBuilder();
+
+        for (int i = 0; i < a.rawId.length(); i++) {
+            if (a.rawId.charAt(i) == b.rawId.charAt(i)) {
+                sb.append(a.rawId.charAt(i));
+            }
+        }
+
+        return sb.toString();
+    }
+
     public boolean twoOfAKind() {
         for (int count : charCount) {
             if (count == 2) {
@@ -38,18 +66,5 @@ public class Identifier {
         }
 
         return false;
-    }
-
-
-    public static boolean has1Diff(final Identifier a, final Identifier b){
-        int diffs = 0;
-        for(int i = 0; i < 26; i++){
-            if(a.charCount[i] != b.charCount[i]){
-                diffs++;
-            }
-
-        }
-
-        return diffs == 1;
     }
 }

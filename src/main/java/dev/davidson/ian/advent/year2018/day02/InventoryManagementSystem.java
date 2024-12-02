@@ -56,32 +56,14 @@ public class InventoryManagementSystem {
     }
 
     public String part2(final List<Identifier> identifiers) {
-        int n = identifiers.size();
-        String box1 = "";
-        String box2 = "";
-
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j < n; j++) {
+        for (int i = 0; i < identifiers.size(); i++) {
+            for (int j = i + 1; j < identifiers.size(); j++) {
                 if (Identifier.has1Diff(identifiers.get(i), identifiers.get(j))) {
-                    box1 = identifiers.get(i).getRawId();
-                    box2 = identifiers.get(j).getRawId();
+                    return Identifier.findOverlap(identifiers.get(i), identifiers.get(j));
                 }
             }
         }
 
-
-        if (box1.isEmpty()) {
-            throw new IllegalStateException("Should have found");
-        }
-
-
-        StringBuilder overlap = new StringBuilder();
-        for (int i = 0; i < box1.length(); i++) {
-            if (box1.charAt(i) == box2.charAt(i)) {
-                overlap.append(box1.charAt(i));
-            }
-        }
-
-        return overlap.toString();
+        throw new IllegalStateException("Didn't find answer");
     }
 }
