@@ -17,8 +17,8 @@ public class Claim {
 
         String[] parts = line.split("\\s+");
 
-        int id = Integer.parseInt(parts[0].substring(1);
-        Coordinate coordinate = Coordinate.newCoordinate(parts[2]);
+        int id = Integer.parseInt(parts[0].substring(1));
+        Coordinate coordinate = Coordinate.newCoordinate(parts[2].substring(0, parts[2].length() - 1));
         String[] dimensions = parts[3].split("x");
 
         return new Claim(
