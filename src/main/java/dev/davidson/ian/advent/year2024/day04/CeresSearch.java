@@ -17,7 +17,6 @@ public class CeresSearch {
     private static final List<Character> MAS = List.of('M', 'A', 'S');
 
     private static final List<List<Relative>> X_MAS = List.of(
-//    private static final List<Map<Character, int[]>> X_MAS = List.of(
 //            M.M
 //            .A.
 //            S.S
