@@ -100,7 +100,7 @@ public class BridgeRepair {
                     nextRound.add(runningResult * values.get(i));
 
                     //concat
-                    nextRound.add(Long.parseLong(runningResult.toString() + values.get(i).toString()));
+                    nextRound.add(Long.parseLong(runningResult + values.get(i).toString()));
                 }
 
                 runningResults = nextRound;
