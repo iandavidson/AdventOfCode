@@ -20,12 +20,12 @@ public class Duet {
     public static void main(String[] args) {
         Duet duet = new Duet();
         List<Instruction> miniInstructions = readFile(PART2_SAMPLE_PATH);
-        log.info("Using part2 sample input");
+        log.info("Using part2 sample.txt input");
         log.info("Part1: {}", duet.part1(miniInstructions));
         log.info("Part2: {}", duet.part2(miniInstructions));
 
         List<Instruction> sampleInstructions = readFile(SAMPLE_PATH);
-        log.info("Using sample input");
+        log.info("Using sample.txt input");
         log.info("Part1: {}", duet.part1(sampleInstructions));
         log.info("Part2: {}", duet.part2(sampleInstructions));
 

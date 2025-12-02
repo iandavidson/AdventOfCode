@@ -29,10 +29,10 @@ public class GuardGallivant {
         Grid realInput = readFile(REAL_PATH);
 
         GuardGallivant guardGallivant = new GuardGallivant();
-        log.info("Part1 sample: {}", guardGallivant.part1(sampleInput));
+        log.info("Part1 sample.txt: {}", guardGallivant.part1(sampleInput));
         log.info("Part1 real: {}", guardGallivant.part1(realInput));
 
-        log.info("Part2 sample: {}", guardGallivant.part2(sampleInput));
+        log.info("Part2 sample.txt: {}", guardGallivant.part2(sampleInput));
         log.info("Part2 real: {}", guardGallivant.part2(realInput));
     }
 

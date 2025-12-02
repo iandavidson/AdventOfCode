@@ -14,10 +14,10 @@ public class SupplyStacks {
     private static final String SAMPLE_INPUT_PATH = "adventOfCode/2022/day05/sample.txt";
     private static final String INPUT_PATH = "adventOfCode/2022/day05/input.txt";
     private static final Integer INPUT_WIDTH = 9; //real
-//    private static final Integer INPUT_WIDTH = 3; // sample
+//    private static final Integer INPUT_WIDTH = 3; // sample.txt
 
     private static final Integer INPUT_DEPTH = 8; // real
-//    private static final Integer INPUT_DEPTH = 3; // sample
+//    private static final Integer INPUT_DEPTH = 3; // sample.txt
 
     public static void main(String[] args) {
         SupplyStacks supplyStacks = new SupplyStacks();

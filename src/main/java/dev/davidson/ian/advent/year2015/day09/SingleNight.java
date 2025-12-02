@@ -17,7 +17,7 @@ import java.util.Set;
 public class SingleNight {
 
     private static final String INPUT_PATH = "adventOfCode/2015/day09/input.txt";
-    private static final String SAMPLE_PATH = "adventOfCode/2015/day09/sample.txt";
+    private static final String SAMPLE_PATH = "adventOfCode/2015/day09/sample.txt.txt";
 
     public static void main(String[] args) {
         SingleNight singleNight = new SingleNight();

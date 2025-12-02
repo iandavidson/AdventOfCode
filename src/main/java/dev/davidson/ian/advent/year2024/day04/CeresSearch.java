@@ -63,10 +63,10 @@ public class CeresSearch {
         List<String> real = readFile(REAL_PATH);
 
         CeresSearch ceresSearch = new CeresSearch();
-        log.info("Part1 sample: {}", ceresSearch.part1(sample));
+        log.info("Part1 sample.txt: {}", ceresSearch.part1(sample));
         log.info("Part1 real: {}", ceresSearch.part1(real));
 
-        log.info("Part2 sample: {}", ceresSearch.part2(sample));
+        log.info("Part2 sample.txt: {}", ceresSearch.part2(sample));
         log.info("Part2 real: {}", ceresSearch.part2(real));
     }
 

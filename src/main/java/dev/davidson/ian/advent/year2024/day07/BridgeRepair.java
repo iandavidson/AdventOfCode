@@ -23,10 +23,10 @@ public class BridgeRepair {
         Map<Long, List<Long>> realMap = readFile(REAL_INPUT);
 
         BridgeRepair bridgeRepair = new BridgeRepair();
-        log.info("Part1 sample input: {}", bridgeRepair.part1(sampleMap));
+        log.info("Part1 sample.txt input: {}", bridgeRepair.part1(sampleMap));
         log.info("Part1 real input: {}", bridgeRepair.part1(realMap));
 
-        log.info("Part2 sample input: {}", bridgeRepair.part2(sampleMap));
+        log.info("Part2 sample.txt input: {}", bridgeRepair.part2(sampleMap));
         log.info("Part2 real input: {}", bridgeRepair.part2(realMap));
     }
 

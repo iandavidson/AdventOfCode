@@ -25,11 +25,11 @@ public class ResonantCollinearity {
 
         ResonantCollinearity resonantCollinearity = new ResonantCollinearity();
         log.info("Part1:");
-        log.info("sample input: {}", resonantCollinearity.part1(sampleGrid));
+        log.info("sample.txt input: {}", resonantCollinearity.part1(sampleGrid));
         log.info("real input: {}", resonantCollinearity.part1(realGrid));
         log.info("Part2:");
-        log.info("sample input: {}", resonantCollinearity.part2(sampleGrid));
-        log.info("second sample input: {}", resonantCollinearity.part2(part2SampleGrid));
+        log.info("sample.txt input: {}", resonantCollinearity.part2(sampleGrid));
+        log.info("second sample.txt input: {}", resonantCollinearity.part2(part2SampleGrid));
         log.info("real input: {}", resonantCollinearity.part2(realGrid));
     }
 

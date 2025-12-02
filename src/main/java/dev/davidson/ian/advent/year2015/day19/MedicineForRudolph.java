@@ -16,7 +16,7 @@ import java.util.Set;
 public class MedicineForRudolph {
 
     private static final String INPUT_PATH = "adventOfCode/2015/day19/input.txt";
-//    private static final String SAMPLE_PATH = "adventOfCode/2015/day19/sample.txt";
+//    private static final String SAMPLE_PATH = "adventOfCode/2015/day19/sample.txt.txt";
 
     public static void main(String[] args) {
         MedicineForRudolph medicineForRudolph = new MedicineForRudolph();
